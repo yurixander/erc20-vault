@@ -5,14 +5,14 @@ import DepositButton from "../containers/DepositButton";
 
 const Home: FC = () => {
   return (
-    <main>
-      <div className="flex flex-col items-center justify-center">
+    <main className="size-full flex flex-col items-center justify-center pt-6">
+      <div className="flex flex-col items-center justify-center ">
         <h1 className="text-2xl">ERC-20 Vault</h1>
 
         <p>Connect your wallet to get started.</p>
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2 ">
         <ConnectButton />
 
         <DepositButton />

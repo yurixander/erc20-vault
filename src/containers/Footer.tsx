@@ -1,9 +1,12 @@
 import { FC } from "react";
 import ExternalLink from "../components/ExternalLink";
+import { twMerge } from "tailwind-merge";
 
-const Footer: FC = () => {
+const Footer: FC<{ className?: string }> = ({ className }) => {
   return (
-    <footer className="flex items-center justify-center p-4 mt-20">
+    <footer
+      className={twMerge("flex items-center justify-center p-4", className)}
+    >
       <p>
         &copy;{" "}
         <ExternalLink href="https://zeri.tech" hideIcon>
