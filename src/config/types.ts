@@ -1,6 +1,11 @@
 import BN from "bn.js";
 import { Address } from "viem";
 
+export type Erc20Token = {
+  name: string;
+  iconSrc: string;
+}
+
 export type Deposit = {
   index: number;
   amount: BN;

@@ -27,22 +27,22 @@ export default function RootLayout({
     <html lang="en">
       <body className={twMerge("min-h-screen", INTER.className)}>
         <Providers>
-          <div className="h-screen w-full flex flex-col sm:flex-row ">
-            <aside className="w-72 size-full grow flex-col bg-blue-600 dark:bg-blue-700 hidden sm:flex">
+          <div className="h-screen w-full flex flex-col sm:flex-row">
+            <aside className="w-72 size-full grow flex-col bg-blue-600 dark:bg-blue-700 hidden md:flex">
               <AppSidebar className="grow" />
 
               <Footer className="text-white border-t border-t-blue-300/80" />
             </aside>
 
-            <section className="flex flex-col size-full">
+            <section className="flex flex-col grow w-full">
               <header className="w-full h-16 sm:h-20 md:h-24 sm:border-b sm:border-b-gray-200 dark:sm:border-b-gray-200/50">
                 <AppMenu />
               </header>
 
-              <div className="flex flex-col grow px-4">
-                {children}
+              <div className="flex flex-col grow overflow-hidden basis-0">
+                <div className="grow overflow-y-auto px-4 pt-2">{children}</div>
 
-                <Footer className="text-foreground sm:hidden" />
+                <Footer className="text-foreground md:hidden" />
               </div>
             </section>
           </div>
