@@ -6,7 +6,7 @@ import * as React from "react";
 import type { ToastActionElement, ToastProps } from "@/components/Toast";
 
 const TOAST_LIMIT = 1;
-const TOAST_REMOVE_DELAY = 1000000;
+const TOAST_REMOVE_DELAY = 10_000;
 
 type ToasterToast = ToastProps & {
   id: string;
@@ -25,7 +25,7 @@ interface ToastState {
   removeToast: (toastId: string) => void;
 }
 
-const useToastStore = create<ToastState>((set, get) => ({
+export const useToastStore = create<ToastState>((set, get) => ({
   toasts: [],
   addToast: (toast) => {
     const id = genId();
@@ -38,6 +38,7 @@ const useToastStore = create<ToastState>((set, get) => ({
         if (!open) get().dismissToast(id);
       },
     };
+
     set((state) => ({
       toasts: [newToast, ...state.toasts].slice(0, TOAST_LIMIT),
     }));

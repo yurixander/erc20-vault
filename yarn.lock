@@ -3974,10 +3974,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^3.6.0":
-  version: 3.6.0
-  resolution: "date-fns@npm:3.6.0"
-  checksum: 10c0/0b5fb981590ef2f8e5a3ba6cd6d77faece0ea7f7158948f2eaae7bbb7c80a8f63ae30b01236c2923cf89bb3719c33aeb150c715ea4fe4e86e37dcf06bed42fb6
+"date-fns@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "date-fns@npm:4.1.0"
+  checksum: 10c0/b79ff32830e6b7faa009590af6ae0fb8c3fd9ffad46d930548fbb5acf473773b4712ae887e156ba91a7b3dc30591ce0f517d69fd83bd9c38650fdc03b4e0bac8
   languageName: node
   linkType: hard
 
@@ -4382,14 +4382,14 @@ __metadata:
     bn.js: "npm:^5.2.1"
     class-variance-authority: "npm:^0.7.0"
     clsx: "npm:^2.1.1"
-    date-fns: "npm:^3.6.0"
+    date-fns: "npm:^4.1.0"
     eslint: "npm:^8"
     eslint-config-next: "npm:14.2.6"
     next: "npm:14.2.6"
     pino-pretty: "npm:^11.2.2"
     postcss: "npm:^8"
     react: "npm:^18"
-    react-day-picker: "npm:^9.0.8"
+    react-day-picker: "npm:8.10.1"
     react-dom: "npm:^18"
     react-icons: "npm:^5.3.0"
     tailwind-merge: "npm:^2.5.2"
@@ -8415,14 +8415,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-day-picker@npm:^9.0.8":
-  version: 9.0.8
-  resolution: "react-day-picker@npm:9.0.8"
-  dependencies:
-    date-fns: "npm:^3.6.0"
+"react-day-picker@npm:8.10.1":
+  version: 8.10.1
+  resolution: "react-day-picker@npm:8.10.1"
   peerDependencies:
-    react: ">=16.8.0"
-  checksum: 10c0/b6f83ab496678ad1aeea52fa94ec413310de8c5512a88d6b4b3bad00260090550d3437b389576ed021033cc99898708d35a30583278b7ea12617ea47cfeebf84
+    date-fns: ^2.28.0 || ^3.0.0
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0
+  checksum: 10c0/a0ff28c4b61b3882e6a825b19e5679e2fdf3256cf1be8eb0a0c028949815c1ae5a6561474c2c19d231c010c8e0e0b654d3a322610881e0655abca05a2e03d9df
   languageName: node
   linkType: hard
 

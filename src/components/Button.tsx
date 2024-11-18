@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import { FiLoader } from "react-icons/fi";
 import { ReactNode } from "react";
 
-export const VARIANTS = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 min-w-[100px]",
+export const buttonVariants = cva(
+  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -38,7 +38,7 @@ export const VARIANTS = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof VARIANTS> {
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
   loadingText?: string;
@@ -67,14 +67,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Tag
         className={cn(
           "space-x-2",
-          VARIANTS({ variant, size, className }),
+          buttonVariants({ variant, size, className }),
           isLoading && "animate-pulse"
         )}
         ref={ref}
         disabled={isLoading || props.disabled}
         {...props}
       >
-        {isLoading && <FiLoader className="animate-spin h-4 w-4" />}
+        {isLoading && <FiLoader className="animate-spin size-4" />}
 
         {isLoading ? loadingText : children}
 

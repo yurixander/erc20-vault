@@ -32,25 +32,19 @@ const DatePicker: FC<DatePickerProps> = ({
     <Popover>
       <PopoverTrigger asChild>
         <Button
-          variant={"outline"}
+          variant="outline"
           className={cn(
-            "w-[280px] justify-start text-left font-normal",
+            "w-64 justify-start gap-x-2 text-left font-normal",
             !internalDate && "text-muted-foreground"
           )}
         >
-          <FiCalendar className="mr-2 h-4 w-4" />
+          <FiCalendar className="size-4" />
           {internalDate ? format(internalDate, "PPP") : <span>{label}</span>}
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="w-auto p-0">
-        <Calendar
-          mode="single"
-          selected={internalDate}
-          onSelect={handleDateChange}
-          // TODO: It's complaining about this not existing, however this is how it is in the docs: https://ui.shadcn.com/docs/components/date-picker.
-          // initialFocus
-        />
+      <PopoverContent className="p-0 w-auto shadow-none">
+        <Calendar selected={internalDate} onSelect={handleDateChange} />
       </PopoverContent>
     </Popover>
   );

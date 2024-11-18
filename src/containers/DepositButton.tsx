@@ -21,6 +21,7 @@ import LegendWrapper from "../components/LegendWrapper";
 import VAULT_ABI from "../abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
+import useToast from "@/hooks/useToast";
 
 const DepositButton: FC = () => {
   const { isConnected } = useAccount();
@@ -28,6 +29,7 @@ const DepositButton: FC = () => {
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
   const { writeContract, isPending } = useWriteContract();
+  const { toast } = useToast();
 
   const isReadyToSubmitTx =
     tokenId !== null && amount !== null && unlockTimestamp !== null;
@@ -42,17 +44,34 @@ const DepositButton: FC = () => {
     // TODO: Choose address based on active network.
     const address = tokenDefinition.sepoliaAddress;
 
-    writeContract({
-      abi: VAULT_ABI,
-      address: VAULT_CONTRACT_ADDRESS,
-      functionName: "deposit",
-      args: [
-        address,
-        BigInt(amount.toString()),
-        BigInt(unlockTimestamp.toString()),
-      ],
-    });
-  }, [amount, isReadyToSubmitTx, tokenId, unlockTimestamp, writeContract]);
+    writeContract(
+      {
+        abi: VAULT_ABI,
+        address: VAULT_CONTRACT_ADDRESS,
+        functionName: "deposit",
+        args: [
+          address,
+          BigInt(amount.toString()),
+          BigInt(unlockTimestamp.toString()),
+        ],
+      },
+      {
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+          });
+        },
+      }
+    );
+  }, [
+    amount,
+    isReadyToSubmitTx,
+    toast,
+    tokenId,
+    unlockTimestamp,
+    writeContract,
+  ]);
 
   // TODO: Implement deposit logic.
 

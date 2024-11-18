@@ -6,8 +6,27 @@ import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { useToastStore } from "@/hooks/useToast";
 
 const ToastProvider = ToastPrimitives.Provider;
+
+export const ToastProvider2: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { toasts } = useToastStore();
+
+  return (
+    <>
+      <div className="fixed right-2 bottom-2 z-[500] bg-red-500">
+        {toasts.map((toast) => (
+          <div key={toast.id}>{toast.title}</div>
+        ))}
+      </div>
+
+      {children}
+    </>
+  );
+};
 
 const ToastViewport = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,

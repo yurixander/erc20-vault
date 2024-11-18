@@ -36,7 +36,7 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokenId, setTokenId }) => {
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>
 
-      <SelectContent>
+      <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
         <SelectGroup>
           <SelectLabel>ERC-20 Tokens</SelectLabel>
 

@@ -36,7 +36,7 @@ const Input: FC<InputProps> = ({
         <input
           type={type}
           placeholder={placeholder}
-          className="w-full"
+          className="w-full focus-visible:outline-none"
           value={value}
           onChange={(e) => setValue?.(e.target.value)}
         />

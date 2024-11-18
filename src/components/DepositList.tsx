@@ -52,6 +52,7 @@ const DepositList: FC<DepositListProps> = ({
           disabled={sortedDeposits === null || onRefresh === null}
           onClick={handleRefresh}
           variant="outline"
+          className="min-w-[100px]"
         >
           <FiRefreshCw />
         </Button>
