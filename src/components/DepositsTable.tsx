@@ -61,17 +61,28 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
       columnHelper.display({
         id: "unlockStatus",
         header: "Unlock Status",
-        cell: () => (
-          <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
-            <CircularProgress progress={65} size={18} strokeWidth={3} />
-            <span>65%</span>
-          </div>
-        ),
+        cell: () => {
+          const PROGRESS = 65;
+
+          return (
+            <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
+              <CircularProgress progress={PROGRESS} size={18} strokeWidth={3} />
+
+              <span>{PROGRESS}%</span>
+            </div>
+          );
+        },
       }),
       columnHelper.display({
         id: "timeRemaining",
         header: "Time Remaining",
-        cell: () => "10 hours",
+        cell: () => {
+          const timeRemaining = generateRemaining();
+
+          return timeRemaining === 0
+            ? "Ready to unlock"
+            : `${timeRemaining} hours`;
+        },
       }),
       columnHelper.accessor("index", {
         header: "",
@@ -105,6 +116,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
           </TableRow>
         ))}
       </TableHeader>
+
       <TableBody>
         {table.getRowModel().rows.map((row) => (
           <TableRow key={row.id}>
@@ -119,5 +131,9 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
     </Table>
   );
 };
+
+function generateRemaining(): number {
+  return 10;
+}
 
 export default DepositsTable;
