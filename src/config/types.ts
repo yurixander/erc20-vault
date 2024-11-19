@@ -22,16 +22,16 @@ export enum Erc20TokenId {
 }
 
 export enum AssetPath {
-  USDC = "usdc.svg",
-  USDT = "usdt.svg",
-  DAI = "dai.svg",
-  LINK = "link.svg",
-  PEPE = "pepe.webp",
-  SHIB = "shib.svg",
-  BNB = "bnb.svg",
-  UNI = "uni.svg",
-  ARB = "arb.svg",
-  WBTC = "wbtc.svg"
+  USDC = "icons/usdc.svg",
+  USDT = "icons/usdt.svg",
+  DAI = "icons/dai.svg",
+  LINK = "icons/link.svg",
+  PEPE = "icons/pepe.webp",
+  SHIB = "icons/shib.svg",
+  BNB = "icons/bnb.svg",
+  UNI = "icons/uni.svg",
+  ARB = "icons/arb.svg",
+  WBTC = "icons/wbtc.svg"
 }
 
 export type Erc20TokenDefinition = {

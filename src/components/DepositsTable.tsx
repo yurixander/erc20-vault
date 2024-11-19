@@ -11,7 +11,8 @@ import { Progress } from "@/components/ui/progress";
 import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 import UnlockDeposit from "./UnlockDeposit";
-import { Deposit } from "@/config/types";
+import { AssetPath, Deposit } from "@/config/types";
+import { convertBNToAmount } from "@/utils/amount";
 
 type DepositsTableProps = {
   deposits: Deposit[];
@@ -23,8 +24,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
     <Table className={twMerge("border", className)}>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[50px]">Token</TableHead>
-          <TableHead>Name</TableHead>
+          <TableHead>Token</TableHead>
           <TableHead>Amount</TableHead>
           <TableHead>Unlock Status</TableHead>
           <TableHead>Time Remaining</TableHead>
@@ -32,35 +32,31 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
       </TableHeader>
 
       <TableBody>
-        {deposits.map(({ index, amount, startTimestamp, unlockTimestamp }) => (
-          <TableRow key={index}>
+        {deposits.map((deposit) => (
+          <TableRow key={deposit.index}>
             <TableCell>
-              <Image
-                src={deposit.token.iconSrc}
-                alt={`${deposit.token.name} icon`}
-                width={24}
-                height={24}
-              />
-            </TableCell>
-
-            <TableCell className="font-medium">{deposit.token.name}</TableCell>
-
-            <TableCell>{amount}</TableCell>
-
-            <TableCell>
-              <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
-                <Progress
-                  value={deposit.unlockPercentage}
-                  className="lg:w-[60%]"
+              <div className="flex  items-center gap-2 font-medium max-h-max">
+                <Image
+                  src={AssetPath.LINK}
+                  alt="Temporary icon"
+                  width={16}
+                  height={16}
                 />
-
-                <span className="text-sm text-muted-foreground">
-                  {deposit.unlockPercentage}%
-                </span>
+                <span className=" leading-tight">Chainlink</span>
               </div>
             </TableCell>
 
-            <TableCell>{deposit.timeRemaining}</TableCell>
+            <TableCell>{convertBNToAmount(deposit.amount, 18)}</TableCell>
+
+            <TableCell>
+              <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
+                <Progress value={90} className="lg:w-[60%]" />
+
+                <span className="text-sm text-muted-foreground">90%</span>
+              </div>
+            </TableCell>
+
+            <TableCell>10 hours</TableCell>
 
             <TableCell className="text-right">
               <UnlockDeposit deposit={deposit} />
