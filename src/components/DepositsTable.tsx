@@ -10,14 +10,18 @@ import {
 import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 import UnlockDeposit from "./UnlockDeposit";
-import { AssetPath, Deposit } from "@/config/types";
+import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
 import CircularProgress from "./CircularProgress";
+import { LINK_ERC20_TOKEN } from "@/config/constants";
 
 type DepositsTableProps = {
   deposits: Deposit[];
   className?: string;
 };
+
+// TODO: Change this in the future to the token that each deposit has saved in its type.
+export const TEMP_TABLE_TOKEN = LINK_ERC20_TOKEN;
 
 const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
   return (
@@ -37,16 +41,18 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
             <TableCell>
               <div className="flex  items-center gap-2 font-medium max-h-max">
                 <Image
-                  src={AssetPath.LINK}
+                  src={TEMP_TABLE_TOKEN.iconAssetPath}
                   alt="Temporary icon"
                   width={16}
                   height={16}
                 />
-                <span className=" leading-tight">Chainlink</span>
+                <span className=" leading-tight">{TEMP_TABLE_TOKEN.name}</span>
               </div>
             </TableCell>
 
-            <TableCell>{convertBNToAmount(deposit.amount, 18)}</TableCell>
+            <TableCell>
+              {convertBNToAmount(deposit.amount, TEMP_TABLE_TOKEN.decimals)}
+            </TableCell>
 
             <TableCell>
               <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
