@@ -9,17 +9,9 @@ import {
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { twMerge } from "tailwind-merge";
-import { Erc20Token } from "@/config/types";
 import Image from "next/image";
 import UnlockDeposit from "./UnlockDeposit";
-
-export type Deposit = {
-  id: string;
-  token: Erc20Token;
-  amount: string;
-  unlockPercentage: number;
-  timeRemaining: string;
-};
+import { Deposit } from "@/config/types";
 
 type DepositsTableProps = {
   deposits: Deposit[];
@@ -40,8 +32,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
       </TableHeader>
 
       <TableBody>
-        {deposits.map((deposit) => (
-          <TableRow key={deposit.id}>
+        {deposits.map(({ index, amount, startTimestamp, unlockTimestamp }) => (
+          <TableRow key={index}>
             <TableCell>
               <Image
                 src={deposit.token.iconSrc}
@@ -53,7 +45,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
 
             <TableCell className="font-medium">{deposit.token.name}</TableCell>
 
-            <TableCell>{deposit.amount}</TableCell>
+            <TableCell>{amount}</TableCell>
 
             <TableCell>
               <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">

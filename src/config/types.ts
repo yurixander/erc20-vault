@@ -1,11 +1,6 @@
 import BN from "bn.js";
 import { Address } from "viem";
 
-export type Erc20Token = {
-  name: string;
-  iconSrc: string;
-}
-
 export type Deposit = {
   index: number;
   amount: BN;
@@ -16,10 +11,20 @@ export type Deposit = {
 export enum Erc20TokenId {
   USDC = "USDC",
   USDT = "USDT",
+  DAI = "DAI",
+  LINK = "LINK",
+  PEPE = "PEPE",
+  SHIB = "SHIB",
 }
 
-// TODO: Add some icons.
-export enum AssetPath {}
+export enum AssetPath {
+  USDC = "usdc.svg",
+  USDT = "usdt.svg",
+  DAI = "dai.svg",
+  LINK = "link.svg",
+  PEPE = "pepe.webp",
+  SHIB = "shib.svg",
+}
 
 export type Erc20TokenDefinition = {
   id: Erc20TokenId;
