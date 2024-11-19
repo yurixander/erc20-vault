@@ -2,14 +2,14 @@
 
 import { FC, useState } from "react";
 import Button from "./Button";
-import { Deposit } from "./DepositsTable";
 import { delay } from "@/lib/utils";
 
 type UnlockDepositProps = {
-  deposit: Deposit;
+  depositIndex: number;
+  disabled: boolean;
 };
 
-const UnlockDeposit: FC<UnlockDepositProps> = ({ deposit }) => {
+const UnlockDeposit: FC<UnlockDepositProps> = ({ depositIndex, disabled }) => {
   const [isUnlocking, setIsUnlocking] = useState(false);
 
   const unlockDeposit = async () => {
@@ -19,7 +19,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({ deposit }) => {
 
     setIsUnlocking(true);
 
-    // TODO: Handle deposit functionality.
+    // TODO: Handle unlock deposit functionality.
     await delay(5000);
 
     setIsUnlocking(false);
@@ -28,7 +28,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({ deposit }) => {
   return (
     <Button
       size="sm"
-      disabled={deposit.unlockPercentage !== 100}
+      disabled={disabled}
       isLoading={isUnlocking}
       onClick={unlockDeposit}
     >

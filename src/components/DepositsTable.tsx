@@ -6,13 +6,13 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Progress } from "@/components/ui/progress";
+} from "@/components/Table";
 import { twMerge } from "tailwind-merge";
 import Image from "next/image";
 import UnlockDeposit from "./UnlockDeposit";
 import { AssetPath, Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
+import CircularProgress from "./CircularProgress";
 
 type DepositsTableProps = {
   deposits: Deposit[];
@@ -50,16 +50,16 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
 
             <TableCell>
               <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
-                <Progress value={90} className="lg:w-[60%]" />
+                <CircularProgress progress={65} size={18} strokeWidth={3} />
 
-                <span className="text-sm text-muted-foreground">90%</span>
+                <span>65%</span>
               </div>
             </TableCell>
 
             <TableCell>10 hours</TableCell>
 
             <TableCell className="text-right">
-              <UnlockDeposit deposit={deposit} />
+              <UnlockDeposit depositIndex={deposit.index} disabled={true} />
             </TableCell>
           </TableRow>
         ))}
