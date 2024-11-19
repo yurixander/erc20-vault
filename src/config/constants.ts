@@ -65,3 +65,12 @@ export const SHIB_ERC20_TOKEN: Erc20TokenDefinition =  {
   decimals: 18,
   iconAssetPath: AssetPath.SHIB
 }
+
+export const BNB_ERC20_TOKEN: Erc20TokenDefinition =  {
+  id: Erc20TokenId.BNB,
+  name: "BNB",
+  mainnetAddress: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
+  sepoliaAddress: "0xeb8a559c7f317c24f08405b40e6b1f3c83cdc76c",
+  decimals: 18,
+  iconAssetPath: AssetPath.BNB
+}
