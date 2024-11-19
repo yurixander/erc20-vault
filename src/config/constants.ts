@@ -92,3 +92,12 @@ export const ARB_ERC20_TOKEN: Erc20TokenDefinition =  {
   decimals: 18,
   iconAssetPath: AssetPath.ARB
 }
+
+export const WBTC_ERC20_TOKEN: Erc20TokenDefinition =  {
+  id: Erc20TokenId.WBTC,
+  name: "Wrapped BTC",
+  mainnetAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+  sepoliaAddress: "0xeb8a559c7f317c24f08405b40e6b1f3c83cdc76c",
+  decimals: 8,
+  iconAssetPath: AssetPath.WBTC
+}
