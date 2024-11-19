@@ -83,3 +83,12 @@ export const UNI_ERC20_TOKEN: Erc20TokenDefinition =  {
   decimals: 18,
   iconAssetPath: AssetPath.UNI
 }
+
+export const ARB_ERC20_TOKEN: Erc20TokenDefinition =  {
+  id: Erc20TokenId.ARB,
+  name: "Arbitrum",
+  mainnetAddress: "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1",
+  sepoliaAddress: "0xeb8a559c7f317c24f08405b40e6b1f3c83cdc76c",
+  decimals: 18,
+  iconAssetPath: AssetPath.ARB
+}
