@@ -1,4 +1,6 @@
-import { FC } from "react";
+"use client";
+
+import { FC, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -14,59 +16,103 @@ import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
 import CircularProgress from "./CircularProgress";
 import { LINK_ERC20_TOKEN } from "@/config/constants";
+import {
+  useReactTable,
+  getCoreRowModel,
+  flexRender,
+  createColumnHelper,
+} from "@tanstack/react-table";
 
 type DepositsTableProps = {
   deposits: Deposit[];
   className?: string;
 };
 
+const TOKEN_ICON_SIZE = 16;
+
 // TODO: Change this in the future to the token that each deposit has saved in its type.
 export const TEMP_TABLE_TOKEN = LINK_ERC20_TOKEN;
 
+const columnHelper = createColumnHelper<Deposit>();
+
 const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
+  const columns = useMemo(
+    () => [
+      columnHelper.display({
+        id: "token",
+        header: "Token",
+        cell: () => (
+          <div className="flex items-center gap-2 font-medium max-h-max">
+            <Image
+              src={TEMP_TABLE_TOKEN.iconAssetPath}
+              alt="Temporary icon"
+              width={TOKEN_ICON_SIZE}
+              height={TOKEN_ICON_SIZE}
+            />
+            <span className="leading-tight">{TEMP_TABLE_TOKEN.name}</span>
+          </div>
+        ),
+      }),
+      columnHelper.accessor("amount", {
+        header: "Amount",
+        cell: (info) =>
+          convertBNToAmount(info.getValue(), TEMP_TABLE_TOKEN.decimals),
+      }),
+      columnHelper.display({
+        id: "unlockStatus",
+        header: "Unlock Status",
+        cell: () => (
+          <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
+            <CircularProgress progress={65} size={18} strokeWidth={3} />
+            <span>65%</span>
+          </div>
+        ),
+      }),
+      columnHelper.display({
+        id: "timeRemaining",
+        header: "Time Remaining",
+        cell: () => "10 hours",
+      }),
+      columnHelper.accessor("index", {
+        header: "",
+        cell: (info) => (
+          <UnlockDeposit depositIndex={info.getValue()} disabled={true} />
+        ),
+      }),
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data: deposits,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   return (
     <Table className={twMerge("border", className)}>
       <TableHeader>
-        <TableRow>
-          <TableHead>Token</TableHead>
-          <TableHead>Amount</TableHead>
-          <TableHead>Unlock Status</TableHead>
-          <TableHead>Time Remaining</TableHead>
-        </TableRow>
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header) => (
+              <TableHead key={header.id}>
+                {flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
       </TableHeader>
-
       <TableBody>
-        {deposits.map((deposit) => (
-          <TableRow key={deposit.index}>
-            <TableCell>
-              <div className="flex  items-center gap-2 font-medium max-h-max">
-                <Image
-                  src={TEMP_TABLE_TOKEN.iconAssetPath}
-                  alt="Temporary icon"
-                  width={16}
-                  height={16}
-                />
-                <span className=" leading-tight">{TEMP_TABLE_TOKEN.name}</span>
-              </div>
-            </TableCell>
-
-            <TableCell>
-              {convertBNToAmount(deposit.amount, TEMP_TABLE_TOKEN.decimals)}
-            </TableCell>
-
-            <TableCell>
-              <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
-                <CircularProgress progress={65} size={18} strokeWidth={3} />
-
-                <span>65%</span>
-              </div>
-            </TableCell>
-
-            <TableCell>10 hours</TableCell>
-
-            <TableCell className="text-right">
-              <UnlockDeposit depositIndex={deposit.index} disabled={true} />
-            </TableCell>
+        {table.getRowModel().rows.map((row) => (
+          <TableRow key={row.id}>
+            {row.getVisibleCells().map((cell) => (
+              <TableCell key={cell.id}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </TableCell>
+            ))}
           </TableRow>
         ))}
       </TableBody>
