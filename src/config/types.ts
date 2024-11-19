@@ -15,7 +15,8 @@ export enum Erc20TokenId {
   LINK = "LINK",
   PEPE = "PEPE",
   SHIB = "SHIB",
-  BNB = "BNB"
+  BNB = "BNB",
+  UNI = "UNI"
 }
 
 export enum AssetPath {
@@ -26,6 +27,7 @@ export enum AssetPath {
   PEPE = "pepe.webp",
   SHIB = "shib.svg",
   BNB = "bnb.svg",
+  UNI = "uni.svg"
 }
 
 export type Erc20TokenDefinition = {

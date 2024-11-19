@@ -74,3 +74,12 @@ export const BNB_ERC20_TOKEN: Erc20TokenDefinition =  {
   decimals: 18,
   iconAssetPath: AssetPath.BNB
 }
+
+export const UNI_ERC20_TOKEN: Erc20TokenDefinition =  {
+  id: Erc20TokenId.UNI,
+  name: "Uniswap",
+  mainnetAddress: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+  sepoliaAddress: "0xeb8a559c7f317c24f08405b40e6b1f3c83cdc76c",
+  decimals: 18,
+  iconAssetPath: AssetPath.UNI
+}
