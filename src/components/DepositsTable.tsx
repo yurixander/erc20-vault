@@ -21,7 +21,9 @@ import {
   getCoreRowModel,
   flexRender,
   createColumnHelper,
+  getSortedRowModel,
 } from "@tanstack/react-table";
+import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
 
 type DepositsTableProps = {
   deposits: Deposit[];
@@ -35,11 +37,19 @@ export const TEMP_TABLE_TOKEN = LINK_ERC20_TOKEN;
 
 const columnHelper = createColumnHelper<Deposit>();
 
+const COLUMNS_ID = {
+  TOKEN: "token",
+  AMOUNT: "amount",
+  UNLOCK_STATUS: "unlockStatus",
+  TIME_REMAINING: "timeRemaining",
+  INDEX: "index",
+};
+
 const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
   const columns = useMemo(
     () => [
       columnHelper.display({
-        id: "token",
+        id: COLUMNS_ID.TOKEN,
         header: "Token",
         cell: () => (
           <div className="flex items-center gap-2 font-medium max-h-max">
@@ -49,6 +59,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
               width={TOKEN_ICON_SIZE}
               height={TOKEN_ICON_SIZE}
             />
+
             <span className="leading-tight">{TEMP_TABLE_TOKEN.name}</span>
           </div>
         ),
@@ -58,37 +69,44 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
         cell: (info) =>
           convertBNToAmount(info.getValue(), TEMP_TABLE_TOKEN.decimals),
       }),
-      columnHelper.display({
-        id: "unlockStatus",
-        header: "Unlock Status",
-        cell: () => {
-          const PROGRESS = 65;
+      columnHelper.accessor(
+        (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
+        {
+          id: COLUMNS_ID.UNLOCK_STATUS,
+          header: "Unlock Status",
+          cell: ({ getValue }) => {
+            return (
+              <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
+                <CircularProgress
+                  progress={getValue()}
+                  size={18}
+                  strokeWidth={3}
+                />
 
-          return (
-            <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
-              <CircularProgress progress={PROGRESS} size={18} strokeWidth={3} />
-
-              <span>{PROGRESS}%</span>
-            </div>
-          );
-        },
-      }),
+                <span>{getValue()}%</span>
+              </div>
+            );
+          },
+        }
+      ),
       columnHelper.display({
-        id: "timeRemaining",
+        id: COLUMNS_ID.TIME_REMAINING,
         header: "Time Remaining",
-        cell: () => {
-          const timeRemaining = generateRemaining();
-
-          return timeRemaining === 0
-            ? "Ready to unlock"
-            : `${timeRemaining} hours`;
-        },
+        cell: ({ row }) => generateTimeRemaining(row.original.unlockTimestamp),
       }),
       columnHelper.accessor("index", {
         header: "",
-        cell: (info) => (
-          <UnlockDeposit depositIndex={info.getValue()} disabled={true} />
-        ),
+        cell: ({ getValue, row }) => {
+          const isReadyToUnlock =
+            row.getValue(COLUMNS_ID.UNLOCK_STATUS) === 100;
+
+          return (
+            <UnlockDeposit
+              depositIndex={getValue()}
+              disabled={!isReadyToUnlock}
+            />
+          );
+        },
       }),
     ],
     []
@@ -98,6 +116,10 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
     data: deposits,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting: [{ id: COLUMNS_ID.UNLOCK_STATUS, desc: true }],
+    },
   });
 
   return (
@@ -131,9 +153,5 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
     </Table>
   );
 };
-
-function generateRemaining(): number {
-  return 10;
-}
 
 export default DepositsTable;
