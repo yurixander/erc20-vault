@@ -7,9 +7,14 @@ import { delay } from "@/lib/utils";
 type UnlockDepositProps = {
   depositIndex: number;
   disabled: boolean;
+  className?: string;
 };
 
-const UnlockDeposit: FC<UnlockDepositProps> = ({ depositIndex, disabled }) => {
+const UnlockDeposit: FC<UnlockDepositProps> = ({
+  depositIndex,
+  disabled,
+  className,
+}) => {
   const [isUnlocking, setIsUnlocking] = useState(false);
 
   const unlockDeposit = async () => {
@@ -31,6 +36,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({ depositIndex, disabled }) => {
       disabled={disabled}
       isLoading={isUnlocking}
       onClick={unlockDeposit}
+      className={className}
     >
       Unlock
     </Button>
