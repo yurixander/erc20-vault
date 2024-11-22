@@ -41,6 +41,10 @@ const DepositButton: FC = () => {
 
     const tokenDefinition = getErc20TokenDef(tokenId);
 
+    if (tokenDefinition === null) {
+      return;
+    }
+
     // TODO: Choose address based on active network.
     const address = tokenDefinition.sepoliaAddress;
 
