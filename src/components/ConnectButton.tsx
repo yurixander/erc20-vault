@@ -14,45 +14,31 @@ const CustomConnectButton: FC = () => {
         openAccountModal,
         openChainModal,
         openConnectModal,
-        authenticationStatus,
         mounted,
       }) => {
         const isLoading =
-          authenticationStatus === "loading" &&
-          (chain === undefined || account === undefined);
+          mounted && (chain === undefined || account === undefined);
 
-        const connected =
-          mounted && !isLoading && chain !== undefined && account !== undefined;
-
-        const accountElement = () => {
-          if (!connected) {
-            return (
-              <Button onClick={openConnectModal} isLoading={isLoading}>
-                Connect Wallet
-              </Button>
-            );
-          }
-
-          if (chain.unsupported === true) {
-            return <Button onClick={openChainModal}>Wrong network</Button>;
-          }
-
+        if (!mounted) {
           return (
-            <Button onClick={openAccountModal} className="gap-1">
-              Account <MdAccountCircle />
+            <Button onClick={openConnectModal} isLoading={isLoading}>
+              Connect Wallet
             </Button>
           );
-        };
+        }
+
+        if (chain?.unsupported === true) {
+          return <Button onClick={openChainModal}>Wrong network</Button>;
+        }
 
         return (
-          <div
-            {...(!mounted && {
-              "aria-hidden": true,
-              style: { opacity: 0, pointerEvents: "none", userSelect: "none" },
-            })}
+          <Button
+            onClick={openAccountModal}
+            className="gap-1"
+            isLoading={isLoading}
           >
-            {accountElement()}
-          </div>
+            Account <MdAccountCircle />
+          </Button>
         );
       }}
     </ConnectButton.Custom>
