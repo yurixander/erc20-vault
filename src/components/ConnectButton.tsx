@@ -1,9 +1,9 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { FC, ReactNode } from "react";
+import { FC } from "react";
 import Button from "./Button";
-import Image from "next/image";
+import { MdAccountCircle } from "react-icons/md";
 
 const CustomConnectButton: FC = () => {
   return (
@@ -38,40 +38,9 @@ const CustomConnectButton: FC = () => {
           }
 
           return (
-            <div style={{ display: "flex", gap: 12 }}>
-              <button
-                onClick={openChainModal}
-                style={{ display: "flex", alignItems: "center" }}
-                type="button"
-              >
-                {chain.hasIcon && (
-                  <div
-                    style={{
-                      background: chain.iconBackground,
-                      width: 12,
-                      height: 12,
-                      borderRadius: 999,
-                      overflow: "hidden",
-                      marginRight: 4,
-                    }}
-                  >
-                    {chain.iconUrl && (
-                      <img
-                        alt={chain.name ?? "Chain icon"}
-                        src={chain.iconUrl}
-                        style={{ width: 12, height: 12 }}
-                      />
-                    )}
-                  </div>
-                )}
-                {chain.name}
-              </button>
-
-              <button onClick={openAccountModal} type="button">
-                {account.displayName}
-                {account.displayBalance ? ` (${account.displayBalance})` : ""}
-              </button>
-            </div>
+            <Button onClick={openAccountModal} className="gap-1">
+              Account <MdAccountCircle />
+            </Button>
           );
         };
 
