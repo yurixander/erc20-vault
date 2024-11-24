@@ -40,6 +40,8 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
         cell: cn(
           "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50"
         ),
+        weekdays: "flex",
+        weekday: "size-8 p-0 flex items-center justify-center",
         day: cn(
           buttonVariants({ variant: "ghost" }),
           "size-8 p-0 font-normal aria-selected:opacity-100"
