@@ -121,7 +121,7 @@ const headingClass: HeadingVariants = {
   },
 };
 
-const headingVariants = cva("select-none font-bold leading-160", {
+const headingVariants = cva("select-none font-bold", {
   variants: headingClass,
   defaultVariants: {
     level: "h3",
