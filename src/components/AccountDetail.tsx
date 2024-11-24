@@ -4,6 +4,7 @@ import { FC, useRef } from "react";
 import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { Text } from "./Typography";
 
 const NETWORK_ICON_SIZE = 24;
 
@@ -64,13 +65,16 @@ const AccountDetail: FC = () => {
                 className="flex gap-x-4 max-w-xs focus-visible:scale-105 active:scale-100 hover:scale-105 transition-transform shadow-sm rounded-full py-1 px-2 items-center bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
                 onKeyDown={({ key }) => handleKeyDown(key, "balance")}
               >
-                <span>{account.displayBalance}</span>
+                <Text className="w-max">{account.displayBalance}</Text>
 
-                <span className="bg-gray-100 dark:bg-gray-900 rounded-full px-2.5 font-medium py-1">
+                <Text
+                  weight="medium"
+                  className="bg-gray-100 dark:bg-gray-900 rounded-full px-2.5 py-1 w-max"
+                >
                   {account.displayName}
-                </span>
+                </Text>
 
-                <ChevronDownIcon className="size-5" />
+                <ChevronDownIcon className="size-5 ml-auto" />
               </button>
             ) : (
               <div className="h-10 w-64 bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-950 rounded-full flex gap-x-2 shadow-sm items-center px-2 py-1">

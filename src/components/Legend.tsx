@@ -1,5 +1,6 @@
 import { FC } from "react";
 import ExternalLink from "./ExternalLink";
+import { Text } from "./Typography";
 
 export type LegendProps = {
   children: string;
@@ -13,8 +14,10 @@ const Legend: FC<LegendProps> = ({
   linkHref,
 }) => {
   return (
-    <span className="pl-1 text-xs">
-      <span className="opacity-40">{children}</span>{" "}
+    <Text size="1" className="pl-1">
+      <Text size="1" className="opacity-40">
+        {children}
+      </Text>{" "}
       {linkHref !== undefined && (
         <ExternalLink
           hideIcon
@@ -24,7 +27,7 @@ const Legend: FC<LegendProps> = ({
           {linkText}
         </ExternalLink>
       )}
-    </span>
+    </Text>
   );
 };
 
