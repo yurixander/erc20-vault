@@ -8,11 +8,6 @@ const Footer: FC<{ className?: string }> = ({ className }) => {
       className={twMerge("flex items-center justify-center p-4", className)}
     >
       <p>
-        &copy;{" "}
-        <ExternalLink href="https://zeri.tech" hideIcon>
-          zeri.tech
-        </ExternalLink>{" "}
-        &bull;{" "}
         <ExternalLink href="https://github.com/zeri-tech/erc20-vault">
           GitHub repository
         </ExternalLink>
