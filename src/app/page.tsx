@@ -1,7 +1,7 @@
 import { FC } from "react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Deposits from "../containers/Deposits";
 import DepositButton from "../containers/DepositButton";
+import AccountDetail from "@/components/AccountDetail";
 
 const Home: FC = () => {
   return (
@@ -13,7 +13,7 @@ const Home: FC = () => {
       </div>
 
       <div className="flex items-center justify-center gap-2 ">
-        <ConnectButton />
+        <AccountDetail />
 
         <DepositButton />
       </div>
