@@ -15,16 +15,13 @@ const CustomConnectButton: FC = () => {
         openChainModal,
         openConnectModal,
         mounted,
+        authenticationStatus,
       }) => {
-        const isLoading =
-          mounted && (chain === undefined || account === undefined);
+        const connected =
+          mounted && (chain !== undefined || account !== undefined);
 
-        if (!mounted) {
-          return (
-            <Button onClick={openConnectModal} isLoading={isLoading}>
-              Connect Wallet
-            </Button>
-          );
+        if (!connected) {
+          return <Button onClick={openConnectModal}>Connect Wallet</Button>;
         }
 
         if (chain?.unsupported === true) {
@@ -32,11 +29,7 @@ const CustomConnectButton: FC = () => {
         }
 
         return (
-          <Button
-            onClick={openAccountModal}
-            className="gap-1"
-            isLoading={isLoading}
-          >
+          <Button onClick={openAccountModal} className="gap-1">
             Account <MdAccountCircle />
           </Button>
         );

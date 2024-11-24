@@ -30,7 +30,7 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
 
               <PopoverContent>
                 <PopoverArrow className="fill-popover" />
-                TVL is ect...
+                Total value locked in Erc20 Vault
               </PopoverContent>
             </Popover>
           </div>
