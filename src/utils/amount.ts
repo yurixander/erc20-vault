@@ -4,14 +4,14 @@ import Decimal from "decimal.js";
 export function convertAmountToBN(amount: string, decimal: number): BN {
   const [wholePart, decimalPart = "0"] = amount.split(".");
 
-  const weiPerEth = new BN(10).pow(new BN(decimal));
+  const decimalMul = new BN(10).pow(new BN(decimal));
 
-  const wholeInWei = new BN(wholePart).mul(weiPerEth);
-  const decimalInWei = new BN(decimalPart.padEnd(18, "0"));
+  const wholeInCents = new BN(wholePart).mul(decimalMul);
+  const decimalInCents = new BN(decimalPart.padEnd(decimal, "0"));
 
-  const totalInWei = wholeInWei.add(decimalInWei);
+  const totalInCents = wholeInCents.add(decimalInCents);
 
-  return totalInWei;
+  return totalInCents;
 }
 
 export function convertBNToAmount(bn: BN, decimal: number) {

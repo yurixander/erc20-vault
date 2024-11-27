@@ -1,51 +1,70 @@
-import BN from "bn.js";
-import Input, { InputProps } from "./Input";
-import { FC, useCallback } from "react";
+import Input from "./Input";
+import { FC, useCallback, useState } from "react";
 import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
 
 export type AmountInputProps = TokenSelectProps & {
+  onAmountChange: (newValue: string | null) => void;
   placeholder?: string;
-  maxAmount?: BN;
-  value: BN | null;
-  setValue: (newValue: BN | null) => void;
+  maxAmount?: number;
   legend?: string;
   legendLearnMoreHref?: string;
 };
 
+const NUMBER_REGEX = new RegExp(/^([1-9]\d*|0)(\.\d+)?$/);
+
 const AmountInput: FC<AmountInputProps> = ({
-  value,
   maxAmount,
-  setValue,
+  onAmountChange,
   tokenId,
   setTokenId,
   placeholder = "Enter an amount",
   legend,
   legendLearnMoreHref,
 }) => {
-  // TODO: Format value as a string.
-  const stringValue = value?.toString();
+  const [internalValue, setInternalValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleValueChange = useCallback(
     (newValue: string) => {
-      // Only allow unsigned digits.
-      if (Number(newValue) < 0) {
-        return;
-      }
+      setInternalValue(newValue);
 
-      setValue(new BN(newValue));
+      // Only allow unsigned digits.
+      try {
+        if (NUMBER_REGEX.test(newValue) && Number(newValue) !== 0) {
+          setError(null);
+
+          onAmountChange(newValue);
+        } else if (newValue.length === 0) {
+          setError(null);
+
+          onAmountChange(null);
+        } else if (Number(newValue) <= 0) {
+          setError("Amount should be more than zero.");
+
+          onAmountChange(null);
+        } else {
+          setError("Amount should be a valid number.");
+
+          onAmountChange(null);
+        }
+      } catch {
+        onAmountChange(null);
+
+        setError("Unexpected error.");
+      }
     },
-    [setValue]
+    [onAmountChange]
   );
 
   return (
     <Input
-      type="number"
+      error={error}
       placeholder={placeholder}
       rightElement={<TokenSelect tokenId={tokenId} setTokenId={setTokenId} />}
       legend={legend}
       legendLearnMoreHref={legendLearnMoreHref}
-      value={stringValue}
+      value={internalValue}
       setValue={handleValueChange}
     />
   );

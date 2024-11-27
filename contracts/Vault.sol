@@ -24,6 +24,7 @@ contract Vault {
   error StartTimeMustBeBeforeUnlockTime();
   error DepositStillLocked();
   error InvalidDepositIndex();
+  error InsufficientBalance();
 
   struct Deposit {
     address tokenAddress;
@@ -47,6 +48,12 @@ contract Vault {
     }
 
     IERC20 token = IERC20(tokenAddress);
+    uint256 userBalance = token.balanceOf(msg.sender);
+
+    if (userBalance < amount) {
+      revert InsufficientBalance();
+    }
+
     bool success = token.transferFrom(msg.sender, address(this), amount);
 
     if (!success) {
