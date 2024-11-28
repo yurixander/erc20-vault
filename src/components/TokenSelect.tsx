@@ -61,11 +61,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
   }, [isChainTest]);
 
   return (
-    <Select
-      onValueChange={handleValueChange}
-      defaultValue={isChainTest === true ? testTokenId : undefined}
-      value={tokenId ?? undefined}
-    >
+    <Select onValueChange={handleValueChange} value={tokenId ?? undefined}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>

@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useMemo, useState } from "react";
 import Button from "../components/Button";
 import { FiArrowRight, FiPlusCircle } from "react-icons/fi";
 import { useAccount, useWriteContract } from "wagmi";
@@ -34,85 +34,12 @@ const DepositButton: FC = () => {
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
 
-  const { writeContract, isPending } = useWriteContract();
-
-  const {
-    writeContract: approveTokens,
-    isPending: isApprovalPending,
-    isSuccess: isApprovalSuccess,
-  } = useWriteContract();
-
-  const isReadyToSubmitTx =
-    tokenId !== null && amount !== null && unlockTimestamp !== null;
-
-  const handleApprove = useCallback(async (): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      if (tokenId === null || amount === null) {
-        return reject(new Error("Token ID or amount is missing."));
-      }
-
-      const tokenDefinition = getErc20TokenDef(tokenId);
-
-      // TODO: Choose address based on active network.
-      const address = MY_TOKEN_SEPOLIA_ADDRESS;
-
-      const amountInCents = convertAmountToBN(amount, 18);
-
-      approveTokens(
-        {
-          abi: IERC20_ABI,
-          address: address,
-          functionName: "approve",
-          args: [VAULT_CONTRACT_ADDRESS, BigInt(amountInCents.toString())],
-        },
-        {
-          onError: (error) => reject(error),
-          onSuccess: () => resolve(),
-        }
-      );
-    });
-  }, [amount, tokenId, approveTokens]);
-
-  const submitDepositTx = useCallback(() => {
-    if (!isReadyToSubmitTx) {
-      return;
-    }
-
-    const tokenDefinition = getErc20TokenDef(tokenId);
-
-    // TODO: Choose address based on active network.
-    const address = MY_TOKEN_SEPOLIA_ADDRESS;
-
-    const amountInCents = convertAmountToBN(amount, 18);
-
-    writeContract(
-      {
-        abi: VAULT_ABI,
-        address: VAULT_CONTRACT_ADDRESS,
-        functionName: "deposit",
-        args: [
-          address,
-          BigInt(amountInCents.toString()),
-          BigInt(unlockTimestamp.toString()),
-        ],
-      },
-      {
-        onError: (error) => {
-          console.log({
-            name: error.name,
-            message: error.message,
-            cause: error.cause,
-          });
-        },
-      }
-    );
-  }, [amount, isReadyToSubmitTx, tokenId, unlockTimestamp, writeContract]);
-
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button disabled={!isConnected}>
           <FiPlusCircle />
+
           <span>Create a new deposit</span>
         </Button>
       </DialogTrigger>
@@ -152,60 +79,119 @@ const DepositButton: FC = () => {
         </div>
 
         <DialogFooter>
-          {isApprovalSuccess ? (
-            <Button
-              disabled={!isReadyToSubmitTx || !isApprovalSuccess}
-              type="submit"
-              onClick={submitDepositTx}
-              isLoading={isPending || isApprovalPending}
-              // TODO: Margin should be applied within the Button component.
-              rightIcon={<FiArrowRight className="ml-2" />}
-            >
-              Deposit & lock tokens
-            </Button>
-          ) : (
-            <ApproveButton
-              disabled={!isReadyToSubmitTx}
-              approvalIsPending={isApprovalPending}
-              onApproveTx={handleApprove}
-            />
-          )}
+          <ExecuteTxButton
+            amount={amount}
+            tokenId={tokenId}
+            unlockTimestamp={unlockTimestamp}
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
 
-const ApproveButton: FC<{
-  disabled: boolean;
-  onApproveTx: () => Promise<void>;
-  approvalIsPending: boolean;
-}> = ({ onApproveTx, approvalIsPending, disabled }) => {
-  const [isLoading, setIsLoading] = useState(false);
+type ExecuteTxButton = {
+  amount: string | null;
+  tokenId: Erc20TokenId | null;
+  unlockTimestamp: number | null;
+};
+
+const ExecuteTxButton: FC<ExecuteTxButton> = ({
+  amount,
+  tokenId,
+  unlockTimestamp,
+}) => {
+  const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
+
+  const {
+    writeContract: approveAmount,
+    isSuccess: isApprovalSuccess,
+    isPending: isApprovalPending,
+  } = useWriteContract();
+
+  const isReadyToSubmitTx =
+    tokenId !== null && amount !== null && unlockTimestamp !== null;
+
+  const handleApprove = useCallback(() => {
+    if (tokenId === null || amount === null) {
+      return new Error("Token ID or amount is missing.");
+    }
+
+    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+
+    const amountInCents = convertAmountToBN(amount, decimals);
+
+    approveAmount(
+      {
+        abi: IERC20_ABI,
+        address: mainnetAddress,
+        functionName: "approve",
+        args: [VAULT_CONTRACT_ADDRESS, BigInt(amountInCents.toString())],
+      },
+      {
+        onError: (error) => {},
+      }
+    );
+  }, [amount, tokenId, approveAmount]);
+
+  const submitDepositTx = useCallback(() => {
+    if (unlockTimestamp === null || tokenId === null || amount === null) {
+      throw new Error("Check that all fields are filled in.");
+    }
+
+    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+
+    const amountInCents = convertAmountToBN(amount, decimals);
+
+    writeContract(
+      {
+        abi: VAULT_ABI,
+        address: VAULT_CONTRACT_ADDRESS,
+        functionName: "deposit",
+        args: [
+          mainnetAddress,
+          BigInt(amountInCents.toString()),
+          BigInt(unlockTimestamp),
+        ],
+      },
+      {
+        onError: (error) => {},
+        onSuccess(data, variables, context) {},
+        onSettled(data, error, variables, context) {
+          // Esta siendo procesado (Ya la transaccion no sera revertida.)
+        },
+      }
+    );
+  }, [amount, tokenId, unlockTimestamp, writeContract]);
+
+  const isButtonLoading = useMemo(
+    () => (!isApprovalSuccess && isApprovalPending) || isPending,
+    [isApprovalPending, isApprovalSuccess, isPending]
+  );
 
   return (
     <Button
-      isLoading={isLoading || approvalIsPending}
-      disabled={disabled}
+      isLoading={isButtonLoading}
+      disabled={!isReadyToSubmitTx}
+      type="submit"
+      // TODO: Margin should be applied within the Button component.
+      rightIcon={<FiArrowRight className="ml-2" />}
       onClick={() => {
-        if (isLoading || approvalIsPending) {
+        if (isButtonLoading) {
           return;
         }
 
-        setIsLoading(true);
+        if (!isApprovalSuccess) {
+          handleApprove();
 
-        void onApproveTx()
-          .finally(() => setIsLoading(false))
-          .catch((error) => {
-            toast({
-              title: "Transaction error",
-              description: error.message,
-            });
-          });
+          return;
+        }
+
+        submitDepositTx();
       }}
     >
-      Approve
+      {isApprovalSuccess ? "Deposit & lock tokens" : "Approve"}
     </Button>
   );
 };
