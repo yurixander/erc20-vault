@@ -20,6 +20,7 @@ import LegendWrapper from "../components/LegendWrapper";
 import VAULT_ABI from "../abi/vaultAbi";
 import {
   MY_TOKEN_SEPOLIA_ADDRESS,
+  SEPOLIA_CHAIN_ID,
   VAULT_CONTRACT_ADDRESS,
 } from "../config/constants";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
@@ -28,13 +29,12 @@ import { convertAmountToBN } from "@/utils/amount";
 import IERC20_ABI from "@/abi/ierc20Abi";
 
 const DepositButton: FC = () => {
-  const { isConnected } = useAccount();
+  const { isConnected, chainId } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
 
   const { writeContract, isPending } = useWriteContract();
-  const { toast } = useToast();
 
   const {
     writeContract: approveTokens,
@@ -129,6 +129,7 @@ const DepositButton: FC = () => {
 
         <div className="flex flex-col gap-6">
           <AmountInput
+            isChainTest={chainId === SEPOLIA_CHAIN_ID}
             tokenId={tokenId}
             setTokenId={setTokenId}
             onAmountChange={setAmount}
@@ -204,7 +205,7 @@ const ApproveButton: FC<{
           });
       }}
     >
-      Approve Tx
+      Approve
     </Button>
   );
 };

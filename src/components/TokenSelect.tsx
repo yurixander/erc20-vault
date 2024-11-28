@@ -1,4 +1,4 @@
-import { FC, useCallback } from "react";
+import React, { FC, useCallback, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -9,10 +9,12 @@ import {
   SelectValue,
 } from "./Select";
 import { Erc20TokenId } from "../config/types";
+import { MY_TOKEN_SEPOLIA } from "@/config/constants";
 
 export type TokenSelectProps = {
   tokenId: Erc20TokenId | null;
   setTokenId: (tokenId: Erc20TokenId | null) => void;
+  isChainTest?: boolean;
 };
 
 function assetTokenId(tok: string): asserts tok is Erc20TokenId {
@@ -21,7 +23,13 @@ function assetTokenId(tok: string): asserts tok is Erc20TokenId {
   }
 }
 
-const TokenSelect: FC<TokenSelectProps> = ({ tokenId, setTokenId }) => {
+const { id: testTokenId } = MY_TOKEN_SEPOLIA;
+
+const TokenSelect: FC<TokenSelectProps> = ({
+  tokenId,
+  setTokenId,
+  isChainTest,
+}) => {
   const handleValueChange = useCallback(
     (newValue: string) => {
       assetTokenId(newValue);
@@ -30,8 +38,34 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokenId, setTokenId }) => {
     [setTokenId]
   );
 
+  const selectableItems: React.ReactNode = useMemo(() => {
+    if (isChainTest === true) {
+      return (
+        <SelectItem key={testTokenId} value={testTokenId}>
+          {testTokenId}
+        </SelectItem>
+      );
+    }
+
+    return Object.values(Erc20TokenId).map((tokenId) => {
+      if (tokenId === testTokenId) {
+        return;
+      }
+
+      return (
+        <SelectItem key={tokenId} value={tokenId}>
+          {tokenId}
+        </SelectItem>
+      );
+    });
+  }, [isChainTest]);
+
   return (
-    <Select onValueChange={handleValueChange} value={tokenId ?? undefined}>
+    <Select
+      onValueChange={handleValueChange}
+      defaultValue={isChainTest === true ? testTokenId : undefined}
+      value={tokenId ?? undefined}
+    >
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>
@@ -40,11 +74,7 @@ const TokenSelect: FC<TokenSelectProps> = ({ tokenId, setTokenId }) => {
         <SelectGroup>
           <SelectLabel>ERC-20 Tokens</SelectLabel>
 
-          {Object.values(Erc20TokenId).map((tokenId) => (
-            <SelectItem key={tokenId} value={tokenId}>
-              {tokenId}
-            </SelectItem>
-          ))}
+          {selectableItems}
         </SelectGroup>
       </SelectContent>
     </Select>

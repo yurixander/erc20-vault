@@ -9,6 +9,7 @@ export type AmountInputProps = TokenSelectProps & {
   maxAmount?: number;
   legend?: string;
   legendLearnMoreHref?: string;
+  isChainTest?: boolean;
 };
 
 const NUMBER_REGEX = new RegExp(/^([1-9]\d*|0)(\.\d+)?$/);
@@ -21,6 +22,7 @@ const AmountInput: FC<AmountInputProps> = ({
   placeholder = "Enter an amount",
   legend,
   legendLearnMoreHref,
+  isChainTest,
 }) => {
   const [internalValue, setInternalValue] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +63,13 @@ const AmountInput: FC<AmountInputProps> = ({
     <Input
       error={error}
       placeholder={placeholder}
-      rightElement={<TokenSelect tokenId={tokenId} setTokenId={setTokenId} />}
+      rightElement={
+        <TokenSelect
+          isChainTest={isChainTest}
+          tokenId={tokenId}
+          setTokenId={setTokenId}
+        />
+      }
       legend={legend}
       legendLearnMoreHref={legendLearnMoreHref}
       value={internalValue}

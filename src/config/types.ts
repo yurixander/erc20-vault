@@ -18,7 +18,9 @@ export enum Erc20TokenId {
   BNB = "BNB",
   UNI = "UNI",
   ARB = "ARB",
-  WBTC = "WBTC"
+  WBTC = "WBTC",
+  // Testing
+  MTK = "MTK"
 }
 
 export enum AssetPath {
@@ -31,7 +33,9 @@ export enum AssetPath {
   BNB = "icons/bnb.svg",
   UNI = "icons/uni.svg",
   ARB = "icons/arb.svg",
-  WBTC = "icons/wbtc.svg"
+  WBTC = "icons/wbtc.svg",
+  // TODO: Put real test icon.
+  MTK = "icons/mtk.svg",
 }
 
 export type Erc20TokenDefinition = {

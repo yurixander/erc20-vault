@@ -7,10 +7,22 @@ export const VAULT_CONTRACT_ADDRESS =
 
 export const MY_TOKEN_SEPOLIA_ADDRESS = "0x19B05077f4E96D2B64A18c8DF163bD6122E535E2";
 
+export const SEPOLIA_CHAIN_ID = 11155111;
+
 export const VIEM_PUBLIC_CLIENT = createPublicClient({
   chain: sepolia,
   transport: http(),
 });
+
+
+// Test token.
+export const MY_TOKEN_SEPOLIA: Erc20TokenDefinition = {
+  id: Erc20TokenId.MTK,
+  name: "My token",
+  mainnetAddress: MY_TOKEN_SEPOLIA_ADDRESS,
+  decimals: 18,
+  iconAssetPath: AssetPath.MTK,
+}
 
 export const USDT_ERC20_TOKEN: Erc20TokenDefinition = {
   id: Erc20TokenId.USDT,
