@@ -38,7 +38,6 @@ export type Erc20TokenDefinition = {
   id: Erc20TokenId;
   name: string;
   mainnetAddress: Address;
-  sepoliaAddress: Address;
   decimals: number;
   iconAssetPath: AssetPath;
 };

@@ -18,7 +18,10 @@ import { Erc20TokenId } from "../config/types";
 import DatePicker from "../components/DatePicker";
 import LegendWrapper from "../components/LegendWrapper";
 import VAULT_ABI from "../abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
+import {
+  MY_TOKEN_SEPOLIA_ADDRESS,
+  VAULT_CONTRACT_ADDRESS,
+} from "../config/constants";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
 import useToast from "@/hooks/useToast";
 import { convertAmountToBN } from "@/utils/amount";
@@ -51,7 +54,7 @@ const DepositButton: FC = () => {
       const tokenDefinition = getErc20TokenDef(tokenId);
 
       // TODO: Choose address based on active network.
-      const address = tokenDefinition.sepoliaAddress;
+      const address = MY_TOKEN_SEPOLIA_ADDRESS;
 
       const amountInCents = convertAmountToBN(amount, 18);
 
@@ -78,7 +81,7 @@ const DepositButton: FC = () => {
     const tokenDefinition = getErc20TokenDef(tokenId);
 
     // TODO: Choose address based on active network.
-    const address = tokenDefinition.sepoliaAddress;
+    const address = MY_TOKEN_SEPOLIA_ADDRESS;
 
     const amountInCents = convertAmountToBN(amount, 18);
 
@@ -95,7 +98,11 @@ const DepositButton: FC = () => {
       },
       {
         onError: (error) => {
-          console.error(error);
+          console.log({
+            name: error.name,
+            message: error.message,
+            cause: error.cause,
+          });
         },
       }
     );
@@ -149,7 +156,7 @@ const DepositButton: FC = () => {
               disabled={!isReadyToSubmitTx || !isApprovalSuccess}
               type="submit"
               onClick={submitDepositTx}
-              isLoading={isPending}
+              isLoading={isPending || isApprovalPending}
               // TODO: Margin should be applied within the Button component.
               rightIcon={<FiArrowRight className="ml-2" />}
             >
