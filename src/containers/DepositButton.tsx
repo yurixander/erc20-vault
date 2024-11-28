@@ -48,7 +48,7 @@ const DepositButton: FC = () => {
     //   {
     //     onError: (error) => {},
     //   }
-    // ); 
+    // );
   }, [tokenId]);
 
   return (
@@ -132,7 +132,13 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
 
   const handleApprove = useCallback(() => {
     if (tokenId === null || amount === null) {
-      return new Error("Token ID or amount is missing.");
+      toast({
+        title: "Data error",
+        description: "Token ID or amount is missing.",
+        variant: "destructive",
+      });
+
+      return;
     }
 
     const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
@@ -147,14 +153,26 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         args: [VAULT_CONTRACT_ADDRESS, BigInt(amountInCents.toString())],
       },
       {
-        onError: (error) => {},
+        onError: (error) => {
+          toast({
+            title: "Approval Failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
       }
     );
-  }, [amount, tokenId, approveAmount]);
+  }, [tokenId, amount, approveAmount, toast]);
 
   const submitDepositTx = useCallback(() => {
     if (unlockTimestamp === null || tokenId === null || amount === null) {
-      throw new Error("Check that all fields are filled in.");
+      toast({
+        title: "Data Error",
+        description: "Check that all fields are filled in.",
+        variant: "destructive",
+      });
+
+      return;
     }
 
     const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
@@ -173,14 +191,38 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         ],
       },
       {
-        onError: (error) => {},
-        onSuccess(data, variables, context) {},
-        onSettled(data, error, variables, context) {
-          // Esta siendo procesado (Ya la transaccion no sera revertida.)
+        onError: (error) => {
+          toast({
+            title: "Deposit Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+        onSuccess() {
+          toast({
+            title: "Deposit Success",
+            description: "",
+          });
+        },
+        onSettled(_, error) {
+          if (error !== null) {
+            toast({
+              title: "Transaction Error",
+              description: error.message,
+              variant: "destructive",
+            });
+
+            return;
+          }
+
+          toast({
+            title: "Transaction in block",
+            description: "Transaction is processing, please wait.",
+          });
         },
       }
     );
-  }, [amount, tokenId, unlockTimestamp, writeContract]);
+  }, [amount, toast, tokenId, unlockTimestamp, writeContract]);
 
   const isButtonLoading = useMemo(
     () => (!isApprovalSuccess && isApprovalPending) || isPending,
