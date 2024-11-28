@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useCallback, useMemo, useState } from "react";
+import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../components/Button";
 import { FiArrowRight, FiPlusCircle } from "react-icons/fi";
 import { useAccount, useWriteContract } from "wagmi";
@@ -18,21 +18,38 @@ import { Erc20TokenId } from "../config/types";
 import DatePicker from "../components/DatePicker";
 import LegendWrapper from "../components/LegendWrapper";
 import VAULT_ABI from "../abi/vaultAbi";
-import {
-  MY_TOKEN_SEPOLIA_ADDRESS,
-  SEPOLIA_CHAIN_ID,
-  VAULT_CONTRACT_ADDRESS,
-} from "../config/constants";
+import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
 import useToast from "@/hooks/useToast";
 import { convertAmountToBN } from "@/utils/amount";
 import IERC20_ABI from "@/abi/ierc20Abi";
 
 const DepositButton: FC = () => {
-  const { isConnected, chainId } = useAccount();
+  const { isConnected, chainId, address } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
+
+  const { writeContractAsync } = useWriteContract();
+
+  useEffect(() => {
+    if (tokenId === null || address === undefined) {
+      return;
+    }
+
+    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+
+    // writeContract(
+    //   {
+    //     abi: IERC20_ABI,
+    //     functionName: "allowance",
+    //     args: [address, VAULT_CONTRACT_ADDRESS],
+    //   },
+    //   {
+    //     onError: (error) => {},
+    //   }
+    // ); 
+  }, [tokenId]);
 
   return (
     <Dialog>

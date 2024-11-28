@@ -1,34 +1,14 @@
-"use client";
-
-import * as React from "react";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import * as ToastPrimitives from "@radix-ui/react-toast";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
-import { useToastStore } from "@/hooks/useToast";
+import useToast from "@/hooks/useToast";
+import { ComponentPropsWithoutRef, forwardRef, ReactElement } from "react";
 
 const ToastProvider = ToastPrimitives.Provider;
 
-export const ToastProvider2: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => {
-  const { toasts } = useToastStore();
-
-  return (
-    <>
-      <div className="fixed right-2 bottom-2 z-[500] bg-red-500">
-        {toasts.map((toast) => (
-          <div key={toast.id}>{toast.title}</div>
-        ))}
-      </div>
-
-      {children}
-    </>
-  );
-};
-
-const ToastViewport = React.forwardRef<
+const ToastViewport = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Viewport>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>
 >(({ className, ...props }, ref) => (
@@ -49,9 +29,9 @@ const toastVariants = cva(
   {
     variants: {
       variant: {
-        default: "border bg-background text-foreground",
+        default: "border bg-background dark:bg-neutral-900 text-foreground",
         destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+          "group border-destructive bg-destructive text-destructive-foreground",
       },
     },
     defaultVariants: {
@@ -60,7 +40,7 @@ const toastVariants = cva(
   }
 );
 
-const Toast = React.forwardRef<
+const Toast = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root> &
     VariantProps<typeof toastVariants>
@@ -76,7 +56,7 @@ const Toast = React.forwardRef<
 
 Toast.displayName = ToastPrimitives.Root.displayName;
 
-const ToastAction = React.forwardRef<
+const ToastAction = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Action>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>
 >(({ className, ...props }, ref) => (
@@ -92,7 +72,7 @@ const ToastAction = React.forwardRef<
 
 ToastAction.displayName = ToastPrimitives.Action.displayName;
 
-const ToastClose = React.forwardRef<
+const ToastClose = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Close>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>
 >(({ className, ...props }, ref) => (
@@ -105,13 +85,13 @@ const ToastClose = React.forwardRef<
     toast-close=""
     {...props}
   >
-    <Cross2Icon className="h-4 w-4" />
+    <Cross2Icon className="size-4" />
   </ToastPrimitives.Close>
 ));
 
 ToastClose.displayName = ToastPrimitives.Close.displayName;
 
-const ToastTitle = React.forwardRef<
+const ToastTitle = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Title>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>
 >(({ className, ...props }, ref) => (
@@ -124,7 +104,7 @@ const ToastTitle = React.forwardRef<
 
 ToastTitle.displayName = ToastPrimitives.Title.displayName;
 
-const ToastDescription = React.forwardRef<
+const ToastDescription = forwardRef<
   React.ElementRef<typeof ToastPrimitives.Description>,
   React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>
 >(({ className, ...props }, ref) => (
@@ -137,19 +117,31 @@ const ToastDescription = React.forwardRef<
 
 ToastDescription.displayName = ToastPrimitives.Description.displayName;
 
-type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>;
+function Toaster(): React.JSX.Element {
+  const { toasts } = useToast();
 
-type ToastActionElement = React.ReactElement<typeof ToastAction>;
+  return (
+    <ToastProvider>
+      {toasts.map(({ id, title, description, action, ...props }) => (
+        <Toast key={id} {...props}>
+          <div className="grid gap-1">
+            {title && <ToastTitle>{title}</ToastTitle>}
 
-export {
-  type ToastProps,
-  type ToastActionElement,
-  ToastProvider,
-  ToastViewport,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-  ToastAction,
-};
+            {description && <ToastDescription>{description}</ToastDescription>}
+          </div>
 
-export default Toast;
+          {action}
+
+          <ToastClose />
+        </Toast>
+      ))}
+      <ToastViewport />
+    </ToastProvider>
+  );
+}
+
+type ToastProps = ComponentPropsWithoutRef<typeof Toast>;
+
+type ToastActionElement = ReactElement<typeof ToastAction>;
+
+export { type ToastProps, type ToastActionElement, Toaster };

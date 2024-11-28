@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, ReactNode } from "react";
 import { WagmiProvider } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
-import { ToastProvider, ToastProvider2 } from "@/components/Toast";
+import { Toaster } from "@/components/Toast";
 
 const wagmiConfig = getDefaultConfig({
   appName: "ERC20 Vault",
@@ -19,13 +19,15 @@ const queryClient = new QueryClient();
 
 const Providers: FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <ToastProvider2>{children}</ToastProvider2>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <>
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <RainbowKitProvider>{children}</RainbowKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+
+      <Toaster />
+    </>
   );
 };
 
