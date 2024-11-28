@@ -65,20 +65,22 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     // TODO: Make it so that the width between loading and default state changes smoothly instead of jumping, likely using Framer Motion.
     return (
       <Tag
+        ref={ref}
+        disabled={isLoading || props.disabled}
         className={cn(
           "space-x-2",
           buttonVariants({ variant, size, className }),
           isLoading && "animate-pulse"
         )}
-        ref={ref}
-        disabled={isLoading || props.disabled}
         {...props}
       >
         {isLoading && <FiLoader className="animate-spin size-4" />}
 
         {isLoading ? loadingText : children}
 
-        {!isLoading && rightIcon !== undefined && rightIcon}
+        {!isLoading && rightIcon !== undefined && (
+          <div className="ml-2">{rightIcon}</div>
+        )}
       </Tag>
     );
   }

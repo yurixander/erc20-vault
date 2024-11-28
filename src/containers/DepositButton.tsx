@@ -234,8 +234,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       isLoading={isButtonLoading}
       disabled={!isReadyToSubmitTx}
       type="submit"
-      // TODO: Margin should be applied within the Button component.
-      rightIcon={<FiArrowRight className="ml-2" />}
+      rightIcon={<FiArrowRight />}
       onClick={() => {
         if (isButtonLoading) {
           return;
