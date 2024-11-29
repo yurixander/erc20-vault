@@ -5,6 +5,7 @@ import "./IERC20.sol";
 
 contract Vault {
   event DepositMade(
+    uint256 depositId,
     address indexed account,
     address indexed tokenAddress,
     uint256 amount,
@@ -27,6 +28,7 @@ contract Vault {
   error InsufficientBalance();
 
   struct Deposit {
+    uint256 depositId;
     address tokenAddress;
     uint256 amount;
     uint256 startTimestamp;
@@ -60,15 +62,16 @@ contract Vault {
       revert TransferFailed();
     }
 
-    uint256 depositIndex_ = deposits[msg.sender].length;
+    uint256 depositId = deposits[msg.sender].length;
 
     // On the initial deposit, this will still work even though the
     // inner array hasn't been explicitly initialized.
     deposits[msg.sender].push(
-      Deposit(tokenAddress, amount, block.timestamp, unlockTimestamp)
+      Deposit(depositId, tokenAddress, amount, block.timestamp, unlockTimestamp)
     );
 
     emit DepositMade(
+      depositId,
       msg.sender,
       tokenAddress,
       amount,
@@ -76,7 +79,7 @@ contract Vault {
       unlockTimestamp
     );
 
-    return depositIndex_;
+    return depositId;
   }
 
   function withdraw(address tokenAddress, uint256 depositIndex) public {
