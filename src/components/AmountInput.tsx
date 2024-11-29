@@ -4,6 +4,7 @@ import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
 
 export type AmountInputProps = TokenSelectProps & {
+  amount: string | null;
   onAmountChange: (newValue: string | null) => void;
   placeholder?: string;
   maxAmount?: number;
@@ -23,8 +24,9 @@ const AmountInput: FC<AmountInputProps> = ({
   legend,
   legendLearnMoreHref,
   isChainTest,
+  amount,
 }) => {
-  const [internalValue, setInternalValue] = useState("");
+  const [internalValue, setInternalValue] = useState<string>();
   const [error, setError] = useState<string | null>(null);
 
   const handleValueChange = useCallback(
@@ -72,7 +74,7 @@ const AmountInput: FC<AmountInputProps> = ({
       }
       legend={legend}
       legendLearnMoreHref={legendLearnMoreHref}
-      value={internalValue}
+      value={internalValue ?? amount ?? ""}
       setValue={handleValueChange}
     />
   );

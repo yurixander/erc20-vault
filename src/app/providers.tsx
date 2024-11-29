@@ -7,7 +7,7 @@ import { WagmiProvider } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
 import { Toaster } from "@/components/Toast";
 
-const wagmiConfig = getDefaultConfig({
+export const wagmiConfig = getDefaultConfig({
   appName: "ERC20 Vault",
   projectId: "0c145e73f74608526249fa5c8ab223a0",
   chains: [mainnet, sepolia],

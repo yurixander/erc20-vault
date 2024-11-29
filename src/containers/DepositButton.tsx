@@ -21,16 +21,21 @@ import VAULT_ABI from "../abi/vaultAbi";
 import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
 import useToast from "@/hooks/useToast";
-import { convertAmountToBN } from "@/utils/amount";
+import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
 import IERC20_ABI from "@/abi/ierc20Abi";
+import { readContract, WriteContractErrorType } from "wagmi/actions";
+import { ContractFunctionExecutionError } from "viem";
+import { wagmiConfig } from "@/app/providers";
+import { BN } from "bn.js";
+import { ToastAction } from "@/components/Toast";
 
 const DepositButton: FC = () => {
   const { isConnected, chainId, address } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
-
-  const { writeContractAsync } = useWriteContract();
+  const [beforeApproved, setBeforeApproved] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (tokenId === null || address === undefined) {
@@ -39,20 +44,55 @@ const DepositButton: FC = () => {
 
     const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
 
-    // writeContract(
-    //   {
-    //     abi: IERC20_ABI,
-    //     functionName: "allowance",
-    //     args: [address, VAULT_CONTRACT_ADDRESS],
-    //   },
-    //   {
-    //     onError: (error) => {},
-    //   }
-    // );
-  }, [tokenId]);
+    readContract(wagmiConfig, {
+      abi: IERC20_ABI,
+      address: mainnetAddress,
+      functionName: "allowance",
+      args: [address, VAULT_CONTRACT_ADDRESS],
+    }).then((allowance) => {
+      const amountApproved = convertBNToAmount(
+        new BN(allowance.toString()),
+        decimals
+      );
+
+      toast({
+        title: "You already have an approval",
+        description: `You already have ${amountApproved} ${tokenId} approved`,
+        action: (
+          <ToastAction
+            altText="Use this amount for deposit."
+            onClick={() => {
+              setBeforeApproved(true);
+              setAmount(amountApproved);
+
+              setTokenId((prevTokenId) => {
+                if (prevTokenId !== tokenId) {
+                  return tokenId;
+                }
+
+                return prevTokenId;
+              });
+            }}
+          >
+            Use it
+          </ToastAction>
+        ),
+      });
+    });
+  }, [address, toast, tokenId]);
 
   return (
-    <Dialog>
+    <Dialog
+      onOpenChange={(isOpen) => {
+        if (isOpen) {
+          return;
+        }
+
+        setAmount(null);
+        setTokenId(null);
+        setUnlockTimestamp(null);
+      }}
+    >
       <DialogTrigger asChild>
         <Button disabled={!isConnected}>
           <FiPlusCircle />
@@ -73,6 +113,7 @@ const DepositButton: FC = () => {
 
         <div className="flex flex-col gap-6">
           <AmountInput
+            amount={amount}
             isChainTest={chainId === SEPOLIA_CHAIN_ID}
             tokenId={tokenId}
             setTokenId={setTokenId}
@@ -97,6 +138,7 @@ const DepositButton: FC = () => {
 
         <DialogFooter>
           <ExecuteTxButton
+            beforeApproved={beforeApproved}
             amount={amount}
             tokenId={tokenId}
             unlockTimestamp={unlockTimestamp}
@@ -108,6 +150,7 @@ const DepositButton: FC = () => {
 };
 
 type ExecuteTxButton = {
+  beforeApproved: boolean;
   amount: string | null;
   tokenId: Erc20TokenId | null;
   unlockTimestamp: number | null;
@@ -117,6 +160,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
   amount,
   tokenId,
   unlockTimestamp,
+  beforeApproved,
 }) => {
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
@@ -154,9 +198,11 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       },
       {
         onError: (error) => {
+          const { description, title } = handleApprovalErrors(error);
+
           toast({
-            title: "Approval Failed",
-            description: error.message,
+            title,
+            description,
             variant: "destructive",
           });
         },
@@ -192,9 +238,11 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       },
       {
         onError: (error) => {
+          const { description, title } = handleDepositErrors(error);
+
           toast({
-            title: "Deposit Error",
-            description: error.message,
+            title,
+            description,
             variant: "destructive",
           });
         },
@@ -208,7 +256,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
           if (error !== null) {
             toast({
               title: "Transaction Error",
-              description: error.message,
+              description: "The transaction was rejected.",
               variant: "destructive",
             });
 
@@ -229,6 +277,11 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
     [isApprovalPending, isApprovalSuccess, isPending]
   );
 
+  const isDepositAvailable = useMemo(
+    () => beforeApproved || isApprovalSuccess,
+    [beforeApproved, isApprovalSuccess]
+  );
+
   return (
     <Button
       isLoading={isButtonLoading}
@@ -240,7 +293,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
           return;
         }
 
-        if (!isApprovalSuccess) {
+        if (!isDepositAvailable) {
           handleApprove();
 
           return;
@@ -249,9 +302,60 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         submitDepositTx();
       }}
     >
-      {isApprovalSuccess ? "Deposit & lock tokens" : "Approve"}
+      {isDepositAvailable ? "Deposit & lock tokens" : "Approve"}
     </Button>
   );
 };
+
+function handleApprovalErrors(error: WriteContractErrorType): {
+  title: string;
+  description: string;
+} {
+  console.error(error);
+
+  if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === "User rejected the request."
+  ) {
+    return {
+      title: "Approve Error",
+      description: "User rejected the request, please try again.",
+    };
+  }
+
+  return {
+    title: "Unexpected error",
+    description: "Approve failed, please try again.",
+  };
+}
+
+function handleDepositErrors(error: WriteContractErrorType): {
+  title: string;
+  description: string;
+} {
+  console.error(error);
+
+  if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === "User rejected the request."
+  ) {
+    return {
+      title: "Deposit Error",
+      description: "User rejected the request, please try again.",
+    };
+  }
+
+  if (error instanceof ContractFunctionExecutionError) {
+    return {
+      title: "Deposit Error",
+      description: "The gas fee is too large, please try again later.",
+    };
+  }
+
+  return {
+    title: "Unexpected error",
+    description: "Deposit failed, please try again.",
+  };
+}
 
 export default DepositButton;

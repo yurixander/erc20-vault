@@ -144,4 +144,4 @@ type ToastProps = ComponentPropsWithoutRef<typeof Toast>;
 
 type ToastActionElement = ReactElement<typeof ToastAction>;
 
-export { type ToastProps, type ToastActionElement, Toaster };
+export { type ToastProps, type ToastActionElement, Toaster, ToastAction };
