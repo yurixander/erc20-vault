@@ -2,20 +2,23 @@ import { FC } from "react";
 import Deposits from "../containers/Deposits";
 import DepositButton from "../containers/DepositButton";
 import AccountDetail from "@/components/AccountDetail";
+import { Heading, Text } from "@/components/Typography";
 
 const Home: FC = () => {
   return (
-    <main className="size-full flex flex-col items-center justify-center pt-6">
-      <div className="flex flex-col items-center justify-center ">
-        <h1 className="text-2xl">ERC-20 Vault</h1>
+    <main className="size-full flex flex-col pt-1 gap-8">
+      <div className="flex flex-col gap-1 w-max">
+        <div className="flex flex-col">
+          <Heading>ERC-20 Vault</Heading>
 
-        <p>Connect your wallet to get started.</p>
-      </div>
+          <Text>Connect your wallet to get started.</Text>
+        </div>
 
-      <div className="flex items-center justify-center gap-2 ">
-        <AccountDetail />
+        <div className="flex items-center justify-center gap-2 ">
+          <AccountDetail />
 
-        <DepositButton />
+          <DepositButton />
+        </div>
       </div>
 
       <Deposits />

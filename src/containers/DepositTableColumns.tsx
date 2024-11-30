@@ -5,6 +5,7 @@ import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
 import { generateUnlockStatus, generateTimeRemaining } from "@/utils/time";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
+import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import Image from "next/image";
 
 const columnHelper = createColumnHelper<Deposit>();
@@ -45,7 +46,8 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
       convertBNToAmount(info.getValue(), TEMP_TABLE_TOKEN.decimals),
   }),
   columnHelper.accessor(
-    (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
+    (row) =>
+      generateUnlockStatus(row.startTimestamp * 1000, row.unlockTimestamp),
     {
       id: COLUMNS_ID.UNLOCK_STATUS,
       header: "Unlock Status",
