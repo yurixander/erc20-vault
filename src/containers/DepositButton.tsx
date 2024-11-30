@@ -24,7 +24,10 @@ import useToast from "@/hooks/useToast";
 import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
 import IERC20_ABI from "@/abi/ierc20Abi";
 import { readContract, WriteContractErrorType } from "wagmi/actions";
-import { ContractFunctionExecutionError } from "viem";
+import {
+  ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+} from "viem";
 import { wagmiConfig } from "@/app/providers";
 import { BN } from "bn.js";
 import { ToastAction } from "@/components/Toast";
@@ -50,6 +53,12 @@ const DepositButton: FC = () => {
       functionName: "allowance",
       args: [address, VAULT_CONTRACT_ADDRESS],
     }).then((allowance) => {
+      console.log(allowance);
+
+      if (allowance === BigInt("0")) {
+        return;
+      }
+
       const amountApproved = convertBNToAmount(
         new BN(allowance.toString()),
         decimals
@@ -254,9 +263,11 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         },
         onSettled(_, error) {
           if (error !== null) {
+            const { title, description } = handleDepositErrors(error);
+
             toast({
-              title: "Transaction Error",
-              description: "The transaction was rejected.",
+              title: title,
+              description: description,
               variant: "destructive",
             });
 
@@ -329,6 +340,8 @@ function handleApprovalErrors(error: WriteContractErrorType): {
   };
 }
 
+const GAS_ERROR_SHORT_MESSAGE = `The contract function \"deposit"\ reverted with the following reason:\nArithmetic operation resulted in underflow or overflow.`;
+
 function handleDepositErrors(error: WriteContractErrorType): {
   title: string;
   description: string;
@@ -343,9 +356,10 @@ function handleDepositErrors(error: WriteContractErrorType): {
       title: "Deposit Error",
       description: "User rejected the request, please try again.",
     };
-  }
-
-  if (error instanceof ContractFunctionExecutionError) {
+  } else if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === GAS_ERROR_SHORT_MESSAGE
+  ) {
     return {
       title: "Deposit Error",
       description: "The gas fee is too large, please try again later.",

@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { Address } from "viem";
 
 export type Deposit = {
-  index: number;
+  index: bigint;
   amount: BN;
   startTimestamp: number;
   unlockTimestamp: number;

@@ -3,7 +3,7 @@ import { sepolia } from "viem/chains";
 import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
 
 export const VAULT_CONTRACT_ADDRESS =
-  "0xa2B58F56a293672E631bDF32dc8287A8D52c385A";
+  "0xbD55b1508a7Bde76dC996cb6aFdC1Ca020d853ff";
 
 export const MY_TOKEN_SEPOLIA_ADDRESS = "0x19B05077f4E96D2B64A18c8DF163bD6122E535E2";
 

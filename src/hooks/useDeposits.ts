@@ -20,15 +20,17 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       args: [address],
     });
 
+    console.log(rawDeposits)
+
     // Propagate errors.
     if (rawDeposits instanceof Error) {
       return rawDeposits;
     }
 
     return rawDeposits.map(
-      (rawDeposit, index): Deposit => ({
+      (rawDeposit): Deposit => ({
         amount: new BN(rawDeposit.amount.toString()),
-        index,
+        index: rawDeposit.depositId,
         startTimestamp: Number(rawDeposit.startTimestamp),
         unlockTimestamp: Number(rawDeposit.unlockTimestamp),
       })
