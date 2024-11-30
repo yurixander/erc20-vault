@@ -5,7 +5,7 @@ import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
 export const VAULT_CONTRACT_ADDRESS =
   "0xbD55b1508a7Bde76dC996cb6aFdC1Ca020d853ff";
 
-export const MY_TOKEN_SEPOLIA_ADDRESS = "0x19B05077f4E96D2B64A18c8DF163bD6122E535E2";
+export const MY_TOKEN_SEPOLIA_ADDRESS = "0xcAC8935Fa8253575CAF0F63eA45A61a9E352A2ae";
 
 export const SEPOLIA_CHAIN_ID = 11155111;
 

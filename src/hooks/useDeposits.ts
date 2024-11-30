@@ -20,8 +20,6 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       args: [address],
     });
 
-    console.log(rawDeposits)
-
     // Propagate errors.
     if (rawDeposits instanceof Error) {
       return rawDeposits;

@@ -23,14 +23,11 @@ import getErc20TokenDef from "../utils/getErc20TokenDef";
 import useToast from "@/hooks/useToast";
 import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
 import IERC20_ABI from "@/abi/ierc20Abi";
-import { readContract, WriteContractErrorType } from "wagmi/actions";
-import {
-  ContractFunctionExecutionError,
-  ContractFunctionRevertedError,
-} from "viem";
-import { wagmiConfig } from "@/app/providers";
+import { WriteContractErrorType } from "wagmi/actions";
+import { ContractFunctionExecutionError } from "viem";
 import { BN } from "bn.js";
 import { ToastAction } from "@/components/Toast";
+import useContractReadOnce from "@/hooks/useContractRead";
 
 const DepositButton: FC = () => {
   const { isConnected, chainId, address } = useAccount();
@@ -39,6 +36,7 @@ const DepositButton: FC = () => {
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
   const [beforeApproved, setBeforeApproved] = useState(false);
   const { toast } = useToast();
+  const readOnce = useContractReadOnce(IERC20_ABI);
 
   useEffect(() => {
     if (tokenId === null || address === undefined) {
@@ -47,15 +45,12 @@ const DepositButton: FC = () => {
 
     const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
 
-    readContract(wagmiConfig, {
-      abi: IERC20_ABI,
+    readOnce({
       address: mainnetAddress,
       functionName: "allowance",
       args: [address, VAULT_CONTRACT_ADDRESS],
     }).then((allowance) => {
-      console.log(allowance);
-
-      if (allowance === BigInt("0")) {
+      if (allowance === BigInt("0") || allowance instanceof Error) {
         return;
       }
 
@@ -88,7 +83,7 @@ const DepositButton: FC = () => {
         ),
       });
     });
-  }, [address, toast, tokenId]);
+  }, [address, readOnce, toast, tokenId]);
 
   return (
     <Dialog
