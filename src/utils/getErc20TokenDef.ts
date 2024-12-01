@@ -5,6 +5,7 @@ const getErc20TokenDef = (id: Erc20TokenId): Erc20TokenDefinition => {
   switch (id) {
     case Erc20TokenId.MTK:
       return MY_TOKEN_SEPOLIA;
+
     case Erc20TokenId.USDT:
       return USDT_ERC20_TOKEN;
 

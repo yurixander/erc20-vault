@@ -1,11 +1,10 @@
 import CircularProgress from "@/components/CircularProgress";
 import UnlockDeposit from "@/components/UnlockDeposit";
-import { LINK_ERC20_TOKEN } from "@/config/constants";
 import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
+import { getTokenByAddress } from "@/utils/findTokenByAddress";
 import { generateUnlockStatus, generateTimeRemaining } from "@/utils/time";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import { formatDistanceToNow, fromUnixTime } from "date-fns";
 import Image from "next/image";
 
 const columnHelper = createColumnHelper<Deposit>();
@@ -13,37 +12,40 @@ const columnHelper = createColumnHelper<Deposit>();
 const TOKEN_ICON_SIZE = 16;
 
 export const COLUMNS_ID = {
-  TOKEN: "token",
+  TOKEN: "tokenAddress",
   AMOUNT: "amount",
   UNLOCK_STATUS: "unlockStatus",
   TIME_REMAINING: "timeRemaining",
-  INDEX: "index",
+  DEPOSIT_ID: "depositId",
 };
 
-// TODO: Change this in the future to the token that each deposit has saved in its type.
-export const TEMP_TABLE_TOKEN = LINK_ERC20_TOKEN;
-
 const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
-  columnHelper.display({
-    id: COLUMNS_ID.TOKEN,
+  columnHelper.accessor("tokenAddress", {
     header: "Token",
-    cell: () => (
-      <div className="flex items-center gap-2 font-medium max-h-max">
-        <Image
-          src={TEMP_TABLE_TOKEN.iconAssetPath}
-          alt="Temporary icon"
-          width={TOKEN_ICON_SIZE}
-          height={TOKEN_ICON_SIZE}
-        />
+    cell: ({ row }) => {
+      const token = getTokenByAddress(row.original.tokenAddress);
 
-        <span className="leading-tight">{TEMP_TABLE_TOKEN.name}</span>
-      </div>
-    ),
+      return (
+        <div className="flex items-center gap-2 font-medium max-h-max">
+          <Image
+            src={token.iconAssetPath}
+            alt={`Logo of ${token.name}`}
+            width={TOKEN_ICON_SIZE}
+            height={TOKEN_ICON_SIZE}
+          />
+
+          <span className="leading-tight">{token.name}</span>
+        </div>
+      );
+    },
   }),
   columnHelper.accessor("amount", {
     header: "Amount",
-    cell: (info) =>
-      convertBNToAmount(info.getValue(), TEMP_TABLE_TOKEN.decimals),
+    cell: ({ getValue, row }) =>
+      convertBNToAmount(
+        getValue(),
+        getTokenByAddress(row.original.tokenAddress).decimals
+      ),
   }),
   columnHelper.accessor(
     (row) =>
@@ -67,7 +69,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
     header: "Time Remaining",
     cell: ({ row }) => generateTimeRemaining(row.original.unlockTimestamp),
   }),
-  columnHelper.accessor("index", {
+  columnHelper.accessor("depositId", {
     header: "",
     cell: ({ getValue, row }) => {
       const isReadyToUnlock = row.getValue(COLUMNS_ID.UNLOCK_STATUS) === 100;

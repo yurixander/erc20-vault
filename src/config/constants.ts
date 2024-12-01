@@ -14,14 +14,13 @@ export const VIEM_PUBLIC_CLIENT = createPublicClient({
   transport: http(),
 });
 
-
 // Test token.
 export const MY_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   id: Erc20TokenId.MTK,
   name: "My token",
   mainnetAddress: MY_TOKEN_SEPOLIA_ADDRESS,
   decimals: 18,
-  iconAssetPath: AssetPath.MTK,
+  iconAssetPath: AssetPath.LINK,
 }
 
 export const USDT_ERC20_TOKEN: Erc20TokenDefinition = {

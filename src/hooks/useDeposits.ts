@@ -28,7 +28,8 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
     return rawDeposits.map(
       (rawDeposit): Deposit => ({
         amount: new BN(rawDeposit.amount.toString()),
-        index: rawDeposit.depositId,
+        depositId: rawDeposit.depositId,
+        tokenAddress: rawDeposit.tokenAddress,
         startTimestamp: Number(rawDeposit.startTimestamp),
         unlockTimestamp: Number(rawDeposit.unlockTimestamp),
       })

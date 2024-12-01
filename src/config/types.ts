@@ -2,7 +2,8 @@ import BN from "bn.js";
 import { Address } from "viem";
 
 export type Deposit = {
-  index: bigint;
+  depositId: bigint;
+  tokenAddress: string;
   amount: BN;
   startTimestamp: number;
   unlockTimestamp: number;

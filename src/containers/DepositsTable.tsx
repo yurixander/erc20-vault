@@ -101,7 +101,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
                 <TableCell
                   key={cell.id}
                   className={
-                    cell.column.id === COLUMNS_ID.INDEX
+                    cell.column.id === COLUMNS_ID.DEPOSIT_ID
                       ? "w-[100px]"
                       : undefined
                   }
