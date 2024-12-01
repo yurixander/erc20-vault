@@ -25,6 +25,8 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       return rawDeposits;
     }
 
+    console.log(rawDeposits)
+
     return rawDeposits.map(
       (rawDeposit): Deposit => ({
         amount: new BN(rawDeposit.amount.toString()),

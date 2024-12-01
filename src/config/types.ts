@@ -3,7 +3,7 @@ import { Address } from "viem";
 
 export type Deposit = {
   depositId: bigint;
-  tokenAddress: string;
+  tokenAddress: `0x${string}`;
   amount: BN;
   startTimestamp: number;
   unlockTimestamp: number;

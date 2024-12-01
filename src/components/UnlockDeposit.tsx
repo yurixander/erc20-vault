@@ -1,40 +1,66 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import Button from "./Button";
-import { delay } from "@/lib/utils";
+import { useWriteContract } from "wagmi";
+import VAULT_ABI from "@/abi/vaultAbi";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import useToast from "@/hooks/useToast";
 
 type UnlockDepositProps = {
-  depositIndex: number;
+  tokenAddress: `0x${string}`;
+  depositId: number;
   disabled: boolean;
   className?: string;
 };
 
 const UnlockDeposit: FC<UnlockDepositProps> = ({
-  depositIndex,
+  depositId,
+  tokenAddress,
   disabled,
   className,
 }) => {
-  const [isUnlocking, setIsUnlocking] = useState(false);
+  const { writeContract, isPending } = useWriteContract();
+  const { toast } = useToast();
 
-  const unlockDeposit = async () => {
-    if (isUnlocking) {
-      return;
-    }
+  const unlockDeposit = useCallback(() => {
+    writeContract(
+      {
+        abi: VAULT_ABI,
+        address: VAULT_CONTRACT_ADDRESS,
+        functionName: "withdraw",
+        args: [tokenAddress, BigInt(depositId)],
+      },
+      {
+        onError: (error) => {
+          console.log({
+            ...error,
+          });
 
-    setIsUnlocking(true);
+          console.log(depositId);
 
-    // TODO: Handle unlock deposit functionality.
-    await delay(5000);
-
-    setIsUnlocking(false);
-  };
+          toast({
+            title: "Please try again later.",
+            description:
+              "An error occurred while trying to unlock the deposit.",
+            variant: "destructive",
+          });
+        },
+        onSuccess: () => {
+          toast({
+            title: "The withdrawal has been processed.",
+            description: "Your deposit has been unlocked.",
+          });
+        },
+      }
+    );
+  }, [depositId, toast, tokenAddress, writeContract]);
 
   return (
     <Button
       size="sm"
       disabled={disabled}
-      isLoading={isUnlocking}
+      isLoading={isPending}
       onClick={unlockDeposit}
       className={className}
     >

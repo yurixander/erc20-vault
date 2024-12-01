@@ -28,6 +28,7 @@ import { ContractFunctionExecutionError } from "viem";
 import { BN } from "bn.js";
 import { ToastAction } from "@/components/Toast";
 import useContractReadOnce from "@/hooks/useContractRead";
+import { getUnixTime } from "date-fns/getUnixTime";
 
 const DepositButton: FC = () => {
   const { isConnected, chainId, address } = useAccount();
@@ -237,7 +238,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         args: [
           mainnetAddress,
           BigInt(amountInCents.toString()),
-          BigInt(unlockTimestamp),
+          BigInt(getUnixTime(unlockTimestamp)),
         ],
       },
       {

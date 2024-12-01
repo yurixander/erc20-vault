@@ -77,7 +77,8 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
       return (
         <UnlockDeposit
           className="w-full"
-          depositIndex={getValue()}
+          tokenAddress={row.original.tokenAddress}
+          depositId={getValue()}
           disabled={!isReadyToUnlock}
         />
       );
