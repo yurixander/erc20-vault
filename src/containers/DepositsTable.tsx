@@ -75,7 +75,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
   );
 
   return (
-    <div className="flex flex-col gap-y-4 max-w-6xl justify-center">
+    <div className="flex flex-col gap-y-4 max-w-6xl justify-center mb-4">
       <Table
         className={twMerge("border min-w-[640px] md:min-w-full", className)}
       >
@@ -101,7 +101,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
                 <TableCell
                   key={cell.id}
                   className={
-                    cell.column.id === COLUMNS_ID.INDEX
+                    cell.column.id === COLUMNS_ID.DEPOSIT_ID
                       ? "w-[100px]"
                       : undefined
                   }
