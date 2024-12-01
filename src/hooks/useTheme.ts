@@ -5,8 +5,14 @@ type UseThemeReturnType = {
   isDarkMode: boolean
 }
 
+export const THEME_KEY = "theme_mode"
+
+const DARK_MODE = "dark"
+const LIGHT_MODE = "light"
+
 const useTheme = (): UseThemeReturnType => {
-  const savedTheme = localStorage.getItem("darkMode")
+
+  const savedTheme = localStorage.getItem(THEME_KEY)
   const isDarkMode = savedTheme ? JSON.parse(savedTheme) : false
 
   const [isDarkTheme, setIsDarkTheme] = useState(isDarkMode)
@@ -15,12 +21,12 @@ const useTheme = (): UseThemeReturnType => {
     const html = document.documentElement
 
     if (isDarkTheme) {
-      html.classList.add("dark")
+      html.className = DARK_MODE
     } else {
-      html.classList.remove("dark")
+      html.className = LIGHT_MODE
     }
 
-    localStorage.setItem("darkMode", JSON.stringify(isDarkTheme))
+    localStorage.setItem(THEME_KEY, JSON.stringify(isDarkTheme))
   }, [isDarkTheme])
 
   const toggleTheme = useCallback(() => {
