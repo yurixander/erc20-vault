@@ -25,11 +25,13 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       return rawDeposits;
     }
 
+    console.log(rawDeposits)
+
     return rawDeposits.map(
       (rawDeposit): Deposit => ({
         amount: new BN(rawDeposit.amount.toString()),
-        // FIXME: Index.
-        index: 0,
+        depositId: rawDeposit.depositId,
+        tokenAddress: rawDeposit.tokenAddress,
         startTimestamp: Number(rawDeposit.startTimestamp),
         unlockTimestamp: Number(rawDeposit.unlockTimestamp),
       })
