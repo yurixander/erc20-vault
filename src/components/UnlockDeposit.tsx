@@ -1,6 +1,4 @@
-"use client";
-
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback } from "react";
 import Button from "./Button";
 import { useWriteContract } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";

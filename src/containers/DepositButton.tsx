@@ -1,5 +1,3 @@
-"use client";
-
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../components/Button";
 import { FiArrowRight, FiPlusCircle } from "react-icons/fi";

@@ -5,7 +5,6 @@ import { convertBNToAmount } from "@/utils/amount";
 import { getTokenByAddress } from "@/utils/findTokenByAddress";
 import { generateUnlockStatus, generateTimeRemaining } from "@/utils/time";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import Image from "next/image";
 
 const columnHelper = createColumnHelper<Deposit>();
 
@@ -27,7 +26,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
 
       return (
         <div className="flex items-center gap-2 font-medium max-h-max">
-          <Image
+          <img
             src={token.iconAssetPath}
             alt={`Logo of ${token.name}`}
             width={TOKEN_ICON_SIZE}

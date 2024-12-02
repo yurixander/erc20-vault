@@ -3,8 +3,8 @@ import { sepolia } from "viem/chains";
 import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
 
 export enum AppRoute {
-  App = "App",
-  Dev = "Dev"
+  App = "/",
+  Dev = "/dev"
 }
 
 export const VAULT_CONTRACT_ADDRESS =

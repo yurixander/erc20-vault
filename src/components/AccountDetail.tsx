@@ -1,7 +1,4 @@
-"use client";
-
 import { FC, useRef } from "react";
-import Image from "next/image";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Text } from "./Typography";
@@ -37,7 +34,7 @@ const AccountDetail: FC = () => {
               >
                 {chain.hasIcon && chain.iconUrl !== undefined && (
                   <picture className="bg-gray-100 dark:bg-gray-900 -ml-1 size-7 flex items-center justify-center rounded-full">
-                    <Image
+                    <img
                       src={chain.iconUrl}
                       alt={`Logo of ${chain.name}`}
                       height={NETWORK_ICON_SIZE}

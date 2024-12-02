@@ -1,5 +1,3 @@
-"use client";
-
 import { FC, useCallback, useEffect, useState } from "react";
 import useDeposits from "../hooks/useDeposits";
 import { Deposit } from "../config/types";
