@@ -2,6 +2,11 @@ import { createPublicClient, http } from "viem";
 import { sepolia } from "viem/chains";
 import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
 
+export enum AppRoute {
+  App = "App",
+  Dev = "Dev"
+}
+
 export const VAULT_CONTRACT_ADDRESS =
   "0xbD55b1508a7Bde76dC996cb6aFdC1Ca020d853ff";
 

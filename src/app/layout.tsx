@@ -13,7 +13,7 @@ import AppSidebar from "@/components/AppSidebar";
 const APP_NAME = "ERC20 Vault";
 const INTER = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
+export const metadata = {
   title: APP_NAME,
   description: "Lock ERC20 tokens in a vault for a specified period of time.",
 };
