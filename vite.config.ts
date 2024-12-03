@@ -10,4 +10,7 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
+  css: {
+    postcss: "./postcss.config.mjs"
+  }
 })

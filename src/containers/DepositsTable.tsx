@@ -26,6 +26,8 @@ import {
   PaginationPrevious,
 } from "@/components/Pagination";
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
+import { HiOutlineBanknotes } from "react-icons/hi2";
+import { Heading, Text } from "@/components/Typography";
 
 type DepositsTableProps = {
   deposits: Deposit[];
@@ -71,6 +73,20 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
       ),
     [pagination.pageIndex, table]
   );
+
+  if (deposits.length === 0) {
+    return (
+      <div className="w-full h-64 items-center flex flex-col border border-gray-200 justify-center rounded-sm bg-gray-50">
+        <HiOutlineBanknotes className="size-16" />
+
+        <Heading level="h4" align="center">
+          There are no deposits
+        </Heading>
+
+        <Text align="center">Add your first deposit to get started</Text>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-y-4 max-w-6xl justify-center mb-4">

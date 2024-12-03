@@ -1,18 +1,20 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { useAccount } from "wagmi";
 import VAULT_ABI from "../abi/vaultAbi";
 import useContractReadOnce from "./useContractRead";
 import { Deposit } from "../config/types";
 import BN from "bn.js";
-import assert from "assert";
 
-const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
-  const { address } = useAccount();
+const useDeposits = () => {
+  const { address , isConnected} = useAccount();
   const readOnce = useContractReadOnce(VAULT_ABI);
+  const [deposits, setDeposits] = useState<Deposit[] | null | Error>(null)
 
-  const fetch = useCallback(async () => {
-    assert(address !== undefined);
+  const fetchDeposits = useCallback(async () => {
+    if (!isConnected || address === undefined) {
+      return
+    }
 
     const rawDeposits = await readOnce({
       address: VAULT_CONTRACT_ADDRESS,
@@ -20,26 +22,40 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       args: [address],
     });
 
-    // Propagate errors.
     if (rawDeposits instanceof Error) {
-      return rawDeposits;
+      return
     }
 
-    console.log(rawDeposits)
+    const availableDeposits: Deposit[] = []
 
-    return rawDeposits.map(
-      (rawDeposit): Deposit => ({
+    for (const rawDeposit of rawDeposits) {
+      if (rawDeposit.amount === BigInt("0")) {
+        continue
+      }
+
+      availableDeposits.push({
         amount: new BN(rawDeposit.amount.toString()),
         depositId: rawDeposit.depositId,
         tokenAddress: rawDeposit.tokenAddress,
         startTimestamp: Number(rawDeposit.startTimestamp),
         unlockTimestamp: Number(rawDeposit.unlockTimestamp),
       })
-    );
-  }, [address, readOnce]);
+    }
+
+    setDeposits(availableDeposits)
+  }, [readOnce, address, isConnected])
+
+  useEffect(() => {
+    fetchDeposits()
+  }, [fetchDeposits])
+
+
 
   // Only provide the fetch function if an account is connected.
-  return address === undefined ? null : fetch;
+  return {
+    deposits,
+    fetchDeposits,
+  }
 };
 
 export default useDeposits;
