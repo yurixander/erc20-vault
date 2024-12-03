@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { useAccount } from "wagmi";
 import VAULT_ABI from "../abi/vaultAbi";
@@ -6,14 +6,21 @@ import useContractReadOnce from "./useContractRead";
 import { Deposit } from "../config/types";
 import BN from "bn.js";
 
+export class AccountNotFoundError extends Error {
+  message = "Please check your connection and try again.";
+}
+
+export class FetchDepositsError extends Error {
+  message = "Failed to fetch deposits. Please try again.";
+}
+
 const useDeposits = () => {
   const { address , isConnected} = useAccount();
   const readOnce = useContractReadOnce(VAULT_ABI);
-  const [deposits, setDeposits] = useState<Deposit[] | null | Error>(null)
 
   const fetchDeposits = useCallback(async () => {
-    if (!isConnected || address === undefined) {
-      return
+    if (address === undefined) {
+      throw new AccountNotFoundError()
     }
 
     const rawDeposits = await readOnce({
@@ -23,7 +30,7 @@ const useDeposits = () => {
     });
 
     if (rawDeposits instanceof Error) {
-      return
+      throw new FetchDepositsError()
     }
 
     const availableDeposits: Deposit[] = []
@@ -42,20 +49,13 @@ const useDeposits = () => {
       })
     }
 
-    setDeposits(availableDeposits)
-  }, [readOnce, address, isConnected])
-
-  useEffect(() => {
-    fetchDeposits()
-  }, [fetchDeposits])
+    return availableDeposits
+  }, [readOnce, address])
 
 
 
   // Only provide the fetch function if an account is connected.
-  return {
-    deposits,
-    fetchDeposits,
-  }
+  return isConnected ? fetchDeposits : null
 };
 
 export default useDeposits;

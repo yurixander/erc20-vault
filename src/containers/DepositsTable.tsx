@@ -28,15 +28,22 @@ import {
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
 import { HiOutlineBanknotes } from "react-icons/hi2";
 import { Heading, Text } from "@/components/Typography";
+import Button from "@/components/Button";
+import { TfiReload } from "react-icons/tfi";
 
 type DepositsTableProps = {
   deposits: Deposit[];
+  onReload: () => void;
   className?: string;
 };
 
 const PAGE_SIZE = 8;
 
-const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
+const DepositsTable: FC<DepositsTableProps> = ({
+  deposits,
+  className,
+  onReload,
+}) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
@@ -128,25 +135,36 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
         </TableBody>
       </Table>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            />
-          </PaginationItem>
+      <div className="flex">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              />
+            </PaginationItem>
 
-          {paginationElements}
+            {paginationElements}
 
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+        <Button
+          size="icon"
+          className="shrink-0"
+          variant="outline"
+          onClick={onReload}
+        >
+          <TfiReload />
+        </Button>
+      </div>
     </div>
   );
 };
