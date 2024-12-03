@@ -17,7 +17,7 @@ const CircularProgress: FC<CircularProgressProps> = ({
 
   return (
     <div className="relative inline-flex items-center justify-center">
-      <svg className="transform -rotate-90" width={size} height={size}>
+      <svg className="-rotate-90 transform" width={size} height={size}>
         <circle
           className="stroke-primary/20"
           strokeWidth={strokeWidth}
@@ -28,7 +28,7 @@ const CircularProgress: FC<CircularProgressProps> = ({
         />
 
         <circle
-          className="transition-transform duration-300 ease-in-out stroke-primary"
+          className="stroke-primary transition-transform duration-300 ease-in-out"
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}

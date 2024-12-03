@@ -1,6 +1,6 @@
-import { FC, useRef } from "react";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { FC, useRef } from "react";
 import { Text } from "./Typography";
 
 const NETWORK_ICON_SIZE = 24;
@@ -29,11 +29,11 @@ const AccountDetail: FC = () => {
               <button
                 ref={networkRef}
                 onClick={openChainModal}
-                className="flex gap-x-2 dark:bg-gray-950 dark:border-gray-800 max-w-xs focus-visible:scale-105 active:scale-100 hover:scale-105 transition shadow-sm rounded-full py-1 px-2 items-center bg-white border border-gray-200"
+                className="flex max-w-xs items-center gap-x-2 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm transition hover:scale-105 focus-visible:scale-105 active:scale-100 dark:border-gray-800 dark:bg-gray-950"
                 onKeyDown={({ key }) => handleKeyDown(key, "network")}
               >
                 {chain.hasIcon && chain.iconUrl !== undefined && (
-                  <picture className="bg-gray-100 dark:bg-gray-900 -ml-1 size-7 flex items-center justify-center rounded-full">
+                  <picture className="-ml-1 flex size-7 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-900">
                     <img
                       src={chain.iconUrl}
                       alt={`Logo of ${chain.name}`}
@@ -48,10 +48,10 @@ const AccountDetail: FC = () => {
                 <ChevronDownIcon className="size-5" />
               </button>
             ) : (
-              <div className="h-10 w-32 bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-950 rounded-full flex gap-x-2 shadow-sm items-center px-2 py-1">
-                <div className="size-6 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full" />
+              <div className="flex h-10 w-32 items-center gap-x-2 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                <div className="size-6 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
 
-                <div className="h-6 grow animate-pulse bg-gray-200  dark:bg-gray-800 rounded-full" />
+                <div className="h-6 grow animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
               </div>
             )}
 
@@ -59,25 +59,25 @@ const AccountDetail: FC = () => {
               <button
                 ref={balanceRef}
                 onClick={openAccountModal}
-                className="flex gap-x-4 max-w-xs focus-visible:scale-105 active:scale-100 hover:scale-105 transition-transform shadow-sm rounded-full py-1 px-2 items-center bg-white border border-gray-200 dark:bg-gray-950 dark:border-gray-800"
+                className="flex max-w-xs items-center gap-x-4 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm transition-transform hover:scale-105 focus-visible:scale-105 active:scale-100 dark:border-gray-800 dark:bg-gray-950"
                 onKeyDown={({ key }) => handleKeyDown(key, "balance")}
               >
                 <Text className="w-max">{account.displayBalance}</Text>
 
                 <Text
                   weight="medium"
-                  className="bg-gray-100 dark:bg-gray-900 rounded-full px-2.5 py-1 w-max"
+                  className="w-max rounded-full bg-gray-100 px-2.5 py-1 dark:bg-gray-900"
                 >
                   {account.displayName}
                 </Text>
 
-                <ChevronDownIcon className="size-5 ml-auto" />
+                <ChevronDownIcon className="ml-auto size-5" />
               </button>
             ) : (
-              <div className="h-10 w-64 bg-white border border-gray-200 dark:border-gray-800 dark:bg-gray-950 rounded-full flex gap-x-2 shadow-sm items-center px-2 py-1">
-                <div className="h-6 w-14 bg-gray-200 dark:bg-gray-800 animate-pulse rounded-full" />
+              <div className="flex h-10 w-64 items-center gap-x-2 rounded-full border border-gray-200 bg-white px-2 py-1 shadow-sm dark:border-gray-800 dark:bg-gray-950">
+                <div className="h-6 w-14 animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
 
-                <div className="h-6 grow animate-pulse bg-gray-200  dark:bg-gray-800 rounded-full" />
+                <div className="h-6 grow animate-pulse rounded-full bg-gray-200 dark:bg-gray-800" />
               </div>
             )}
           </div>

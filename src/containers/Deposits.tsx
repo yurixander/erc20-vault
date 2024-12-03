@@ -1,11 +1,11 @@
+import { Deposit } from "@/config/types";
+import useToast from "@/hooks/useToast";
 import { FC, useCallback, useEffect, useState } from "react";
 import useDeposits, {
   AccountNotFoundError,
   FetchDepositsError,
 } from "../hooks/useDeposits";
 import DepositsTable from "./DepositsTable";
-import { Deposit } from "@/config/types";
-import useToast from "@/hooks/useToast";
 
 const Deposits: FC = () => {
   const fetchDeposits = useDeposits();

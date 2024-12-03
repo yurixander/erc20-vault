@@ -1,10 +1,10 @@
-import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
-import { cva, type VariantProps } from "class-variance-authority";
+import { type VariantProps, cva } from "class-variance-authority";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { FiLoader } from "react-icons/fi";
 import { ReactNode } from "react";
+import { FiLoader } from "react-icons/fi";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -33,7 +33,7 @@ export const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
@@ -58,7 +58,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Tag = asChild ? Slot : "button";
 
@@ -70,11 +70,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "space-x-2",
           buttonVariants({ variant, size, className }),
-          isLoading && "animate-pulse"
+          isLoading && "animate-pulse",
         )}
         {...props}
       >
-        {isLoading && <FiLoader className="animate-spin size-4" />}
+        {isLoading && <FiLoader className="size-4 animate-spin" />}
 
         {isLoading ? loadingText : children}
 
@@ -83,7 +83,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </Tag>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

@@ -1,4 +1,6 @@
+import { MY_TOKEN_SEPOLIA } from "@/config/constants";
 import React, { FC, useCallback, useMemo } from "react";
+import { Erc20TokenId } from "../config/types";
 import {
   Select,
   SelectContent,
@@ -8,8 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./Select";
-import { Erc20TokenId } from "../config/types";
-import { MY_TOKEN_SEPOLIA } from "@/config/constants";
 
 export type TokenSelectProps = {
   tokenId: Erc20TokenId | null;
@@ -35,7 +35,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
       assetTokenId(newValue);
       setTokenId(newValue);
     },
-    [setTokenId]
+    [setTokenId],
   );
 
   const selectableItems: React.ReactNode = useMemo(() => {

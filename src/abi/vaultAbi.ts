@@ -1,6 +1,6 @@
 import { Abi } from "viem";
 
-const VAULT_ABI =  [
+const VAULT_ABI = [
   {
     inputs: [],
     name: "DepositAmountMustBeGreaterThanZero",
@@ -39,12 +39,42 @@ const VAULT_ABI =  [
   {
     anonymous: false,
     inputs: [
-      { indexed: false, internalType: "uint256", name: "depositId", type: "uint256" },
-      { indexed: true, internalType: "address", name: "account", type: "address" },
-      { indexed: true, internalType: "address", name: "tokenAddress", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "startTimestamp", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "depositId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startTimestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "unlockTimestamp",
+        type: "uint256",
+      },
     ],
     name: "DepositMade",
     type: "event",
@@ -52,9 +82,24 @@ const VAULT_ABI =  [
   {
     anonymous: false,
     inputs: [
-      { indexed: true, internalType: "address", name: "account", type: "address" },
-      { indexed: true, internalType: "address", name: "tokenAddress", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "account",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
     ],
     name: "WithdrawalMade",
     type: "event",
@@ -66,7 +111,9 @@ const VAULT_ABI =  [
       { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
     ],
     name: "deposit",
-    outputs: [{ internalType: "uint256", name: "depositIndex", type: "uint256" }],
+    outputs: [
+      { internalType: "uint256", name: "depositIndex", type: "uint256" },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -87,9 +134,7 @@ const VAULT_ABI =  [
     type: "function",
   },
   {
-    inputs: [
-      { internalType: "address", name: "account", type: "address" },
-    ],
+    inputs: [{ internalType: "address", name: "account", type: "address" }],
     name: "getDeposits",
     outputs: [
       {

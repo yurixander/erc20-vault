@@ -2,8 +2,8 @@
 
 import { DayPicker } from "react-day-picker";
 
-import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/Button";
+import { cn } from "@/lib/utils";
 import { FC } from "react";
 
 export type CalendarProps = {
@@ -19,7 +19,7 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
       selected={selected}
       onSelect={onSelect}
       showOutsideDays={true}
-      className={cn("p-3 rounded-md border shadow w-max", className)}
+      className={cn("w-max rounded-md border p-3 shadow", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
@@ -28,7 +28,7 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
         nav: "space-x-1 flex items-center",
         nav_button: cn(
           buttonVariants({ variant: "outline" }),
-          "size-7 bg-transparent p-0 opacity-50 hover:opacity-100"
+          "size-7 bg-transparent p-0 opacity-50 hover:opacity-100",
         ),
         nav_button_previous: "absolute left-1",
         nav_button_next: "absolute right-1",
@@ -38,11 +38,11 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
           "text-muted-foreground rounded-md w-8 font-normal text-[0.8rem]",
         row: "flex w-full mt-2",
         cell: cn(
-          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50"
+          "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-accent [&:has([aria-selected].day-outside)]:bg-accent/50",
         ),
         day: cn(
           buttonVariants({ variant: "ghost" }),
-          "size-8 p-0 font-normal aria-selected:opacity-100"
+          "size-8 p-0 font-normal aria-selected:opacity-100",
         ),
         day_range_start: "day-range-start",
         day_selected:

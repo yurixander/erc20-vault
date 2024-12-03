@@ -1,5 +1,5 @@
-import Input from "./Input";
 import { FC, useCallback, useState } from "react";
+import Input from "./Input";
 import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
 
@@ -58,7 +58,7 @@ const AmountInput: FC<AmountInputProps> = ({
         setError("Unexpected error.");
       }
     },
-    [onAmountChange]
+    [onAmountChange],
   );
 
   return (

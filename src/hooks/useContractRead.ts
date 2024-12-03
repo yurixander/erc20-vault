@@ -1,9 +1,9 @@
 import { useCallback } from "react";
 import {
-  Abi as ViemAbi,
+  Address,
   ContractFunctionArgs,
   ContractFunctionName,
-  Address,
+  Abi as ViemAbi,
 } from "viem";
 import { ReadContractReturnType } from "wagmi/actions";
 import { VIEM_PUBLIC_CLIENT } from "../config/constants";
@@ -11,7 +11,7 @@ import ensureError from "../utils/ensureError";
 
 export type ContractReadOptions<
   Abi extends ViemAbi,
-  FunctionName extends ContractFunctionName<Abi, "pure" | "view">
+  FunctionName extends ContractFunctionName<Abi, "pure" | "view">,
 > = {
   address: Address;
   functionName: FunctionName;
@@ -44,13 +44,13 @@ const useContractReadOnce = <Abi extends ViemAbi>(abi: Abi) => {
 
         console.error(
           `Error reading contract ${address} function ${functionName}:`,
-          error
+          error,
         );
 
         return error;
       }
     },
-    [abi]
+    [abi],
   );
 
   return read;

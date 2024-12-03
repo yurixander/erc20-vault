@@ -1,7 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { FC } from "react";
-import Button from "./Button";
 import { MdAccountCircle } from "react-icons/md";
+import Button from "./Button";
 
 const CustomConnectButton: FC = () => {
   return (

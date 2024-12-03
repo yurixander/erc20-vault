@@ -1,8 +1,8 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { FC, ReactNode } from "react";
 import Legend from "./Legend";
-import { ReactNode, FC } from "react";
 import { Text } from "./Typography";
 
 export type InputProps = {
@@ -32,9 +32,9 @@ const Input: FC<InputProps> = ({
     <div className="flex flex-col items-start justify-center gap-1">
       <div
         className={cn(
-          "flex items-center justify-center gap-2 w-full rounded-md border border-input bg-transparent p-3 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          "flex w-full items-center justify-center gap-2 rounded-md border border-input bg-transparent p-3 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
           error !== null && "border-red-500",
-          className
+          className,
         )}
       >
         <input

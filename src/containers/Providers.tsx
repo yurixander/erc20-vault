@@ -1,9 +1,9 @@
-import { getDefaultConfig, RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { Toaster } from "@/components/Toast";
+import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, ReactNode } from "react";
-import { WagmiProvider } from "wagmi";
 import { mainnet, sepolia } from "viem/chains";
-import { Toaster } from "@/components/Toast";
+import { WagmiProvider } from "wagmi";
 
 export const wagmiConfig = getDefaultConfig({
   appName: "ERC20 Vault",

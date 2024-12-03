@@ -1,7 +1,19 @@
+import IERC20_ABI from "@/abi/ierc20Abi";
+import { ToastAction } from "@/components/Toast";
+import useContractReadOnce from "@/hooks/useContractRead";
+import useToast from "@/hooks/useToast";
+import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
+import { BN } from "bn.js";
+import { getUnixTime } from "date-fns/getUnixTime";
 import { FC, useCallback, useEffect, useMemo, useState } from "react";
-import Button from "../components/Button";
 import { FiArrowRight, FiPlusCircle } from "react-icons/fi";
+import { ContractFunctionExecutionError } from "viem";
 import { useAccount, useWriteContract } from "wagmi";
+import { WriteContractErrorType } from "wagmi/actions";
+import VAULT_ABI from "../abi/vaultAbi";
+import AmountInput from "../components/AmountInput";
+import Button from "../components/Button";
+import DatePicker from "../components/DatePicker";
 import {
   Dialog,
   DialogContent,
@@ -11,22 +23,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../components/Dialog";
-import AmountInput from "../components/AmountInput";
-import { Erc20TokenId } from "../config/types";
-import DatePicker from "../components/DatePicker";
 import LegendWrapper from "../components/LegendWrapper";
-import VAULT_ABI from "../abi/vaultAbi";
 import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
+import { Erc20TokenId } from "../config/types";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
-import useToast from "@/hooks/useToast";
-import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
-import IERC20_ABI from "@/abi/ierc20Abi";
-import { WriteContractErrorType } from "wagmi/actions";
-import { ContractFunctionExecutionError } from "viem";
-import { BN } from "bn.js";
-import { ToastAction } from "@/components/Toast";
-import useContractReadOnce from "@/hooks/useContractRead";
-import { getUnixTime } from "date-fns/getUnixTime";
 
 const DepositButton: FC = () => {
   const { isConnected, chainId, address } = useAccount();
@@ -55,7 +55,7 @@ const DepositButton: FC = () => {
 
       const amountApproved = convertBNToAmount(
         new BN(allowance.toString()),
-        decimals
+        decimals,
       );
 
       toast({
@@ -209,7 +209,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
             variant: "destructive",
           });
         },
-      }
+      },
     );
   }, [tokenId, amount, approveAmount, toast]);
 
@@ -273,18 +273,18 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
             description: "Transaction is processing, please wait.",
           });
         },
-      }
+      },
     );
   }, [amount, toast, tokenId, unlockTimestamp, writeContract]);
 
   const isButtonLoading = useMemo(
     () => (!isApprovalSuccess && isApprovalPending) || isPending,
-    [isApprovalPending, isApprovalSuccess, isPending]
+    [isApprovalPending, isApprovalSuccess, isPending],
   );
 
   const isDepositAvailable = useMemo(
     () => beforeApproved || isApprovalSuccess,
-    [beforeApproved, isApprovalSuccess]
+    [beforeApproved, isApprovalSuccess],
   );
 
   return (

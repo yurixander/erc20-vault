@@ -17,5 +17,5 @@ export function convertAmountToBN(amount: string, decimal: number): BN {
 export function convertBNToAmount(bn: BN, decimal: number) {
   const decimalAmount = new Decimal(bn.toString());
 
-  return decimalAmount.div(10 ** decimal).toFixed(2)
+  return decimalAmount.div(10 ** decimal).toFixed(2);
 }
