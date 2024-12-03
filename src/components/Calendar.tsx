@@ -1,5 +1,3 @@
-"use client";
-
 import { DayPicker } from "react-day-picker";
 
 import { buttonVariants } from "@/components/Button";
