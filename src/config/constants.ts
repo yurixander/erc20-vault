@@ -1,6 +1,7 @@
 import { http, createPublicClient } from "viem";
 import { sepolia } from "viem/chains";
 import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
+import { EnvKey, requireEnvVariable } from "./env";
 
 export enum AppRoute {
   App = "/",
@@ -15,9 +16,13 @@ export const MY_TOKEN_SEPOLIA_ADDRESS =
 
 export const SEPOLIA_CHAIN_ID = 11155111;
 
+export const SEPOLIA_ALCHEMY_TRANSPORT = http(
+  `https://eth-sepolia.g.alchemy.com/v2/${requireEnvVariable(EnvKey.SepoliaAlchemyKey)}`,
+);
+
 export const VIEM_PUBLIC_CLIENT = createPublicClient({
   chain: sepolia,
-  transport: http(),
+  transport: SEPOLIA_ALCHEMY_TRANSPORT,
 });
 
 // Test token.
