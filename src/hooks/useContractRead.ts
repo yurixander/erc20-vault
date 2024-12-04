@@ -5,9 +5,9 @@ import {
   ContractFunctionName,
   Abi as ViemAbi,
 } from "viem";
-import { ReadContractReturnType } from "wagmi/actions";
-import { VIEM_PUBLIC_CLIENT } from "../config/constants";
+import { readContract, ReadContractReturnType } from "wagmi/actions";
 import ensureError from "../utils/ensureError";
+import { wagmiConfig } from "@/containers/Providers";
 
 export type ContractReadOptions<
   Abi extends ViemAbi,
@@ -33,7 +33,7 @@ const useContractReadOnce = <Abi extends ViemAbi>(abi: Abi) => {
       | Error
     > => {
       try {
-        return await VIEM_PUBLIC_CLIENT.readContract({
+        return await readContract(wagmiConfig, {
           address,
           abi,
           functionName,
