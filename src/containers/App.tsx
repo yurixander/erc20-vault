@@ -6,7 +6,6 @@ import Providers from "@/containers/Providers";
 import { FC } from "react";
 import DepositButton from "./DepositButton";
 import Deposits from "./Deposits";
-import Footer from "./Footer";
 
 const App: FC = () => {
   return (
@@ -14,8 +13,6 @@ const App: FC = () => {
       <div className="flex h-screen w-full flex-col sm:flex-row">
         <aside className="hidden size-full w-72 grow flex-col bg-blue-600 sm:flex dark:bg-blue-800">
           <AppSidebar className="grow" />
-
-          <Footer className="border-t border-t-blue-300/80 text-white" />
         </aside>
 
         <section className="flex w-full grow flex-col">
@@ -43,8 +40,6 @@ const App: FC = () => {
                 <Deposits />
               </main>
             </div>
-
-            <Footer className="text-foreground md:hidden" />
           </div>
         </section>
       </div>
