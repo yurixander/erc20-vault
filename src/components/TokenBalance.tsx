@@ -66,7 +66,7 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
   return (
     <div className="ml-auto h-5 space-x-1">
       {isBalanceLoading ? (
-        <div className="mt-2 h-4 w-16 animate-pulse rounded-md bg-gray-300/60" />
+        <div className="mt-1 mr-0.5 size-4 animate-spin rounded-full border-[3px] border-gray-100 border-t-black dark:border-gray-600 dark:border-t-white" />
       ) : (
         <>
           <Text
