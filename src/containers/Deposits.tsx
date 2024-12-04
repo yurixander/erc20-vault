@@ -6,6 +6,7 @@ import useDeposits, {
   FetchDepositsError,
 } from "../hooks/useDeposits";
 import DepositsTable from "./DepositsTable";
+import { ToastAction } from "@/components/Toast";
 
 const Deposits: FC = () => {
   const fetchDeposits = useDeposits();
@@ -33,6 +34,11 @@ const Deposits: FC = () => {
             title: "Fetch deposits error",
             description: error.message,
             variant: "destructive",
+            action: (
+              <ToastAction altText="Reload deposits" onClick={reloadDeposits}>
+                Reload
+              </ToastAction>
+            ),
           });
         } else {
           toast({

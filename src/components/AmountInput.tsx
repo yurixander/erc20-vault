@@ -16,7 +16,6 @@ export type AmountInputProps = TokenSelectProps & {
 const NUMBER_REGEX = new RegExp(/^([1-9]\d*|0)(\.\d+)?$/);
 
 const AmountInput: FC<AmountInputProps> = ({
-  maxAmount,
   onAmountChange,
   tokenId,
   setTokenId,

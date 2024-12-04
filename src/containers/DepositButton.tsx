@@ -27,6 +27,7 @@ import LegendWrapper from "../components/LegendWrapper";
 import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { Erc20TokenId } from "../config/types";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
+import TokenBalance from "@/components/TokenBalance";
 
 const DepositButton: FC = () => {
   const { isConnected, chainId, address } = useAccount();
@@ -94,6 +95,7 @@ const DepositButton: FC = () => {
         setAmount(null);
         setTokenId(null);
         setUnlockTimestamp(null);
+        setBeforeApproved(false);
       }}
     >
       <DialogTrigger asChild>
@@ -115,16 +117,24 @@ const DepositButton: FC = () => {
         </DialogHeader>
 
         <div className="flex flex-col gap-6">
-          <AmountInput
-            amount={amount}
-            isChainTest={chainId === SEPOLIA_CHAIN_ID}
-            tokenId={tokenId}
-            setTokenId={setTokenId}
-            onAmountChange={setAmount}
-            placeholder="Amount to lock up"
-            legend="You won't be able to access these funds while they're locked up."
-            legendLearnMoreHref="#"
-          />
+          <div className="flex flex-col">
+            <AmountInput
+              amount={amount}
+              isChainTest={chainId === SEPOLIA_CHAIN_ID}
+              tokenId={tokenId}
+              setTokenId={setTokenId}
+              onAmountChange={setAmount}
+              placeholder="Amount to lock up"
+              legendLearnMoreHref={tokenId !== null ? undefined : "#"}
+              legend={
+                tokenId !== null
+                  ? undefined
+                  : "You won't be able to access these funds while they're locked up."
+              }
+            />
+
+            <TokenBalance tokenId={tokenId} />
+          </div>
 
           <LegendWrapper
             legend="You
