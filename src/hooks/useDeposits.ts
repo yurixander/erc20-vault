@@ -36,7 +36,7 @@ const useDeposits = () => {
     const availableDeposits: Deposit[] = [];
 
     for (const rawDeposit of rawDeposits) {
-      if (rawDeposit.amount === BigInt("0")) {
+      if (rawDeposit.withdrawn) {
         continue;
       }
 

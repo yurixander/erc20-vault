@@ -259,12 +259,6 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
             variant: "destructive",
           });
         },
-        onSuccess() {
-          toast({
-            title: "Deposit Success",
-            description: "",
-          });
-        },
         onSettled(_, error) {
           if (error !== null) {
             const { title, description } = handleDepositErrors(error);

@@ -7,12 +7,92 @@ import useDeposits, {
 } from "../hooks/useDeposits";
 import DepositsTable from "./DepositsTable";
 import { ToastAction } from "@/components/Toast";
+import { useAccount, useWatchContractEvent } from "wagmi";
+import VAULT_ABI from "@/abi/vaultAbi";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { decodeEventLog } from "viem";
+import { getTokenByAddress } from "@/utils/findTokenByAddress";
+import { convertBNToAmount } from "@/utils/amount";
+import { BN } from "bn.js";
 
 const Deposits: FC = () => {
   const fetchDeposits = useDeposits();
   const [deposits, setDeposits] = useState<Deposit[]>([]);
   const [isDepositsLoading, setIsDepositsLoading] = useState(true);
   const { toast } = useToast();
+  const { address } = useAccount();
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "DepositMade",
+    syncConnectedChain: true,
+    onLogs: (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "DepositMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "New deposit",
+          description: `You've made a deposit of ${amount} ${id}`,
+        });
+
+        fetchDeposits !== null && fetchDeposits();
+      }
+    },
+  });
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "WithdrawalMade",
+    syncConnectedChain: true,
+    onLogs: (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "WithdrawalMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "Withdrawal Success",
+          description: `You already withdraw ${amount} ${id}`,
+        });
+
+        setDeposits((prevDeposits) =>
+          prevDeposits.filter(({ depositId }) => depositId !== args.depositId),
+        );
+      }
+    },
+  });
 
   const reloadDeposits = useCallback(() => {
     if (fetchDeposits === null) {
