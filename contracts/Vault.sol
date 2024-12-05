@@ -4,117 +4,133 @@ pragma solidity ^0.8.0;
 import "./IERC20.sol";
 
 contract Vault {
-  event DepositMade(
-    uint256 depositId,
-    address indexed account,
-    address indexed tokenAddress,
-    uint256 amount,
-    uint256 startTimestamp,
-    uint256 unlockTimestamp
-  );
-
-  event WithdrawalMade(
-    address indexed account,
-    address indexed tokenAddress,
-    uint256 amount
-  );
-
-  error TransferFailed();
-  error DepositAmountMustBeGreaterThanZero();
-  error UnlockTimestampMustBeInTheFuture();
-  error StartTimeMustBeBeforeUnlockTime();
-  error DepositStillLocked();
-  error InvalidDepositIndex();
-  error InsufficientBalance();
-
-  struct Deposit {
-    uint256 depositId;
-    address tokenAddress;
-    uint256 amount;
-    uint256 startTimestamp;
-    uint256 unlockTimestamp;
-  }
-
-  mapping(address => Deposit[]) public deposits;
-
-  // TODO: Idea: Save what the price of the token was at the time of deposit, so that the frontend can show the profit or loss made through the time locked.
-  function deposit(
-    address tokenAddress,
-    uint256 amount,
-    uint256 unlockTimestamp
-  ) public returns (uint256 depositIndex) {
-    if (amount == 0) {
-      revert DepositAmountMustBeGreaterThanZero();
-    } else if (unlockTimestamp <= block.timestamp) {
-      revert UnlockTimestampMustBeInTheFuture();
-    }
-
-    IERC20 token = IERC20(tokenAddress);
-    uint256 userBalance = token.balanceOf(msg.sender);
-
-    if (userBalance < amount) {
-      revert InsufficientBalance();
-    }
-
-    bool success = token.transferFrom(msg.sender, address(this), amount);
-
-    if (!success) {
-      revert TransferFailed();
-    }
-
-    uint256 depositId = deposits[msg.sender].length;
-
-    // On the initial deposit, this will still work even though the
-    // inner array hasn't been explicitly initialized.
-    deposits[msg.sender].push(
-      Deposit(depositId, tokenAddress, amount, block.timestamp, unlockTimestamp)
+    event DepositMade(
+        uint256 depositId,
+        address indexed account,
+        address indexed tokenAddress,
+        uint256 amount,
+        uint256 startTimestamp,
+        uint256 unlockTimestamp
     );
 
-    emit DepositMade(
-      depositId,
-      msg.sender,
-      tokenAddress,
-      amount,
-      block.timestamp,
-      unlockTimestamp
+    event WithdrawalMade(
+        uint256 depositId,
+        address indexed account,
+        address indexed tokenAddress,
+        uint256 amount
     );
 
-    return depositId;
-  }
+    error TransferFailed();
+    error DepositAmountMustBeGreaterThanZero();
+    error UnlockTimestampMustBeInTheFuture();
+    error StartTimeMustBeBeforeUnlockTime();
+    error DepositStillLocked();
+    error InvalidDepositIndex();
+    error InsufficientBalance();
 
-  function withdraw(address tokenAddress, uint256 depositIndex) public {
-    if (depositIndex >= deposits[msg.sender].length) {
-      revert InvalidDepositIndex();
+    struct Deposit {
+        uint256 depositId;
+        address tokenAddress;
+        uint256 amount;
+        uint256 startTimestamp;
+        uint256 unlockTimestamp;
+        bool withdrawn;
     }
 
-    Deposit storage userDeposit = deposits[msg.sender][depositIndex];
+    mapping(address => Deposit[]) public deposits;
 
-    // Check if the deposit is still locked.
-    if (userDeposit.unlockTimestamp > block.timestamp) {
-      revert DepositStillLocked();
+    // TODO: Idea: Save what the price of the token was at the time of deposit, so that the frontend can show the profit or loss made through the time locked.
+    function deposit(
+        address tokenAddress,
+        uint256 amount,
+        uint256 unlockTimestamp
+    ) public returns (uint256 depositIndex) {
+        if (amount == 0) {
+            revert DepositAmountMustBeGreaterThanZero();
+        } else if (unlockTimestamp <= block.timestamp) {
+            revert UnlockTimestampMustBeInTheFuture();
+        }
+
+        IERC20 token = IERC20(tokenAddress);
+        uint256 userBalance = token.balanceOf(msg.sender);
+
+        if (userBalance < amount) {
+            revert InsufficientBalance();
+        }
+
+        bool success = token.transferFrom(msg.sender, address(this), amount);
+
+        if (!success) {
+            revert TransferFailed();
+        }
+
+        uint256 depositId = deposits[msg.sender].length;
+
+        // On the initial deposit, this will still work even though the
+        // inner array hasn't been explicitly initialized.
+        deposits[msg.sender].push(
+            Deposit(
+                depositId,
+                tokenAddress,
+                amount,
+                block.timestamp,
+                unlockTimestamp,
+                false
+            )
+        );
+
+        emit DepositMade(
+            depositId,
+            msg.sender,
+            tokenAddress,
+            amount,
+            block.timestamp,
+            unlockTimestamp
+        );
+
+        return depositId;
     }
 
-    uint256 amountToWithdraw = userDeposit.amount;
+    function withdraw(address tokenAddress, uint256 depositId) public {
+        if (depositId >= deposits[msg.sender].length) {
+            revert InvalidDepositIndex();
+        }
 
-    // Mark deposit as withdrawn before making the transfer
-    // to prevent re-entrancy attacks.
-    userDeposit.amount = 0;
+        Deposit storage userDeposit = deposits[msg.sender][depositId];
 
-    IERC20 token = IERC20(tokenAddress);
-    bool success = token.transfer(msg.sender, amountToWithdraw);
+        // Check if the deposit is still locked.
+        if (userDeposit.unlockTimestamp > block.timestamp) {
+            revert DepositStillLocked();
+        }
 
-    if (!success) {
-      revert TransferFailed();
+        uint256 amountToWithdraw = userDeposit.amount;
+
+        // Mark deposit as withdrawn before making the transfer
+        // to prevent re-entrancy attacks.
+        userDeposit.amount = 0;
+
+        IERC20 token = IERC20(tokenAddress);
+        bool success = token.transfer(msg.sender, amountToWithdraw);
+
+        if (!success) {
+            revert TransferFailed();
+        }
+
+        emit WithdrawalMade(
+            depositId,
+            msg.sender,
+            tokenAddress,
+            amountToWithdraw
+        );
     }
 
-    emit WithdrawalMade(msg.sender, tokenAddress, amountToWithdraw);
-  }
+    function getDeposits(
+        address account
+    ) public view returns (Deposit[] memory) {
+        if (deposits[account].length == 0) {
+            return new Deposit[](0);
+        }
 
-  function getDeposits(address account) public view returns (Deposit[] memory) {
-    if (deposits[account].length == 0) {
-      return new Deposit[](0);
+        return deposits[account];
     }
-
-    return deposits[account];
-  }
 }

@@ -83,6 +83,12 @@ const VAULT_ABI = [
     anonymous: false,
     inputs: [
       {
+        indexed: false,
+        internalType: "uint256",
+        name: "depositId",
+        type: "uint256",
+      },
+      {
         indexed: true,
         internalType: "address",
         name: "account",
@@ -129,6 +135,7 @@ const VAULT_ABI = [
       { internalType: "uint256", name: "amount", type: "uint256" },
       { internalType: "uint256", name: "startTimestamp", type: "uint256" },
       { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
+      { internalType: "bool", name: "withdrawn", type: "bool" },
     ],
     stateMutability: "view",
     type: "function",
@@ -144,6 +151,7 @@ const VAULT_ABI = [
           { internalType: "uint256", name: "amount", type: "uint256" },
           { internalType: "uint256", name: "startTimestamp", type: "uint256" },
           { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
+          { internalType: "bool", name: "withdrawn", type: "bool" },
         ],
         internalType: "struct Vault.Deposit[]",
         name: "",
@@ -156,7 +164,7 @@ const VAULT_ABI = [
   {
     inputs: [
       { internalType: "address", name: "tokenAddress", type: "address" },
-      { internalType: "uint256", name: "depositIndex", type: "uint256" },
+      { internalType: "uint256", name: "depositId", type: "uint256" },
     ],
     name: "withdraw",
     outputs: [],
