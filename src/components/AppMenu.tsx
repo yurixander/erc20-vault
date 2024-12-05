@@ -1,14 +1,14 @@
 import { FC } from "react";
-import { buttonVariants } from "./Button";
-import { IoIosPaper } from "react-icons/io";
 import { FaGithub } from "react-icons/fa";
+import { IoIosPaper } from "react-icons/io";
+import { buttonVariants } from "./Button";
 
 import { cn } from "@/lib/utils";
 import CustomConnectButton from "./ConnectButton";
 
 const AppMenu: FC = () => {
   return (
-    <div className="w-full flex gap-x-2 h-full items-center justify-end px-4">
+    <div className="flex h-full w-full items-center justify-end gap-x-2 px-4">
       <div className="flex">
         <LinkButton
           className="gap-x-1.5"
@@ -44,7 +44,7 @@ const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
       className={cn(
         "select-none ",
         className,
-        buttonVariants({ variant: "ghost" })
+        buttonVariants({ variant: "ghost" }),
       )}
     >
       {children}

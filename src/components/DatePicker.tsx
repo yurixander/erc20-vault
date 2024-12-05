@@ -1,13 +1,11 @@
-"use client";
-
 import { format } from "date-fns";
 
 import { cn } from "@/lib/utils";
+import { FC, useCallback, useState } from "react";
+import { FiCalendar } from "react-icons/fi";
 import Button from "./Button";
 import Calendar from "./Calendar";
 import Popover, { PopoverContent, PopoverTrigger } from "./Popover";
-import { FiCalendar } from "react-icons/fi";
-import { FC, useCallback, useState } from "react";
 
 export type DatePickerProps = {
   setTimestamp: (timestamp: number | null) => void;
@@ -25,7 +23,7 @@ const DatePicker: FC<DatePickerProps> = ({
       setInternalDate(newDate);
       setTimestamp(newDate?.getTime() ?? null);
     },
-    [setTimestamp]
+    [setTimestamp],
   );
 
   return (
@@ -35,7 +33,7 @@ const DatePicker: FC<DatePickerProps> = ({
           variant="outline"
           className={cn(
             "w-64 justify-start gap-x-2 text-left font-normal",
-            !internalDate && "text-muted-foreground"
+            !internalDate && "text-muted-foreground",
           )}
         >
           <FiCalendar className="size-4" />
@@ -43,7 +41,7 @@ const DatePicker: FC<DatePickerProps> = ({
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent className="p-0 w-auto shadow-none">
+      <PopoverContent className="w-auto p-0 shadow-none">
         <Calendar selected={internalDate} onSelect={handleDateChange} />
       </PopoverContent>
     </Popover>

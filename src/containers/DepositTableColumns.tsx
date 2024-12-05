@@ -3,9 +3,8 @@ import UnlockDeposit from "@/components/UnlockDeposit";
 import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
 import { getTokenByAddress } from "@/utils/findTokenByAddress";
-import { generateUnlockStatus, generateTimeRemaining } from "@/utils/time";
+import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
-import Image from "next/image";
 
 const columnHelper = createColumnHelper<Deposit>();
 
@@ -26,8 +25,8 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
       const token = getTokenByAddress(row.original.tokenAddress);
 
       return (
-        <div className="flex items-center gap-2 font-medium max-h-max">
-          <Image
+        <div className="flex max-h-max items-center gap-2 font-medium">
+          <img
             src={token.iconAssetPath}
             alt={`Logo of ${token.name}`}
             width={TOKEN_ICON_SIZE}
@@ -44,7 +43,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
     cell: ({ getValue, row }) =>
       convertBNToAmount(
         getValue(),
-        getTokenByAddress(row.original.tokenAddress).decimals
+        getTokenByAddress(row.original.tokenAddress).decimals,
       ),
   }),
   columnHelper.accessor(
@@ -55,14 +54,14 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
       header: "Unlock Status",
       cell: ({ getValue }) => {
         return (
-          <div className="flex items-center gap-x-2 lg:w-auto w-[90%]">
+          <div className="flex w-[90%] items-center gap-x-2 lg:w-auto">
             <CircularProgress progress={getValue()} size={18} strokeWidth={3} />
 
             <span>{getValue()}%</span>
           </div>
         );
       },
-    }
+    },
   ),
   columnHelper.display({
     id: COLUMNS_ID.TIME_REMAINING,

@@ -1,6 +1,12 @@
-"use client";
-
-import React, { FC, useMemo, useState } from "react";
+import Button from "@/components/Button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationSelector,
+} from "@/components/Pagination";
 import {
   Table,
   TableBody,
@@ -9,34 +15,35 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/Table";
-import { twMerge } from "tailwind-merge";
+import { Heading, Text } from "@/components/Typography";
 import { Deposit } from "@/config/types";
 import {
-  useReactTable,
-  getCoreRowModel,
-  flexRender,
-  getSortedRowModel,
-  getPaginationRowModel,
   PaginationState,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationSelector,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/Pagination";
+import React, { FC, useMemo, useState } from "react";
+import { HiOutlineBanknotes } from "react-icons/hi2";
+import { TfiReload } from "react-icons/tfi";
+import { twMerge } from "tailwind-merge";
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
 
 type DepositsTableProps = {
   deposits: Deposit[];
+  onReload: () => void;
   className?: string;
 };
 
 const PAGE_SIZE = 8;
 
-const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
+const DepositsTable: FC<DepositsTableProps> = ({
+  deposits,
+  className,
+  onReload,
+}) => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
@@ -69,15 +76,29 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
               {paginationIndex}
             </PaginationSelector>
           </PaginationItem>
-        )
+        ),
       ),
-    [pagination.pageIndex, table]
+    [pagination.pageIndex, table],
   );
 
+  if (deposits.length === 0) {
+    return (
+      <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50">
+        <HiOutlineBanknotes className="size-16" />
+
+        <Heading level="h4" align="center">
+          There are no deposits
+        </Heading>
+
+        <Text align="center">Add your first deposit to get started</Text>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-y-4 max-w-6xl justify-center mb-4">
+    <div className="mb-4 flex max-w-6xl flex-col justify-center gap-y-4">
       <Table
-        className={twMerge("border min-w-[640px] md:min-w-full", className)}
+        className={twMerge("min-w-[640px] border md:min-w-full", className)}
       >
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -86,7 +107,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
                 <TableHead key={header.id}>
                   {flexRender(
                     header.column.columnDef.header,
-                    header.getContext()
+                    header.getContext(),
                   )}
                 </TableHead>
               ))}
@@ -114,25 +135,36 @@ const DepositsTable: FC<DepositsTableProps> = ({ deposits, className }) => {
         </TableBody>
       </Table>
 
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            />
-          </PaginationItem>
+      <div className="flex">
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+              />
+            </PaginationItem>
 
-          {paginationElements}
+            {paginationElements}
 
-          <PaginationItem>
-            <PaginationNext
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+
+        <Button
+          size="icon"
+          className="shrink-0"
+          variant="outline"
+          onClick={onReload}
+        >
+          <TfiReload />
+        </Button>
+      </div>
     </div>
   );
 };
@@ -149,7 +181,7 @@ function renderPageNumbers(currentPage: number, totalPages: number) {
 
   return Array.from(
     { length: endPage - startPage },
-    (_, index) => startPage + index
+    (_, index) => startPage + index,
   );
 }
 

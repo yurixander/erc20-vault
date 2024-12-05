@@ -1,11 +1,9 @@
-"use client";
-
-import { FC, useCallback, useState } from "react";
-import Button from "./Button";
-import { useWriteContract } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import useToast from "@/hooks/useToast";
+import { FC, useCallback } from "react";
+import { useWriteContract } from "wagmi";
+import Button from "./Button";
 
 type UnlockDepositProps = {
   tokenAddress: `0x${string}`;
@@ -52,7 +50,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
             description: "Your deposit has been unlocked.",
           });
         },
-      }
+      },
     );
   }, [depositId, toast, tokenAddress, writeContract]);
 
