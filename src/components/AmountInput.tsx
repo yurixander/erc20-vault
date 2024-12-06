@@ -123,7 +123,7 @@ async function calculateEstimateInUsd(
   const priceForOne = await getErc20TokenPriceInUsd(tokenId);
   const estimate = amount.mul(priceForOne).toFixed(2);
 
-  return `$${estimate} ${tokenId}`;
+  return `$${estimate} USD`;
 }
 
 export default AmountInput;
