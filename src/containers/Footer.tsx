@@ -1,6 +1,6 @@
 import { FC } from "react";
-import ExternalLink from "../components/ExternalLink";
 import { twMerge } from "tailwind-merge";
+import ExternalLink from "../components/ExternalLink";
 
 const Footer: FC<{ className?: string }> = ({ className }) => {
   return (

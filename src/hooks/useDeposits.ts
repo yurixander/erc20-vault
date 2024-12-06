@@ -1,18 +1,27 @@
+import BN from "bn.js";
 import { useCallback } from "react";
-import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { useAccount } from "wagmi";
 import VAULT_ABI from "../abi/vaultAbi";
-import useContractReadOnce from "./useContractRead";
+import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { Deposit } from "../config/types";
-import BN from "bn.js";
-import assert from "assert";
+import useContractReadOnce from "./useContractRead";
 
-const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
-  const { address } = useAccount();
+export class AccountNotFoundError extends Error {
+  message = "Please check your connection and try again.";
+}
+
+export class FetchDepositsError extends Error {
+  message = "Failed to fetch deposits. Please try again.";
+}
+
+const useDeposits = () => {
+  const { address, isConnected } = useAccount();
   const readOnce = useContractReadOnce(VAULT_ABI);
 
-  const fetch = useCallback(async () => {
-    assert(address !== undefined);
+  const fetchDeposits = useCallback(async () => {
+    if (address === undefined) {
+      throw new AccountNotFoundError();
+    }
 
     const rawDeposits = await readOnce({
       address: VAULT_CONTRACT_ADDRESS,
@@ -20,26 +29,31 @@ const useDeposits = (): (() => Promise<Error | Deposit[]>) | null => {
       args: [address],
     });
 
-    // Propagate errors.
     if (rawDeposits instanceof Error) {
-      return rawDeposits;
+      throw new FetchDepositsError();
     }
 
-    console.log(rawDeposits)
+    const availableDeposits: Deposit[] = [];
 
-    return rawDeposits.map(
-      (rawDeposit): Deposit => ({
+    for (const rawDeposit of rawDeposits) {
+      if (rawDeposit.amount === BigInt("0")) {
+        continue;
+      }
+
+      availableDeposits.push({
         amount: new BN(rawDeposit.amount.toString()),
         depositId: rawDeposit.depositId,
         tokenAddress: rawDeposit.tokenAddress,
         startTimestamp: Number(rawDeposit.startTimestamp),
         unlockTimestamp: Number(rawDeposit.unlockTimestamp),
-      })
-    );
-  }, [address, readOnce]);
+      });
+    }
+
+    return availableDeposits;
+  }, [readOnce, address]);
 
   // Only provide the fetch function if an account is connected.
-  return address === undefined ? null : fetch;
+  return isConnected ? fetchDeposits : null;
 };
 
 export default useDeposits;

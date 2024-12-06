@@ -1,5 +1,5 @@
-import Input from "./Input";
 import { FC, useCallback, useState } from "react";
+import Input from "./Input";
 import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
 
@@ -16,7 +16,6 @@ export type AmountInputProps = TokenSelectProps & {
 const NUMBER_REGEX = new RegExp(/^([1-9]\d*|0)(\.\d+)?$/);
 
 const AmountInput: FC<AmountInputProps> = ({
-  maxAmount,
   onAmountChange,
   tokenId,
   setTokenId,
@@ -58,7 +57,7 @@ const AmountInput: FC<AmountInputProps> = ({
         setError("Unexpected error.");
       }
     },
-    [onAmountChange]
+    [onAmountChange],
   );
 
   return (

@@ -21,7 +21,7 @@ export enum Erc20TokenId {
   ARB = "ARB",
   WBTC = "WBTC",
   // Testing
-  MTK = "MTK"
+  MTK = "MTK",
 }
 
 export enum AssetPath {

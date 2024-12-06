@@ -1,33 +1,63 @@
-"use client";
-
+import { Deposit } from "@/config/types";
+import useToast from "@/hooks/useToast";
 import { FC, useCallback, useEffect, useState } from "react";
-import useDeposits from "../hooks/useDeposits";
-import { Deposit } from "../config/types";
+import useDeposits, {
+  AccountNotFoundError,
+  FetchDepositsError,
+} from "../hooks/useDeposits";
 import DepositsTable from "./DepositsTable";
+import { ToastAction } from "@/components/Toast";
 
 const Deposits: FC = () => {
-  const [deposits, setDeposits] = useState<Deposit[] | null | Error>(null);
   const fetchDeposits = useDeposits();
+  const [deposits, setDeposits] = useState<Deposit[]>([]);
+  const [isDepositsLoading, setIsDepositsLoading] = useState(true);
+  const { toast } = useToast();
 
-  const refresh = useCallback(async () => {
+  const reloadDeposits = useCallback(() => {
     if (fetchDeposits === null) {
       return;
     }
 
-    setDeposits(null);
-    setDeposits(await fetchDeposits());
-  }, [fetchDeposits]);
+    fetchDeposits()
+      .then(setDeposits)
+      .finally(() => setIsDepositsLoading(false))
+      .catch((error) => {
+        if (error instanceof AccountNotFoundError) {
+          toast({
+            title: "Account not found",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else if (error instanceof FetchDepositsError) {
+          toast({
+            title: "Fetch deposits error",
+            description: error.message,
+            variant: "destructive",
+            action: (
+              <ToastAction altText="Reload deposits" onClick={reloadDeposits}>
+                Reload
+              </ToastAction>
+            ),
+          });
+        } else {
+          toast({
+            title: "Unexpected error",
+            description: "A error occurred while fetching deposits.",
+            variant: "destructive",
+          });
 
-  // Fetch deposits when on mount, or once the fetch function
-  // is ready.
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+          console.error(error);
+        }
+      });
+  }, [fetchDeposits, toast]);
+
+  useEffect(() => reloadDeposits(), [reloadDeposits]);
 
   return (
-    <div>
-      {!(deposits instanceof Error) && deposits !== null && (
-        <DepositsTable deposits={deposits} />
+    <div className="flex flex-col gap-2">
+      {!isDepositsLoading && (
+        <DepositsTable deposits={deposits} onReload={() => reloadDeposits()} />
       )}
     </div>
   );

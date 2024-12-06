@@ -1,6 +1,6 @@
-import React, { type FC } from "react";
-import { cva } from "class-variance-authority";
 import { cn } from "@/lib/utils";
+import { cva } from "class-variance-authority";
+import React, { type FC } from "react";
 
 type TypographyWeight = "light" | "regular" | "medium" | "semibold" | "bold";
 type TypographyAlign = "left" | "center" | "right";
@@ -97,7 +97,7 @@ const Text: FC<TextProps> = ({
       className={cn(
         textVariants({ size }),
         typographyVariants({ color, weight, align }),
-        className
+        className,
       )}
       {...props}
     />
@@ -147,7 +147,7 @@ function Heading({
       className={cn(
         typographyVariants({ color, weight, align }),
         headingVariants({ level }),
-        className
+        className,
       )}
       {...props}
     />
