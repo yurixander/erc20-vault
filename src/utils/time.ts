@@ -1,8 +1,4 @@
-import {
-  differenceInSeconds,
-  formatDistanceToNow,
-  getUnixTime,
-} from "date-fns";
+import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 
 export function generateTimeRemaining(unlockTimestamp: number): string {
   if (Date.now() >= unlockTimestamp) {
@@ -16,11 +12,17 @@ export function generateUnlockStatus(
   startTimestamp: number,
   unlockTimestamp: number,
 ): number {
-  const totalSecondsDiff = differenceInSeconds(unlockTimestamp, startTimestamp);
+  const startTimestampInMilliseconds = startTimestamp * 1000;
+  const unlockTimestampInMilliseconds = unlockTimestamp * 1000;
+
+  const totalSecondsDiff = differenceInSeconds(
+    unlockTimestampInMilliseconds,
+    startTimestampInMilliseconds,
+  );
 
   const partSecondsDiff = differenceInSeconds(
-    getUnixTime(Date.now()),
-    startTimestamp,
+    Date.now(),
+    startTimestampInMilliseconds,
   );
 
   if (partSecondsDiff >= totalSecondsDiff) {

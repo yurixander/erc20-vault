@@ -35,8 +35,6 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
             ...error,
           });
 
-          console.log(depositId);
-
           toast({
             title: "Please try again later.",
             description:

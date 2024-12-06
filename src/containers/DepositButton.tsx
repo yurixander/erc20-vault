@@ -30,6 +30,7 @@ import getErc20TokenDef from "../utils/getErc20TokenDef";
 import TokenBalance from "@/components/TokenBalance";
 
 const DepositButton: FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { isConnected, chainId, address } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
@@ -87,7 +88,10 @@ const DepositButton: FC = () => {
 
   return (
     <Dialog
+      open={isModalOpen}
       onOpenChange={(isOpen) => {
+        setIsModalOpen(isOpen);
+
         if (isOpen) {
           return;
         }
@@ -151,6 +155,7 @@ const DepositButton: FC = () => {
 
         <DialogFooter>
           <ExecuteTxButton
+            onCloseModal={() => setIsModalOpen(false)}
             beforeApproved={beforeApproved}
             amount={amount}
             tokenId={tokenId}
@@ -167,6 +172,7 @@ type ExecuteTxButton = {
   amount: string | null;
   tokenId: Erc20TokenId | null;
   unlockTimestamp: number | null;
+  onCloseModal: () => void;
 };
 
 const ExecuteTxButton: FC<ExecuteTxButton> = ({
@@ -174,6 +180,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
   tokenId,
   unlockTimestamp,
   beforeApproved,
+  onCloseModal,
 }) => {
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
@@ -277,9 +284,10 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
             description: "Transaction is processing, please wait.",
           });
         },
+        onSuccess: onCloseModal,
       },
     );
-  }, [amount, toast, tokenId, unlockTimestamp, writeContract]);
+  }, [amount, toast, tokenId, unlockTimestamp, writeContract, onCloseModal]);
 
   const isButtonLoading = useMemo(
     () => (!isApprovalSuccess && isApprovalPending) || isPending,

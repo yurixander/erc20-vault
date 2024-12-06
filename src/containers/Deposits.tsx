@@ -27,7 +27,7 @@ const Deposits: FC = () => {
     address: VAULT_CONTRACT_ADDRESS,
     eventName: "DepositMade",
     syncConnectedChain: true,
-    onLogs: (logs) => {
+    onLogs: async (logs) => {
       for (const log of logs) {
         const { args } = decodeEventLog({
           abi: VAULT_ABI,
@@ -52,7 +52,15 @@ const Deposits: FC = () => {
           description: `You've made a deposit of ${amount} ${id}`,
         });
 
-        fetchDeposits !== null && fetchDeposits();
+        setDeposits((prevDeposits) =>
+          prevDeposits.concat({
+            amount: new BN(args.amount.toString()),
+            depositId: args.depositId,
+            tokenAddress: args.tokenAddress,
+            startTimestamp: Number(args.startTimestamp),
+            unlockTimestamp: Number(args.unlockTimestamp),
+          }),
+        );
       }
     },
   });
@@ -62,6 +70,18 @@ const Deposits: FC = () => {
     address: VAULT_CONTRACT_ADDRESS,
     eventName: "WithdrawalMade",
     syncConnectedChain: true,
+    onError(error) {
+      toast({
+        title: "Withdrawal Error",
+        variant: "destructive",
+        description:
+          "An error occurred while withdrawing the balance, try again.",
+      });
+
+      console.log({
+        error,
+      });
+    },
     onLogs: (logs) => {
       for (const log of logs) {
         const { args } = decodeEventLog({
@@ -84,7 +104,7 @@ const Deposits: FC = () => {
 
         toast({
           title: "Withdrawal Success",
-          description: `You already withdraw ${amount} ${id}`,
+          description: `You withdrew ${amount} ${id}`,
         });
 
         setDeposits((prevDeposits) =>
