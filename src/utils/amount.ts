@@ -14,7 +14,7 @@ export function convertAmountToBN(amount: string, decimal: number): BN {
   return totalInCents;
 }
 
-export function convertBNToAmount(bn: BN, decimal: number) {
+export function convertBNToAmount(bn: BN, decimal: number): string {
   const decimalAmount = new Decimal(bn.toString());
 
   return decimalAmount.div(10 ** decimal).toFixed(2);
