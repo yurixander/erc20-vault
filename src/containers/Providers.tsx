@@ -1,5 +1,8 @@
 import { Toaster } from "@/components/Toast";
-import { SEPOLIA_ALCHEMY_TRANSPORT } from "@/config/constants";
+import {
+  MAINNET_ALCHEMY_TRANSPORT,
+  SEPOLIA_ALCHEMY_TRANSPORT,
+} from "@/config/constants";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, ReactNode } from "react";
@@ -12,6 +15,7 @@ export const wagmiConfig = getDefaultConfig({
   chains: [mainnet, sepolia],
   transports: {
     [sepolia.id]: SEPOLIA_ALCHEMY_TRANSPORT,
+    [mainnet.id]: MAINNET_ALCHEMY_TRANSPORT,
   },
 });
 

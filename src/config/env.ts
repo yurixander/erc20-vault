@@ -1,5 +1,5 @@
 export enum EnvKey {
-  SepoliaAlchemyKey = "VITE_SEPOLIA_ALCHEMY_KEY",
+  AlchemyKey = "VITE_ALCHEMY_KEY",
 }
 
 export function requireEnvVariable(key: EnvKey): string {
