@@ -31,6 +31,7 @@ contract Vault {
     struct Deposit {
         uint256 depositId;
         address tokenAddress;
+        uint256 priceInUsd;
         uint256 amount;
         uint256 startTimestamp;
         uint256 unlockTimestamp;
@@ -42,6 +43,7 @@ contract Vault {
     // TODO: Idea: Save what the price of the token was at the time of deposit, so that the frontend can show the profit or loss made through the time locked.
     function deposit(
         address tokenAddress,
+        uint256 priceInUsd,
         uint256 amount,
         uint256 unlockTimestamp
     ) public returns (uint256 depositIndex) {
@@ -72,6 +74,7 @@ contract Vault {
             Deposit(
                 depositId,
                 tokenAddress,
+                priceInUsd,
                 amount,
                 block.timestamp,
                 unlockTimestamp,
