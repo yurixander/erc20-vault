@@ -56,7 +56,9 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
         }
 
         const amount = convertBNToAmount(new BN(balance.toString()), decimals);
-        setTokenBalance(amount);
+        const displayAmount = addCommasToWholePart(amount);
+
+        setTokenBalance(displayAmount);
       });
   }, [tokenId, address, readOnce, toast]);
 
@@ -65,17 +67,17 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
   }
 
   return (
-    <div className="ml-auto h-5 space-x-1">
+    <div className="mt-0.5 ml-0.5 flex h-5 items-center">
       {isBalanceLoading ? (
         <SmallLoader />
       ) : (
-        <>
+        <div className="space-x-1">
           <Text
             align="right"
             size="2"
             className="inline-flex w-max text-black/70 dark:text-white/70"
           >
-            ≈ {tokenBalance}
+            Balance: {tokenBalance}
           </Text>
 
           <Text
@@ -85,10 +87,30 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
           >
             {tokenId}
           </Text>
-        </>
+        </div>
       )}
     </div>
   );
 };
+
+function addCommasToWholePart(amount: string): string {
+  const [wholePart, _] = amount.split(".");
+
+  let result = "";
+  let count = 0;
+
+  for (let i = wholePart.length - 1; i >= 0; i--) {
+    result = wholePart[i] + result;
+    count++;
+
+    // Add a comma every 3 digits.
+    // The first digit will not have a comma.
+    if (count % 3 === 0 && i !== 0) {
+      result = "," + result;
+    }
+  }
+
+  return result;
+}
 
 export default TokenBalance;
