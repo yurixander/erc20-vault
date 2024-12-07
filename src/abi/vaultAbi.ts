@@ -2,6 +2,20 @@ import { Abi } from "viem";
 
 const VAULT_ABI = [
   {
+    inputs: [
+      { internalType: "address", name: "tokenAddress", type: "address" },
+      { internalType: "uint256", name: "priceInUsd", type: "uint256" },
+      { internalType: "uint256", name: "amount", type: "uint256" },
+      { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
+    ],
+    name: "deposit",
+    outputs: [
+      { internalType: "uint256", name: "depositIndex", type: "uint256" },
+    ],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     inputs: [],
     name: "DepositAmountMustBeGreaterThanZero",
     type: "error",
@@ -80,6 +94,16 @@ const VAULT_ABI = [
     type: "event",
   },
   {
+    inputs: [
+      { internalType: "address", name: "tokenAddress", type: "address" },
+      { internalType: "uint256", name: "depositId", type: "uint256" },
+    ],
+    name: "withdraw",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
     anonymous: false,
     inputs: [
       {
@@ -112,19 +136,6 @@ const VAULT_ABI = [
   },
   {
     inputs: [
-      { internalType: "address", name: "tokenAddress", type: "address" },
-      { internalType: "uint256", name: "amount", type: "uint256" },
-      { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
-    ],
-    name: "deposit",
-    outputs: [
-      { internalType: "uint256", name: "depositIndex", type: "uint256" },
-    ],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
       { internalType: "address", name: "", type: "address" },
       { internalType: "uint256", name: "", type: "uint256" },
     ],
@@ -132,6 +143,7 @@ const VAULT_ABI = [
     outputs: [
       { internalType: "uint256", name: "depositId", type: "uint256" },
       { internalType: "address", name: "tokenAddress", type: "address" },
+      { internalType: "uint256", name: "priceInUsd", type: "uint256" },
       { internalType: "uint256", name: "amount", type: "uint256" },
       { internalType: "uint256", name: "startTimestamp", type: "uint256" },
       { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
@@ -148,6 +160,7 @@ const VAULT_ABI = [
         components: [
           { internalType: "uint256", name: "depositId", type: "uint256" },
           { internalType: "address", name: "tokenAddress", type: "address" },
+          { internalType: "uint256", name: "priceInUsd", type: "uint256" },
           { internalType: "uint256", name: "amount", type: "uint256" },
           { internalType: "uint256", name: "startTimestamp", type: "uint256" },
           { internalType: "uint256", name: "unlockTimestamp", type: "uint256" },
@@ -159,16 +172,6 @@ const VAULT_ABI = [
       },
     ],
     stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "tokenAddress", type: "address" },
-      { internalType: "uint256", name: "depositId", type: "uint256" },
-    ],
-    name: "withdraw",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
 ] as const satisfies Abi;

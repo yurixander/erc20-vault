@@ -62,16 +62,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
     eventName: "WithdrawalMade",
     syncConnectedChain: true,
     onError(error) {
-      toast({
-        title: "Withdrawal Error",
-        variant: "destructive",
-        description:
-          "An error occurred while withdrawing the balance, try again.",
-      });
-
-      console.log({
-        error,
-      });
+      console.error(error);
 
       setIsUnlocking(false);
     },

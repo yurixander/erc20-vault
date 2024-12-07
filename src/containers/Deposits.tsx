@@ -70,17 +70,9 @@ const Deposits: FC = () => {
     address: VAULT_CONTRACT_ADDRESS,
     eventName: "WithdrawalMade",
     syncConnectedChain: true,
+    strict: true,
     onError(error) {
-      toast({
-        title: "Withdrawal Error",
-        variant: "destructive",
-        description:
-          "An error occurred while withdrawing the balance, try again.",
-      });
-
-      console.log({
-        error,
-      });
+      console.error(error);
     },
     onLogs: (logs) => {
       for (const log of logs) {
