@@ -136,7 +136,6 @@ const DepositButton: FC = () => {
               setTokenId={setTokenId}
               onAmountChange={setAmount}
               placeholder="Amount to lock up"
-              legendLearnMoreHref={tokenId !== null ? undefined : "#"}
               legend={
                 tokenId !== null
                   ? undefined
