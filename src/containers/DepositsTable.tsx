@@ -83,7 +83,7 @@ const DepositsTable: FC<DepositsTableProps> = ({
 
   if (deposits.length === 0) {
     return (
-      <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50">
+      <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-900">
         <HiOutlineBanknotes className="size-16" />
 
         <Heading level="h4" align="center">

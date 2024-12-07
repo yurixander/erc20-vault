@@ -105,7 +105,10 @@ const AmountInput: FC<AmountInputProps> = ({
             (estimateLoading ? (
               <SmallLoader />
             ) : (
-              <Text size="1" className="w-max max-w-64 shrink-0 text-black/70">
+              <Text
+                size="1"
+                className="w-max max-w-64 shrink-0 text-black/70 dark:text-white/70"
+              >
                 ≈ {estimatePrice}
               </Text>
             ))}

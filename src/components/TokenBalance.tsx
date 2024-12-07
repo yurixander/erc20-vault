@@ -73,12 +73,16 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
           <Text
             align="right"
             size="2"
-            className="inline-flex w-max text-black/70"
+            className="inline-flex w-max text-black/70 dark:text-white/70"
           >
             ≈ {tokenBalance}
           </Text>
 
-          <Text align="right" size="1" className="w-max text-black/70">
+          <Text
+            align="right"
+            size="1"
+            className="w-max text-black/70 dark:text-white/70"
+          >
             {tokenId}
           </Text>
         </>

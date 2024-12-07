@@ -26,7 +26,9 @@ const Providers: FC<{ children: ReactNode }> = ({ children }) => {
     <>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider>{children}</RainbowKitProvider>
+          <RainbowKitProvider initialChain={sepolia}>
+            {children}
+          </RainbowKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
 
