@@ -3,10 +3,10 @@ import Input from "./Input";
 import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
 import { Text } from "./Typography";
-import { Erc20TokenId } from "@/config/types";
-import { getErc20TokenPriceInUsd } from "@/utils/amount";
 import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
+import useDebounce from "@/hooks/useDebounce";
+import useTokenPrice from "@/hooks/useTokenPrice";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
@@ -34,9 +34,11 @@ const AmountInput: FC<AmountInputProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [estimatePrice, setEstimatedPrice] = useState<string | null>(null);
   const [estimateLoading, setEstimatedLoading] = useState(false);
+  const amountDebounce = useDebounce(amount, 700);
+  const { getPriceInUsd } = useTokenPrice();
 
   useEffect(() => {
-    if (tokenId === null || amount === null) {
+    if (tokenId === null || amountDebounce === null) {
       setEstimatedPrice(null);
 
       return;
@@ -44,15 +46,22 @@ const AmountInput: FC<AmountInputProps> = ({
 
     setEstimatedLoading(true);
 
-    calculateEstimateInUsd(new Decimal(amount), tokenId)
+    getPriceInUsd(tokenId)
       .finally(() => setEstimatedLoading(false))
-      .then(setEstimatedPrice)
+      .then((price) => {
+        const estimateInUsd = calculateEstimateInUsd(
+          new Decimal(amountDebounce),
+          price,
+        );
+
+        setEstimatedPrice(estimateInUsd);
+      })
       .catch((error) => {
         setEstimatedPrice(null);
 
         console.error(error);
       });
-  }, [tokenId, amount]);
+  }, [tokenId, amountDebounce, getPriceInUsd]);
 
   const handleValueChange = useCallback(
     (newValue: string) => {
@@ -96,7 +105,7 @@ const AmountInput: FC<AmountInputProps> = ({
             (estimateLoading ? (
               <SmallLoader />
             ) : (
-              <Text size="1" className="w-max shrink-0 text-black/70">
+              <Text size="1" className="w-max max-w-64 shrink-0 text-black/70">
                 ≈ {estimatePrice}
               </Text>
             ))}
@@ -116,12 +125,8 @@ const AmountInput: FC<AmountInputProps> = ({
   );
 };
 
-async function calculateEstimateInUsd(
-  amount: Decimal,
-  tokenId: Erc20TokenId,
-): Promise<string> {
-  const priceForOne = await getErc20TokenPriceInUsd(tokenId);
-  const estimate = amount.mul(priceForOne).toFixed(2);
+function calculateEstimateInUsd(amount: Decimal, priceForOne: number): string {
+  const estimate = amount.mul(priceForOne).toString();
 
   return `$${estimate} USD`;
 }
