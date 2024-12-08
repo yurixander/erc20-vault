@@ -50,7 +50,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
             description: "Your deposit has been unlocked.",
           });
         },
-      },
+      }
     );
   }, [depositId, toast, tokenAddress, writeContract]);
 
@@ -60,8 +60,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
       disabled={disabled}
       isLoading={isPending}
       onClick={unlockDeposit}
-      className={className}
-    >
+      className={className}>
       Unlock
     </Button>
   );

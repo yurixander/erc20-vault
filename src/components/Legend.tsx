@@ -22,8 +22,7 @@ const Legend: FC<LegendProps> = ({
         <ExternalLink
           hideIcon
           className="font-medium text-blue-400 text-xs"
-          href={linkHref}
-        >
+          href={linkHref}>
           {linkText}
         </ExternalLink>
       )}

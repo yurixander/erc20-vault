@@ -34,9 +34,8 @@ const Input: FC<InputProps> = ({
         className={cn(
           "flex w-full items-center justify-center gap-2 rounded-md border border-input bg-transparent p-3 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:font-medium file:text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
           error !== null && "border-red-500",
-          className,
-        )}
-      >
+          className
+        )}>
         <input
           type={type}
           placeholder={placeholder}

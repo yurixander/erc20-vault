@@ -1,4 +1,4 @@
-import { MY_TOKEN_SEPOLIA } from "@/config/constants";
+import { TEST_TOKEN_SEPOLIA } from "@/config/constants";
 import React, { FC, useCallback, useMemo } from "react";
 import { Erc20TokenId } from "../config/types";
 import {
@@ -23,7 +23,7 @@ function assetTokenId(tok: string): asserts tok is Erc20TokenId {
   }
 }
 
-const { id: testTokenId } = MY_TOKEN_SEPOLIA;
+const { id: testTokenId } = TEST_TOKEN_SEPOLIA;
 
 const TokenSelect: FC<TokenSelectProps> = ({
   tokenId,
@@ -35,7 +35,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
       assetTokenId(newValue);
       setTokenId(newValue);
     },
-    [setTokenId],
+    [setTokenId]
   );
 
   const selectableItems: React.ReactNode = useMemo(() => {

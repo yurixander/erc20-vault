@@ -57,7 +57,7 @@ const AmountInput: FC<AmountInputProps> = ({
         setError("Unexpected error.");
       }
     },
-    [onAmountChange],
+    [onAmountChange]
   );
 
   return (

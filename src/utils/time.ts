@@ -10,7 +10,7 @@ export function generateTimeRemaining(unlockTimestamp: number): string {
 
 export function generateUnlockStatus(
   startTimestamp: number,
-  unlockTimestamp: number,
+  unlockTimestamp: number
 ): number {
   const totalSecondsDiff = differenceInSeconds(unlockTimestamp, startTimestamp);
   const partSecondsDiff = differenceInSeconds(Date.now(), startTimestamp);

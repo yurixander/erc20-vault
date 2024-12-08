@@ -33,7 +33,7 @@ export const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 );
 
 export interface ButtonProps
@@ -58,7 +58,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       ...props
     },
-    ref,
+    ref
   ) => {
     const Tag = asChild ? Slot : "button";
 
@@ -70,10 +70,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(
           "space-x-2",
           buttonVariants({ variant, size, className }),
-          isLoading && "animate-pulse",
+          isLoading && "animate-pulse"
         )}
-        {...props}
-      >
+        {...props}>
         {isLoading && <FiLoader className="size-4 animate-spin" />}
 
         {isLoading ? loadingText : children}
@@ -83,7 +82,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         )}
       </Tag>
     );
-  },
+  }
 );
 
 Button.displayName = "Button";

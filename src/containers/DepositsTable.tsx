@@ -15,8 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/Table";
-import { Heading, Text } from "@/components/Typography";
-import { Deposit } from "@/config/types";
 import {
   PaginationState,
   flexRender,
@@ -26,31 +24,36 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React, { FC, useMemo, useState } from "react";
-import { HiOutlineBanknotes } from "react-icons/hi2";
 import { TfiReload } from "react-icons/tfi";
 import { twMerge } from "tailwind-merge";
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
+import useDeposits from "../hooks/useDeposits";
+import TableStatus from "../components/TableStatus";
 
 type DepositsTableProps = {
-  deposits: Deposit[];
-  onReload: () => void;
   className?: string;
 };
 
 const PAGE_SIZE = 8;
 
-const DepositsTable: FC<DepositsTableProps> = ({
-  deposits,
-  className,
-  onReload,
-}) => {
+const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
+  const { deposits, isLoading, error, refresh } = useDeposits();
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
   });
 
+  const rows = useMemo(() => {
+    if (deposits === null) {
+      return [];
+    }
+
+    return deposits;
+  }, [deposits]);
+
   const table = useReactTable({
-    data: deposits,
+    data: rows,
     columns: DEPOSIT_TABLE_COLUMNS,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -71,35 +74,39 @@ const DepositsTable: FC<DepositsTableProps> = ({
           <PaginationItem key={paginationIndex}>
             <PaginationSelector
               onClick={() => table.setPageIndex(paginationIndex)}
-              isActive={pagination.pageIndex === paginationIndex}
-            >
+              isActive={pagination.pageIndex === paginationIndex}>
               {paginationIndex}
             </PaginationSelector>
           </PaginationItem>
-        ),
+        )
       ),
-    [pagination.pageIndex, table],
+    [pagination.pageIndex, table]
   );
 
-  if (deposits.length === 0) {
+  if (error !== null) {
     return (
-      <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50">
-        <HiOutlineBanknotes className="size-16" />
-
-        <Heading level="h4" align="center">
-          There are no deposits
-        </Heading>
-
-        <Text align="center">Add your first deposit to get started</Text>
-      </div>
+      <TableStatus
+        title="Unable to Fetch Deposits"
+        description={error.message}
+      />
+    );
+  }
+  // TODO: Replace this with a container/table skeleton.
+  else if (isLoading) {
+    return <TableStatus title="Loading Deposits" description="..." />;
+  } else if (rows.length === 0) {
+    return (
+      <TableStatus
+        title="No Deposits"
+        description="Create your first deposit to get started!"
+      />
     );
   }
 
   return (
     <div className="mb-4 flex max-w-6xl flex-col justify-center gap-y-4">
       <Table
-        className={twMerge("min-w-[640px] border md:min-w-full", className)}
-      >
+        className={twMerge("min-w-[640px] border md:min-w-full", className)}>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -107,7 +114,7 @@ const DepositsTable: FC<DepositsTableProps> = ({
                 <TableHead key={header.id}>
                   {flexRender(
                     header.column.columnDef.header,
-                    header.getContext(),
+                    header.getContext()
                   )}
                 </TableHead>
               ))}
@@ -125,8 +132,7 @@ const DepositsTable: FC<DepositsTableProps> = ({
                     cell.column.id === COLUMNS_ID.DEPOSIT_ID
                       ? "w-[100px]"
                       : undefined
-                  }
-                >
+                  }>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -160,8 +166,7 @@ const DepositsTable: FC<DepositsTableProps> = ({
           size="icon"
           className="shrink-0"
           variant="outline"
-          onClick={onReload}
-        >
+          onClick={refresh}>
           <TfiReload />
         </Button>
       </div>
@@ -181,7 +186,7 @@ function renderPageNumbers(currentPage: number, totalPages: number) {
 
   return Array.from(
     { length: endPage - startPage },
-    (_, index) => startPage + index,
+    (_, index) => startPage + index
   );
 }
 

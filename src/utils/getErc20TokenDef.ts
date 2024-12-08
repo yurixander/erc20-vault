@@ -3,7 +3,7 @@ import {
   BNB_ERC20_TOKEN,
   DAI_ERC20_TOKEN,
   LINK_ERC20_TOKEN,
-  MY_TOKEN_SEPOLIA,
+  TEST_TOKEN_SEPOLIA,
   PEPE_ERC20_TOKEN,
   SHIB_ERC20_TOKEN,
   UNI_ERC20_TOKEN,
@@ -16,7 +16,7 @@ import { Erc20TokenDefinition, Erc20TokenId } from "../config/types";
 const getErc20TokenDef = (id: Erc20TokenId): Erc20TokenDefinition => {
   switch (id) {
     case Erc20TokenId.MTK:
-      return MY_TOKEN_SEPOLIA;
+      return TEST_TOKEN_SEPOLIA;
 
     case Erc20TokenId.USDT:
       return USDT_ERC20_TOKEN;
