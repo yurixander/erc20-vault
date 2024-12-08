@@ -15,8 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/Table";
-import { Heading, Text } from "@/components/Typography";
-import { Deposit } from "@/config/types";
 import {
   PaginationState,
   flexRender,
@@ -26,31 +24,143 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React, { FC, useMemo, useState } from "react";
-import { HiOutlineBanknotes } from "react-icons/hi2";
 import { TfiReload } from "react-icons/tfi";
 import { twMerge } from "tailwind-merge";
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
+import useDeposits from "../hooks/useDeposits";
+import TableStatus from "../components/TableStatus";
+import { useAccount, useWatchContractEvent } from "wagmi";
+import VAULT_ABI from "@/abi/vaultAbi";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { decodeEventLog } from "viem";
+import { getTokenByAddress } from "@/utils/findTokenByAddress";
+import { convertBNToAmount } from "@/utils/amount";
+import { BN } from "bn.js";
+import useToast from "@/hooks/useToast";
+import { Deposit } from "@/config/types";
 
 type DepositsTableProps = {
-  deposits: Deposit[];
-  onReload: () => void;
   className?: string;
 };
 
 const PAGE_SIZE = 8;
 
-const DepositsTable: FC<DepositsTableProps> = ({
-  deposits,
-  className,
-  onReload,
-}) => {
+const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
+  const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
+  const { toast } = useToast();
+  const { address } = useAccount();
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "DepositMade",
+    syncConnectedChain: true,
+    onLogs: async (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "DepositMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "New deposit",
+          description: `You've made a deposit of ${amount} (ID #${id})`,
+        });
+
+        setDeposits((prevDeposits) => {
+          const newDeposit: Deposit = {
+            amount: new BN(args.amount.toString()),
+            depositId: args.depositId,
+            tokenAddress: args.tokenAddress,
+            startTimestamp: Number(args.startTimestamp),
+            unlockTimestamp: Number(args.unlockTimestamp),
+          };
+
+          if (prevDeposits === null) {
+            return [newDeposit];
+          }
+
+          return prevDeposits.concat(newDeposit);
+        });
+      }
+    },
+  });
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "WithdrawalMade",
+    syncConnectedChain: true,
+    strict: true,
+    onError(error) {
+      console.error(error);
+    },
+    onLogs: (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "WithdrawalMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "Withdrawal Success",
+          description: `You withdrew ${amount} ${id}`,
+        });
+
+        setDeposits((prevDeposits) => {
+          if (prevDeposits === null) {
+            return null;
+          }
+
+          return prevDeposits.filter(
+            ({ depositId }) => depositId !== args.depositId,
+          );
+        });
+      }
+    },
+  });
+
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: PAGE_SIZE,
   });
 
+  const rows = useMemo(() => {
+    if (deposits === null) {
+      return [];
+    }
+
+    return deposits;
+  }, [deposits]);
+
   const table = useReactTable({
-    data: deposits,
+    data: rows,
     columns: DEPOSIT_TABLE_COLUMNS,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -81,17 +191,23 @@ const DepositsTable: FC<DepositsTableProps> = ({
     [pagination.pageIndex, table],
   );
 
-  if (deposits.length === 0) {
+  if (error !== null) {
     return (
-      <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50">
-        <HiOutlineBanknotes className="size-16" />
-
-        <Heading level="h4" align="center">
-          There are no deposits
-        </Heading>
-
-        <Text align="center">Add your first deposit to get started</Text>
-      </div>
+      <TableStatus
+        title="Unable to Fetch Deposits"
+        description={error.message}
+      />
+    );
+  }
+  // TODO: Replace this with a container/table skeleton.
+  else if (isLoading) {
+    return <TableStatus title="Loading Deposits" description="..." />;
+  } else if (rows.length === 0) {
+    return (
+      <TableStatus
+        title="No Deposits"
+        description="Create your first deposit to get started!"
+      />
     );
   }
 
@@ -160,7 +276,7 @@ const DepositsTable: FC<DepositsTableProps> = ({
           size="icon"
           className="shrink-0"
           variant="outline"
-          onClick={onReload}
+          onClick={refresh}
         >
           <TfiReload />
         </Button>

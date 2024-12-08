@@ -16,7 +16,7 @@ const VARIANTS = cva(
     defaultVariants: {
       variant: "default",
     },
-  },
+  }
 );
 
 const Alert = forwardRef<

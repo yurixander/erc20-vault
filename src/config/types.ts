@@ -24,6 +24,21 @@ export enum Erc20TokenId {
   MTK = "MTK",
 }
 
+export enum CoingekoId {
+  USDC = "usd-coin",
+  USDT = "tether",
+  DAI = "dai",
+  LINK = "chainlink",
+  PEPE = "pepe",
+  SHIB = "shiba-inu",
+  BNB = "binancecoin",
+  UNI = "uniswap",
+  ARB = "arbitrum",
+  WBTC = "wrapped-bitcoin",
+  // Testing
+  MTK = "",
+}
+
 export enum AssetPath {
   USDC = "icons/usdc.svg",
   USDT = "icons/usdt.svg",
@@ -41,6 +56,7 @@ export enum AssetPath {
 
 export type Erc20TokenDefinition = {
   id: Erc20TokenId;
+  coingeckoId: CoingekoId;
   name: string;
   mainnetAddress: Address;
   decimals: number;

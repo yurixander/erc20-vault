@@ -24,12 +24,20 @@ import {
   DialogTrigger,
 } from "../components/Dialog";
 import LegendWrapper from "../components/LegendWrapper";
-import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
+import {
+  TEST_TOKEN_SEPOLIA_ADDRESS,
+  SEPOLIA_CHAIN_ID,
+  VAULT_CONTRACT_ADDRESS,
+} from "../config/constants";
 import { Erc20TokenId } from "../config/types";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
 import TokenBalance from "@/components/TokenBalance";
+import useTokenPrice from "@/hooks/useTokenPrice";
+import useTokenApproval from "@/hooks/useTokenApproval";
+import { wagmiConfig } from "./Providers";
 
 const DepositButton: FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { isConnected, chainId, address } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
@@ -87,7 +95,10 @@ const DepositButton: FC = () => {
 
   return (
     <Dialog
+      open={isModalOpen}
       onOpenChange={(isOpen) => {
+        setIsModalOpen(isOpen);
+
         if (isOpen) {
           return;
         }
@@ -125,7 +136,6 @@ const DepositButton: FC = () => {
               setTokenId={setTokenId}
               onAmountChange={setAmount}
               placeholder="Amount to lock up"
-              legendLearnMoreHref={tokenId !== null ? undefined : "#"}
               legend={
                 tokenId !== null
                   ? undefined
@@ -151,6 +161,7 @@ const DepositButton: FC = () => {
 
         <DialogFooter>
           <ExecuteTxButton
+            onCloseModal={() => setIsModalOpen(false)}
             beforeApproved={beforeApproved}
             amount={amount}
             tokenId={tokenId}
@@ -167,6 +178,7 @@ type ExecuteTxButton = {
   amount: string | null;
   tokenId: Erc20TokenId | null;
   unlockTimestamp: number | null;
+  onCloseModal: () => void;
 };
 
 const ExecuteTxButton: FC<ExecuteTxButton> = ({
@@ -174,15 +186,17 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
   tokenId,
   unlockTimestamp,
   beforeApproved,
+  onCloseModal,
 }) => {
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
+  const { getPriceInUsd } = useTokenPrice();
 
   const {
-    writeContract: approveAmount,
-    isSuccess: isApprovalSuccess,
+    approve,
+    isApproved,
     isPending: isApprovalPending,
-  } = useWriteContract();
+  } = useTokenApproval(wagmiConfig);
 
   const isReadyToSubmitTx =
     tokenId !== null && amount !== null && unlockTimestamp !== null;
@@ -202,28 +216,33 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
 
     const amountInCents = convertAmountToBN(amount, decimals);
 
-    approveAmount(
-      {
-        abi: IERC20_ABI,
-        address: mainnetAddress,
-        functionName: "approve",
-        args: [VAULT_CONTRACT_ADDRESS, BigInt(amountInCents.toString())],
-      },
-      {
-        onError: (error) => {
-          const { description, title } = handleApprovalErrors(error);
-
+    approve({
+      amount: BigInt(amountInCents.toString()),
+      spender: VAULT_CONTRACT_ADDRESS,
+      tokenAddress: mainnetAddress,
+      onError: (err) => {
+        if (err instanceof Error) {
           toast({
-            title,
-            description,
+            title: "Failed to Approve Spend",
+            description: err.message,
             variant: "destructive",
           });
-        },
-      },
-    );
-  }, [tokenId, amount, approveAmount, toast]);
 
-  const submitDepositTx = useCallback(() => {
+          return;
+        }
+
+        const { description, title } = handleApprovalErrors(err);
+
+        toast({
+          title,
+          description,
+          variant: "destructive",
+        });
+      },
+    });
+  }, [approve, tokenId, amount, toast]);
+
+  const submitDepositTx = useCallback(async () => {
     if (unlockTimestamp === null || tokenId === null || amount === null) {
       toast({
         title: "Data Error",
@@ -238,63 +257,81 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
 
     const amountInCents = convertAmountToBN(amount, decimals);
 
-    writeContract(
-      {
-        abi: VAULT_ABI,
-        address: VAULT_CONTRACT_ADDRESS,
-        functionName: "deposit",
-        args: [
-          mainnetAddress,
-          BigInt(amountInCents.toString()),
-          BigInt(getUnixTime(unlockTimestamp)),
-        ],
-      },
-      {
-        onError: (error) => {
-          const { description, title } = handleDepositErrors(error);
+    try {
+      const price =
+        mainnetAddress === TEST_TOKEN_SEPOLIA_ADDRESS
+          ? 0
+          : await getPriceInUsd(tokenId);
 
-          toast({
-            title,
-            description,
-            variant: "destructive",
-          });
+      writeContract(
+        {
+          abi: VAULT_ABI,
+          address: VAULT_CONTRACT_ADDRESS,
+          functionName: "deposit",
+          args: [
+            mainnetAddress,
+            BigInt(price),
+            BigInt(amountInCents.toString()),
+            BigInt(getUnixTime(unlockTimestamp)),
+          ],
         },
-        onSuccess() {
-          toast({
-            title: "Deposit Success",
-            description: "",
-          });
-        },
-        onSettled(_, error) {
-          if (error !== null) {
-            const { title, description } = handleDepositErrors(error);
+        {
+          onSuccess: onCloseModal,
+          onError: (error) => {
+            const { description, title } = handleDepositErrors(error);
 
             toast({
-              title: title,
-              description: description,
+              title,
+              description,
               variant: "destructive",
             });
+          },
+          onSettled(_, error) {
+            if (error !== null) {
+              const { title, description } = handleDepositErrors(error);
 
-            return;
-          }
+              toast({
+                title: title,
+                description: description,
+                variant: "destructive",
+              });
 
-          toast({
-            title: "Transaction in block",
-            description: "Transaction is processing, please wait.",
-          });
+              return;
+            }
+
+            toast({
+              title: "Transaction in block",
+              description: "Transaction is processing, please wait.",
+            });
+          },
         },
-      },
-    );
-  }, [amount, toast, tokenId, unlockTimestamp, writeContract]);
+      );
+    } catch {
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description:
+          "Failed to get the price of the token. Please try again later.",
+      });
+    }
+  }, [
+    amount,
+    toast,
+    tokenId,
+    unlockTimestamp,
+    writeContract,
+    onCloseModal,
+    getPriceInUsd,
+  ]);
 
   const isButtonLoading = useMemo(
-    () => (!isApprovalSuccess && isApprovalPending) || isPending,
-    [isApprovalPending, isApprovalSuccess, isPending],
+    () => (!isApproved && isApprovalPending) || isPending,
+    [isApprovalPending, isApproved, isPending],
   );
 
   const isDepositAvailable = useMemo(
-    () => beforeApproved || isApprovalSuccess,
-    [beforeApproved, isApprovalSuccess],
+    () => beforeApproved || isApproved,
+    [beforeApproved, isApproved],
   );
 
   return (

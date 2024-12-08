@@ -43,12 +43,11 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
     cell: ({ getValue, row }) =>
       convertBNToAmount(
         getValue(),
-        getTokenByAddress(row.original.tokenAddress).decimals,
+        getTokenByAddress(row.original.tokenAddress).decimals
       ),
   }),
   columnHelper.accessor(
-    (row) =>
-      generateUnlockStatus(row.startTimestamp * 1000, row.unlockTimestamp),
+    (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
     {
       id: COLUMNS_ID.UNLOCK_STATUS,
       header: "Unlock Status",
@@ -61,7 +60,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
           </div>
         );
       },
-    },
+    }
   ),
   columnHelper.display({
     id: COLUMNS_ID.TIME_REMAINING,

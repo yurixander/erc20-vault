@@ -1,13 +1,14 @@
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import useToast from "@/hooks/useToast";
-import { FC, useCallback } from "react";
-import { useWriteContract } from "wagmi";
+import { FC, useCallback, useState } from "react";
+import { useWatchContractEvent, useWriteContract } from "wagmi";
 import Button from "./Button";
+import { decodeEventLog } from "viem";
 
 type UnlockDepositProps = {
   tokenAddress: `0x${string}`;
-  depositId: number;
+  depositId: bigint;
   disabled: boolean;
   className?: string;
 };
@@ -18,6 +19,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
   disabled,
   className,
 }) => {
+  const [isUnlocking, setIsUnlocking] = useState(false);
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
 
@@ -27,15 +29,13 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
         abi: VAULT_ABI,
         address: VAULT_CONTRACT_ADDRESS,
         functionName: "withdraw",
-        args: [tokenAddress, BigInt(depositId)],
+        args: [tokenAddress, depositId],
       },
       {
         onError: (error) => {
           console.log({
             ...error,
           });
-
-          console.log(depositId);
 
           toast({
             title: "Please try again later.",
@@ -45,6 +45,8 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
           });
         },
         onSuccess: () => {
+          setIsUnlocking(true);
+
           toast({
             title: "The withdrawal has been processed.",
             description: "Your deposit has been unlocked.",
@@ -54,11 +56,40 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
     );
   }, [depositId, toast, tokenAddress, writeContract]);
 
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "WithdrawalMade",
+    syncConnectedChain: true,
+    onError(error) {
+      console.error(error);
+
+      setIsUnlocking(false);
+    },
+    onLogs: (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "WithdrawalMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        // Check among all the tx which one was made by the user.
+        if (args.depositId !== depositId) {
+          continue;
+        }
+
+        setIsUnlocking(false);
+      }
+    },
+  });
+
   return (
     <Button
       size="sm"
       disabled={disabled}
-      isLoading={isPending}
+      isLoading={isPending || isUnlocking}
       onClick={unlockDeposit}
       className={className}
     >

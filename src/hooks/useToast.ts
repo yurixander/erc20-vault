@@ -46,7 +46,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
   updateToast: (toast) => {
     set((state) => ({
       toasts: state.toasts.map((t) =>
-        t.id === toast.id ? { ...t, ...toast } : t,
+        t.id === toast.id ? { ...t, ...toast } : t
       ),
     }));
   },
@@ -54,7 +54,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
     if (toastId) {
       set((state) => ({
         toasts: state.toasts.map((t) =>
-          t.id === toastId ? { ...t, open: false } : t,
+          t.id === toastId ? { ...t, open: false } : t
         ),
       }));
       setTimeout(() => get().removeToast(toastId), TOAST_REMOVE_DELAY);
@@ -66,7 +66,7 @@ export const useToastStore = create<ToastState>((set, get) => ({
       }));
 
       toasts.forEach((toast) =>
-        setTimeout(() => get().removeToast(toast.id), TOAST_REMOVE_DELAY),
+        setTimeout(() => get().removeToast(toast.id), TOAST_REMOVE_DELAY)
       );
     }
   },
@@ -93,7 +93,7 @@ const useToast = () => {
     (props: Omit<ToasterToast, "id">) => {
       addToast(props);
     },
-    [addToast],
+    [addToast]
   );
 
   return {
