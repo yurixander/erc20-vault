@@ -62,7 +62,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
 
   return (
     <Select onValueChange={handleValueChange} value={tokenId ?? undefined}>
-      <SelectTrigger className="w-[180px]">
+      <SelectTrigger className="w-32 shrink-0">
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>
 

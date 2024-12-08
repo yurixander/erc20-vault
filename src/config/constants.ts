@@ -1,5 +1,10 @@
 import { http } from "viem";
-import { AssetPath, Erc20TokenDefinition, Erc20TokenId } from "./types";
+import {
+  AssetPath,
+  CoingekoId,
+  Erc20TokenDefinition,
+  Erc20TokenId,
+} from "./types";
 import { EnvKey, requireEnvVariable } from "./env";
 
 export enum AppRoute {
@@ -8,7 +13,7 @@ export enum AppRoute {
 }
 
 export const VAULT_CONTRACT_ADDRESS =
-  "0xbD55b1508a7Bde76dC996cb6aFdC1Ca020d853ff";
+  "0x3db090F12972aa4A35F54c32D0709bAf03fD3CD8";
 
 export const TEST_TOKEN_SEPOLIA_ADDRESS =
   "0xcAC8935Fa8253575CAF0F63eA45A61a9E352A2ae";
@@ -16,17 +21,21 @@ export const TEST_TOKEN_SEPOLIA_ADDRESS =
 export const SEPOLIA_CHAIN_ID = 11155111;
 
 export const SEPOLIA_ALCHEMY_TRANSPORT = http(
-  `https://eth-sepolia.g.alchemy.com/v2/${requireEnvVariable(
-    EnvKey.SepoliaAlchemyKey
-  )}`
+  `https://eth-sepolia.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}`,
 );
 
-export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {
+export const MAINNET_ALCHEMY_TRANSPORT = http(`
+  https://eth-mainnet.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}
+  `);
+
+// Test token.
+export const MY_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   id: Erc20TokenId.MTK,
   name: "My token",
   mainnetAddress: TEST_TOKEN_SEPOLIA_ADDRESS,
   decimals: 18,
   iconAssetPath: AssetPath.LINK,
+  coingeckoId: CoingekoId.MTK,
 };
 
 export const USDT_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -35,6 +44,7 @@ export const USDT_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
   decimals: 6,
   iconAssetPath: AssetPath.USDT,
+  coingeckoId: CoingekoId.USDT,
 };
 
 export const USDC_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -43,6 +53,7 @@ export const USDC_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606EB48",
   decimals: 6,
   iconAssetPath: AssetPath.USDC,
+  coingeckoId: CoingekoId.USDC,
 };
 
 export const DAI_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -51,6 +62,7 @@ export const DAI_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
   decimals: 18,
   iconAssetPath: AssetPath.DAI,
+  coingeckoId: CoingekoId.DAI,
 };
 
 export const LINK_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -59,6 +71,7 @@ export const LINK_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x514910771AF9Ca656af840dff83E8264EcF986CA",
   decimals: 18,
   iconAssetPath: AssetPath.LINK,
+  coingeckoId: CoingekoId.LINK,
 };
 
 export const PEPE_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -67,6 +80,7 @@ export const PEPE_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x6982508145454Ce325dDbE47a25d4ec3d2311933",
   decimals: 18,
   iconAssetPath: AssetPath.PEPE,
+  coingeckoId: CoingekoId.PEPE,
 };
 
 export const SHIB_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -75,6 +89,7 @@ export const SHIB_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
   decimals: 18,
   iconAssetPath: AssetPath.SHIB,
+  coingeckoId: CoingekoId.SHIB,
 };
 
 export const BNB_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -83,6 +98,7 @@ export const BNB_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52",
   decimals: 18,
   iconAssetPath: AssetPath.BNB,
+  coingeckoId: CoingekoId.BNB,
 };
 
 export const UNI_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -91,6 +107,7 @@ export const UNI_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
   decimals: 18,
   iconAssetPath: AssetPath.UNI,
+  coingeckoId: CoingekoId.UNI,
 };
 
 export const ARB_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -99,6 +116,7 @@ export const ARB_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0xB50721BCf8d664c30412Cfbc6cf7a15145234ad1",
   decimals: 18,
   iconAssetPath: AssetPath.ARB,
+  coingeckoId: CoingekoId.ARB,
 };
 
 export const WBTC_ERC20_TOKEN: Erc20TokenDefinition = {
@@ -107,4 +125,5 @@ export const WBTC_ERC20_TOKEN: Erc20TokenDefinition = {
   mainnetAddress: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
   decimals: 8,
   iconAssetPath: AssetPath.WBTC,
+  coingeckoId: CoingekoId.WBTC,
 };

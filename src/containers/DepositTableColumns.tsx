@@ -47,8 +47,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
       ),
   }),
   columnHelper.accessor(
-    (row) =>
-      generateUnlockStatus(row.startTimestamp * 1000, row.unlockTimestamp),
+    (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
     {
       id: COLUMNS_ID.UNLOCK_STATUS,
       header: "Unlock Status",

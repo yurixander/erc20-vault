@@ -1,7 +1,12 @@
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import Input from "./Input";
 import TokenSelect from "./TokenSelect";
 import { TokenSelectProps } from "./TokenSelect";
+import { Text } from "./Typography";
+import Decimal from "decimal.js";
+import SmallLoader from "./SmallLoader";
+import useDebounce from "@/hooks/useDebounce";
+import useTokenPrice from "@/hooks/useTokenPrice";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
@@ -27,6 +32,36 @@ const AmountInput: FC<AmountInputProps> = ({
 }) => {
   const [internalValue, setInternalValue] = useState<string>();
   const [error, setError] = useState<string | null>(null);
+  const [estimatePrice, setEstimatedPrice] = useState<string | null>(null);
+  const [estimateLoading, setEstimatedLoading] = useState(false);
+  const amountDebounce = useDebounce(amount, 700);
+  const { getPriceInUsd } = useTokenPrice();
+
+  useEffect(() => {
+    if (tokenId === null || amountDebounce === null) {
+      setEstimatedPrice(null);
+
+      return;
+    }
+
+    setEstimatedLoading(true);
+
+    getPriceInUsd(tokenId)
+      .finally(() => setEstimatedLoading(false))
+      .then((price) => {
+        const estimateInUsd = calculateEstimateInUsd(
+          new Decimal(amountDebounce),
+          price,
+        );
+
+        setEstimatedPrice(estimateInUsd);
+      })
+      .catch((error) => {
+        setEstimatedPrice(null);
+
+        console.error(error);
+      });
+  }, [tokenId, amountDebounce, getPriceInUsd]);
 
   const handleValueChange = useCallback(
     (newValue: string) => {
@@ -65,11 +100,25 @@ const AmountInput: FC<AmountInputProps> = ({
       error={error}
       placeholder={placeholder}
       rightElement={
-        <TokenSelect
-          isChainTest={isChainTest}
-          tokenId={tokenId}
-          setTokenId={setTokenId}
-        />
+        <>
+          {estimatePrice !== null &&
+            (estimateLoading ? (
+              <SmallLoader />
+            ) : (
+              <Text
+                size="1"
+                className="w-max max-w-64 shrink-0 text-black/70 dark:text-white/70"
+              >
+                ≈ {estimatePrice}
+              </Text>
+            ))}
+
+          <TokenSelect
+            isChainTest={isChainTest}
+            tokenId={tokenId}
+            setTokenId={setTokenId}
+          />
+        </>
       }
       legend={legend}
       legendLearnMoreHref={legendLearnMoreHref}
@@ -78,5 +127,11 @@ const AmountInput: FC<AmountInputProps> = ({
     />
   );
 };
+
+function calculateEstimateInUsd(amount: Decimal, priceForOne: number): string {
+  const estimate = amount.mul(priceForOne).toString();
+
+  return `$${estimate} USD`;
+}
 
 export default AmountInput;

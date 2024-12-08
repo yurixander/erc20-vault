@@ -29,6 +29,15 @@ import { twMerge } from "tailwind-merge";
 import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
 import useDeposits from "../hooks/useDeposits";
 import TableStatus from "../components/TableStatus";
+import { useAccount, useWatchContractEvent } from "wagmi";
+import VAULT_ABI from "@/abi/vaultAbi";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { decodeEventLog } from "viem";
+import { getTokenByAddress } from "@/utils/findTokenByAddress";
+import { convertBNToAmount } from "@/utils/amount";
+import { BN } from "bn.js";
+import useToast from "@/hooks/useToast";
+import { Deposit } from "@/config/types";
 
 type DepositsTableProps = {
   className?: string;
@@ -37,7 +46,105 @@ type DepositsTableProps = {
 const PAGE_SIZE = 8;
 
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
-  const { deposits, isLoading, error, refresh } = useDeposits();
+  const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
+  const { toast } = useToast();
+  const { address } = useAccount();
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "DepositMade",
+    syncConnectedChain: true,
+    onLogs: async (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "DepositMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "New deposit",
+          description: `You've made a deposit of ${amount} (ID #${id})`,
+        });
+
+        setDeposits((prevDeposits) => {
+          const newDeposit: Deposit = {
+            amount: new BN(args.amount.toString()),
+            depositId: args.depositId,
+            tokenAddress: args.tokenAddress,
+            startTimestamp: Number(args.startTimestamp),
+            unlockTimestamp: Number(args.unlockTimestamp),
+          };
+
+          if (prevDeposits === null) {
+            return [newDeposit];
+          }
+
+          return prevDeposits.concat(newDeposit);
+        });
+      }
+    },
+  });
+
+  useWatchContractEvent({
+    abi: VAULT_ABI,
+    address: VAULT_CONTRACT_ADDRESS,
+    eventName: "WithdrawalMade",
+    syncConnectedChain: true,
+    strict: true,
+    onError(error) {
+      console.error(error);
+    },
+    onLogs: (logs) => {
+      for (const log of logs) {
+        const { args } = decodeEventLog({
+          abi: VAULT_ABI,
+          eventName: "WithdrawalMade",
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (args.account !== address) {
+          continue;
+        }
+
+        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+
+        const amount = convertBNToAmount(
+          new BN(args.amount.toString()),
+          decimals,
+        );
+
+        toast({
+          title: "Withdrawal Success",
+          description: `You withdrew ${amount} ${id}`,
+        });
+
+        setDeposits((prevDeposits) => {
+          if (prevDeposits === null) {
+            return null;
+          }
+
+          return prevDeposits.filter(
+            ({ depositId }) => depositId !== args.depositId,
+          );
+        });
+      }
+    },
+  });
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -74,13 +181,14 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
           <PaginationItem key={paginationIndex}>
             <PaginationSelector
               onClick={() => table.setPageIndex(paginationIndex)}
-              isActive={pagination.pageIndex === paginationIndex}>
+              isActive={pagination.pageIndex === paginationIndex}
+            >
               {paginationIndex}
             </PaginationSelector>
           </PaginationItem>
-        )
+        ),
       ),
-    [pagination.pageIndex, table]
+    [pagination.pageIndex, table],
   );
 
   if (error !== null) {
@@ -106,7 +214,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   return (
     <div className="mb-4 flex max-w-6xl flex-col justify-center gap-y-4">
       <Table
-        className={twMerge("min-w-[640px] border md:min-w-full", className)}>
+        className={twMerge("min-w-[640px] border md:min-w-full", className)}
+      >
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -114,7 +223,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
                 <TableHead key={header.id}>
                   {flexRender(
                     header.column.columnDef.header,
-                    header.getContext()
+                    header.getContext(),
                   )}
                 </TableHead>
               ))}
@@ -132,7 +241,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
                     cell.column.id === COLUMNS_ID.DEPOSIT_ID
                       ? "w-[100px]"
                       : undefined
-                  }>
+                  }
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -166,7 +276,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
           size="icon"
           className="shrink-0"
           variant="outline"
-          onClick={refresh}>
+          onClick={refresh}
+        >
           <TfiReload />
         </Button>
       </div>
@@ -186,7 +297,7 @@ function renderPageNumbers(currentPage: number, totalPages: number) {
 
   return Array.from(
     { length: endPage - startPage },
-    (_, index) => startPage + index
+    (_, index) => startPage + index,
   );
 }
 

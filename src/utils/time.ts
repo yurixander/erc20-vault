@@ -12,8 +12,18 @@ export function generateUnlockStatus(
   startTimestamp: number,
   unlockTimestamp: number
 ): number {
-  const totalSecondsDiff = differenceInSeconds(unlockTimestamp, startTimestamp);
-  const partSecondsDiff = differenceInSeconds(Date.now(), startTimestamp);
+  const startTimestampInMilliseconds = startTimestamp * 1000;
+  const unlockTimestampInMilliseconds = unlockTimestamp * 1000;
+
+  const totalSecondsDiff = differenceInSeconds(
+    unlockTimestampInMilliseconds,
+    startTimestampInMilliseconds,
+  );
+
+  const partSecondsDiff = differenceInSeconds(
+    Date.now(),
+    startTimestampInMilliseconds,
+  );
 
   if (partSecondsDiff >= totalSecondsDiff) {
     return 100;

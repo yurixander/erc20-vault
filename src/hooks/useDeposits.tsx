@@ -35,7 +35,7 @@ const useDeposits = () => {
     const availableDeposits: Deposit[] = [];
 
     for (const rawDeposit of rawDeposits) {
-      if (rawDeposit.amount === BigInt("0")) {
+      if (rawDeposit.withdrawn) {
         continue;
       }
 
@@ -79,7 +79,7 @@ const useDeposits = () => {
     refresh();
   }, [refresh]);
 
-  return { isLoading, error, deposits, refresh };
+  return { isLoading, error, deposits, refresh, setDeposits };
 };
 
 export default useDeposits;

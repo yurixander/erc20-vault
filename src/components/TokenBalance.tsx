@@ -8,6 +8,7 @@ import useToast from "@/hooks/useToast";
 import getErc20TokenDef from "@/utils/getErc20TokenDef";
 import { convertBNToAmount } from "@/utils/amount";
 import BN from "bn.js";
+import SmallLoader from "./SmallLoader";
 
 type TokenBalanceProps = {
   tokenId: Erc20TokenId | null;
@@ -68,17 +69,22 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
   return (
     <div className="mt-0.5 ml-0.5 flex h-5 items-center">
       {isBalanceLoading ? (
-        <div className="size-4 animate-spin rounded-full border-[3px] border-gray-100 border-t-black dark:border-gray-600 dark:border-t-white" />
+        <SmallLoader />
       ) : (
         <div className="space-x-1">
           <Text
             align="right"
             size="2"
-            className="inline-flex w-max text-black/70">
+            className="inline-flex w-max text-black/70 dark:text-white/70"
+          >
             Balance: {tokenBalance}
           </Text>
 
-          <Text align="right" size="1" className="w-max text-black/70">
+          <Text
+            align="right"
+            size="1"
+            className="w-max text-black/70 dark:text-white/70"
+          >
             {tokenId}
           </Text>
         </div>
