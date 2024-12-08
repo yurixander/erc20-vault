@@ -1,6 +1,6 @@
-import { HiOutlineBanknotes } from "react-icons/hi2";
 import { Heading, Text } from "./Typography";
 import { FC } from "react";
+import { FaSearch } from "react-icons/fa";
 
 type Props = {
   title: string;
@@ -9,8 +9,8 @@ type Props = {
 
 const TableStatus: FC<Props> = ({ title, description }) => {
   return (
-    <div className="flex h-64 w-full flex-col items-center justify-center rounded-sm border border-gray-200 bg-gray-50">
-      <HiOutlineBanknotes className="size-16" />
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+      <FaSearch size={24} />
 
       <Heading level="h4" align="center">
         {title}
