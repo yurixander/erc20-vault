@@ -87,6 +87,7 @@ const useTokenApproval = (config: Config) => {
             topics: log.topics,
           });
 
+          // Check among all the tx which one was made by the user.
           if (
             args.value !== amount ||
             args.spender !== spender ||

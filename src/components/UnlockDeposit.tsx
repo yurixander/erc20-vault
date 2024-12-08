@@ -52,7 +52,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
             description: "Your deposit has been unlocked.",
           });
         },
-      }
+      },
     );
   }, [depositId, toast, tokenAddress, writeContract]);
 
@@ -75,6 +75,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
           topics: log.topics,
         });
 
+        // Check among all the tx which one was made by the user.
         if (args.depositId !== depositId) {
           continue;
         }
@@ -90,7 +91,8 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
       disabled={disabled}
       isLoading={isPending || isUnlocking}
       onClick={unlockDeposit}
-      className={className}>
+      className={className}
+    >
       Unlock
     </Button>
   );

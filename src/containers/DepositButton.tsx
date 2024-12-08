@@ -64,7 +64,7 @@ const DepositButton: FC = () => {
 
       const amountApproved = convertBNToAmount(
         new BN(allowance.toString()),
-        decimals
+        decimals,
       );
 
       toast({
@@ -84,7 +84,8 @@ const DepositButton: FC = () => {
 
                 return prevTokenId;
               });
-            }}>
+            }}
+          >
             Use it
           </ToastAction>
         ),
@@ -106,7 +107,8 @@ const DepositButton: FC = () => {
         setTokenId(null);
         setUnlockTimestamp(null);
         setBeforeApproved(false);
-      }}>
+      }}
+    >
       <DialogTrigger asChild>
         <Button disabled={!isConnected}>
           <FiPlusCircle />
@@ -148,7 +150,8 @@ const DepositButton: FC = () => {
             legend="You
               will need to manually withdraw the funds after this date, as they
               won't be automatically unlocked."
-            linkHref="#">
+            linkHref="#"
+          >
             <DatePicker
               label="Select a maturity date"
               setTimestamp={setUnlockTimestamp}
@@ -349,7 +352,8 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
         }
 
         submitDepositTx();
-      }}>
+      }}
+    >
       {isDepositAvailable ? "Deposit & lock tokens" : "Approve"}
     </Button>
   );
