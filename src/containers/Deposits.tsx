@@ -49,7 +49,7 @@ const Deposits: FC = () => {
 
         toast({
           title: "New deposit",
-          description: `You've made a deposit of ${amount} ${id}`,
+          description: `You've made a deposit of ${amount} (ID #${id})`,
         });
 
         setDeposits((prevDeposits) =>
