@@ -17,6 +17,7 @@ const useDeposits = () => {
   const { toast } = useToast();
 
   const fetchDeposits = useCallback(async () => {
+    // TODO: If no account is connected, fetch all deposits from all users instead.
     if (address === undefined) {
       throw new Error("No account connected");
     }
