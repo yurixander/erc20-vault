@@ -43,7 +43,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
     cell: ({ getValue, row }) =>
       convertBNToAmount(
         getValue(),
-        getTokenByAddress(row.original.tokenAddress).decimals,
+        getTokenByAddress(row.original.tokenAddress).decimals
       ),
   }),
   columnHelper.accessor(
@@ -60,7 +60,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
           </div>
         );
       },
-    },
+    }
   ),
   columnHelper.display({
     id: COLUMNS_ID.TIME_REMAINING,

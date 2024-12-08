@@ -58,8 +58,7 @@ const PaginationSelector: FC<PaginationSelector> = ({
     size="icon"
     onClick={onClick}
     variant={isActive ? "outline" : "ghost"}
-    className={className}
-  >
+    className={className}>
     {children}
   </Button>
 );
@@ -78,8 +77,7 @@ const PaginationPrevious: FC<ButtonProps> = ({
     size={size}
     variant={variant}
     className={cn("gap-1", className)}
-    {...props}
-  >
+    {...props}>
     <ChevronLeftIcon className="mt-0.5" />
     Previous
   </Button>
@@ -99,8 +97,7 @@ const PaginationNext: FC<ButtonProps> = ({
     size={size}
     variant={variant}
     className={cn("gap-1", className)}
-    {...props}
-  >
+    {...props}>
     Next
     <ChevronRightIcon className="mt-0.5" />
   </Button>
@@ -115,8 +112,7 @@ const PaginationEllipsis = ({
   <span
     aria-hidden
     className={cn("flex size-9 items-center justify-center", className)}
-    {...props}
-  >
+    {...props}>
     <DotsHorizontalIcon className="size-4" />
     <span className="sr-only">More pages</span>
   </span>

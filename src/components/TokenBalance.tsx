@@ -47,8 +47,8 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
           return;
         } else if (balance instanceof Error) {
           toast({
-            title: "Balance Error",
-            description: "Failed to get balance for selected token.",
+            title: "Unable to Fetch Balance",
+            description: balance.message,
             variant: "destructive",
           });
 
@@ -95,7 +95,6 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
 
 function addCommasToWholePart(amount: string): string {
   const [wholePart, _] = amount.split(".");
-
   let result = "";
   let count = 0;
 

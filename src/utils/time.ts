@@ -10,7 +10,7 @@ export function generateTimeRemaining(unlockTimestamp: number): string {
 
 export function generateUnlockStatus(
   startTimestamp: number,
-  unlockTimestamp: number,
+  unlockTimestamp: number
 ): number {
   const startTimestampInMilliseconds = startTimestamp * 1000;
   const unlockTimestampInMilliseconds = unlockTimestamp * 1000;

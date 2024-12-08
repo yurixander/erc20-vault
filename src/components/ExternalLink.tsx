@@ -21,9 +21,8 @@ const ExternalLink: FC<ExternalLinkProps> = ({
       target="_blank"
       className={twMerge(
         "inline-flex items-center justify-center gap-1 hover:underline",
-        className,
-      )}
-    >
+        className
+      )}>
       {children} {!hideIcon && <FiExternalLink />}
     </a>
   );

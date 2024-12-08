@@ -6,7 +6,7 @@ export const availableTokensMap = new Map<string, Erc20TokenDefinition>(
     const token = getErc20TokenDef(tokenId);
 
     return [token.mainnetAddress, token];
-  }),
+  })
 );
 
 export function getTokenByAddress(address: string): Erc20TokenDefinition {

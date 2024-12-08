@@ -15,7 +15,7 @@ export enum AppRoute {
 export const VAULT_CONTRACT_ADDRESS =
   "0x3db090F12972aa4A35F54c32D0709bAf03fD3CD8";
 
-export const MY_TOKEN_SEPOLIA_ADDRESS =
+export const TEST_TOKEN_SEPOLIA_ADDRESS =
   "0xcAC8935Fa8253575CAF0F63eA45A61a9E352A2ae";
 
 export const SEPOLIA_CHAIN_ID = 11155111;
@@ -32,7 +32,7 @@ export const MAINNET_ALCHEMY_TRANSPORT = http(`
 export const MY_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   id: Erc20TokenId.MTK,
   name: "My token",
-  mainnetAddress: MY_TOKEN_SEPOLIA_ADDRESS,
+  mainnetAddress: TEST_TOKEN_SEPOLIA_ADDRESS,
   decimals: 18,
   iconAssetPath: AssetPath.LINK,
   coingeckoId: CoingekoId.MTK,
