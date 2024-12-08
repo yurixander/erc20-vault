@@ -96,7 +96,7 @@ const Deposits: FC = () => {
 
         toast({
           title: "Withdrawal Success",
-          description: `You withdrew ${amount} ${id}`,
+          description: `Withdrew ${amount} (ID #${id})`,
         });
 
         setDeposits((prevDeposits) =>
