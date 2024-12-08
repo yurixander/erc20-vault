@@ -223,7 +223,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       onError: (err) => {
         if (err instanceof Error) {
           toast({
-            title: "Error approving token",
+            title: "Failed to Approve Spend",
             description: err.message,
             variant: "destructive",
           });
