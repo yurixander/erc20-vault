@@ -29,7 +29,7 @@ export const MAINNET_ALCHEMY_TRANSPORT = http(`
   `);
 
 // Test token.
-export const MY_TOKEN_SEPOLIA: Erc20TokenDefinition = {
+export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   id: Erc20TokenId.MTK,
   name: "My token",
   mainnetAddress: TEST_TOKEN_SEPOLIA_ADDRESS,

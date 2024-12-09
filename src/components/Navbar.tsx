@@ -12,9 +12,9 @@ const NETWORK_ICON_SIZE = 24;
 
 const Navbar: FC = () => {
   return (
-    <div className="flex items-center justify-between gap-2 h-full w-full px-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-2 h-full w-full px-4">
       {/** Left side */}
-      <Heading>ERC-20 Vault</Heading>
+      <Heading className="flex justify-center sm:justify-start">ERC-20 Vault</Heading>
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
