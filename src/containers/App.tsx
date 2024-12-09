@@ -3,8 +3,10 @@ import AppSidebar from "@/components/Sidebar";
 import { FC } from "react";
 import DepositsTable from "./DepositsTable";
 import { useAccount } from "wagmi";
+import WelcomeSplash from "@/components/WelcomeSplash";
 
 const App: FC = () => {
+  const { isConnected } = useAccount();
   return (
     <div className="flex h-screen w-full flex-col sm:flex-row">
       <aside className="hidden size-full max-w-xs grow flex-col bg-blue-600 sm:flex dark:bg-blue-300">
@@ -20,7 +22,7 @@ const App: FC = () => {
         </header>
 
         <main className="grow basis-0 flex size-full flex-col gap-8 z-0 p-5">
-          <DepositsTable />
+          {isConnected ? <DepositsTable /> : <WelcomeSplash />}
         </main>
       </section>
     </div>
