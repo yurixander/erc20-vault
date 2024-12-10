@@ -39,6 +39,8 @@ contract Vault {
     }
 
     mapping(address => Deposit[]) public deposits;
+    address[] public depositors;
+    mapping(address => bool) private isDepositor;
 
     function deposit(
         address tokenAddress,
@@ -81,6 +83,11 @@ contract Vault {
             )
         );
 
+        if (!isDepositor[msg.sender]) {
+            isDepositor[msg.sender] = true;
+            depositors.push(msg.sender);
+        }
+
         emit DepositMade(
             depositId,
             msg.sender,
@@ -110,6 +117,7 @@ contract Vault {
         // Mark deposit as withdrawn before making the transfer
         // to prevent re-entrancy attacks.
         userDeposit.amount = 0;
+        userDeposit.withdrawn = true;
 
         IERC20 token = IERC20(tokenAddress);
         bool success = token.transfer(msg.sender, amountToWithdraw);
@@ -134,5 +142,9 @@ contract Vault {
         }
 
         return deposits[account];
+    }
+
+    function getDepositors() public view returns (address[] memory) {
+        return depositors;
     }
 }
