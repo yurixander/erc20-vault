@@ -9,6 +9,8 @@ export type Deposit = {
   unlockTimestamp: number;
 };
 
+export type ERC20TokenPrices = Record<Erc20TokenId, number | null>;
+
 export enum Erc20TokenId {
   USDC = "USDC",
   USDT = "USDT",
@@ -50,8 +52,8 @@ export enum AssetPath {
   UNI = "icons/uni.svg",
   ARB = "icons/arb.svg",
   WBTC = "icons/wbtc.svg",
-  // TODO: Put real test icon.
-  MTK = "icons/mtk.svg",
+  // Test icon.
+  MTK = "icons/usdc.svg",
 }
 
 export type Erc20TokenDefinition = {

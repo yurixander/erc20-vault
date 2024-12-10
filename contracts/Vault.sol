@@ -40,7 +40,6 @@ contract Vault {
 
     mapping(address => Deposit[]) public deposits;
 
-    // TODO: Idea: Save what the price of the token was at the time of deposit, so that the frontend can show the profit or loss made through the time locked.
     function deposit(
         address tokenAddress,
         uint256 priceInUsd,

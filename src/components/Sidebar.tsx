@@ -1,9 +1,13 @@
 import { cn } from "@/lib/utils";
-import { PopoverArrow } from "@radix-ui/react-popover";
 import { FC } from "react";
 import { IoIosInformationCircle } from "react-icons/io";
-import Popover, { PopoverContent, PopoverTrigger } from "./Popover";
 import { Heading, Text } from "./Typography";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/Tooltip";
 
 const TVL_BALANCE = "$345.15M";
 
@@ -23,16 +27,17 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
               TVL
             </Text>
 
-            <Popover>
-              <PopoverTrigger>
-                <IoIosInformationCircle className="text-blue-50" />
-              </PopoverTrigger>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <IoIosInformationCircle className="text-blue-50" />
+                </TooltipTrigger>
 
-              <PopoverContent>
-                <PopoverArrow className="fill-popover" />
-                Total value locked in Erc20 Vault
-              </PopoverContent>
-            </Popover>
+                <TooltipContent>
+                  Total value in USD locked in Erc20 Vault
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <Heading level="h2" id="tvl" className="text-blue-50">
