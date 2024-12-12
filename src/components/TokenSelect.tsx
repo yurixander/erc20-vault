@@ -43,7 +43,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
     if (isChainTest === true) {
       return (
         <SelectItem key={testTokenId} value={testTokenId}>
-          {testTokenId}
+          {getSymbolByTokenId(testTokenId)}
         </SelectItem>
       );
     }
