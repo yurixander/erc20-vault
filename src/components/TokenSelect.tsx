@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./Select";
+import { getSymbolByTokenId } from "@/utils/tokens";
 
 export type TokenSelectProps = {
   tokenId: Erc20TokenId | null;
@@ -23,7 +24,7 @@ function assetTokenId(tok: string): asserts tok is Erc20TokenId {
   }
 }
 
-const { id: testTokenId } = TEST_TOKEN_SEPOLIA;
+const { tokenId: testTokenId } = TEST_TOKEN_SEPOLIA;
 
 const TokenSelect: FC<TokenSelectProps> = ({
   tokenId,
@@ -54,7 +55,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
 
       return (
         <SelectItem key={tokenId} value={tokenId}>
-          {tokenId}
+          {getSymbolByTokenId(tokenId)}
         </SelectItem>
       );
     });
