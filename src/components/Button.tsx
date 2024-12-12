@@ -5,6 +5,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 import { FiLoader } from "react-icons/fi";
+import { motion } from "framer-motion";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -62,25 +63,27 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const Tag = asChild ? Slot : "button";
 
-    // TODO: Make it so that the width between loading and default state changes smoothly instead of jumping, likely using Framer Motion.
     return (
-      <Tag
-        ref={ref}
-        disabled={isLoading || props.disabled}
-        className={cn(
-          "space-x-2",
-          buttonVariants({ variant, size, className }),
-          isLoading && "animate-pulse"
-        )}
-        {...props}>
-        {isLoading && <FiLoader className="size-4 animate-spin" />}
+      <motion.button layout transition={{ duration: 0.25 }}>
+        <Tag
+          ref={ref}
+          disabled={isLoading || props.disabled}
+          className={cn(
+            "space-x-2 flex items-center justify-center gap-2",
+            buttonVariants({ variant, size, className }),
+            isLoading && "animate-pulse"
+          )}
+          {...props}
+        >
+          {isLoading && <FiLoader className="size-4 animate-spin" />}
 
-        {isLoading ? loadingText : children}
+          {isLoading ? loadingText : children}
 
-        {!isLoading && rightIcon !== undefined && (
-          <div className="ml-2">{rightIcon}</div>
-        )}
-      </Tag>
+          {!isLoading && rightIcon !== undefined && (
+            <div className="ml-2">{rightIcon}</div>
+          )}
+        </Tag>
+      </motion.button>
     );
   }
 );
