@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./Select";
+import { getSymbolByTokenId } from "@/utils/tokens";
 
 export type TokenSelectProps = {
   tokenId: Erc20TokenId | null;
@@ -23,7 +24,7 @@ function assetTokenId(tok: string): asserts tok is Erc20TokenId {
   }
 }
 
-const { id: testTokenId } = TEST_TOKEN_SEPOLIA;
+const { tokenId: testTokenId } = TEST_TOKEN_SEPOLIA;
 
 const TokenSelect: FC<TokenSelectProps> = ({
   tokenId,
@@ -35,14 +36,14 @@ const TokenSelect: FC<TokenSelectProps> = ({
       assetTokenId(newValue);
       setTokenId(newValue);
     },
-    [setTokenId]
+    [setTokenId],
   );
 
   const selectableItems: React.ReactNode = useMemo(() => {
     if (isChainTest === true) {
       return (
         <SelectItem key={testTokenId} value={testTokenId}>
-          {testTokenId}
+          {getSymbolByTokenId(testTokenId)}
         </SelectItem>
       );
     }
@@ -54,7 +55,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
 
       return (
         <SelectItem key={tokenId} value={tokenId}>
-          {tokenId}
+          {getSymbolByTokenId(tokenId)}
         </SelectItem>
       );
     });
@@ -66,7 +67,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>
 
-      <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <SelectContent>
         <SelectGroup>
           <SelectLabel>ERC-20 Tokens</SelectLabel>
 

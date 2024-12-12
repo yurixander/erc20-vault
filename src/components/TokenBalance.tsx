@@ -5,10 +5,10 @@ import useContractReadOnce from "@/hooks/useContractRead";
 import IERC20_ABI from "@/abi/ierc20Abi";
 import { useAccount } from "wagmi";
 import useToast from "@/hooks/useToast";
-import getErc20TokenDef from "@/utils/getErc20TokenDef";
 import { convertBNToAmount } from "@/utils/amount";
 import BN from "bn.js";
 import SmallLoader from "./SmallLoader";
+import { getErc20TokenDef, getSymbolByTokenId } from "@/utils/tokens";
 
 type TokenBalanceProps = {
   tokenId: Erc20TokenId | null;
@@ -32,12 +32,12 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
       return;
     }
 
-    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+    const { decimals, address: tokenAddress } = getErc20TokenDef(tokenId);
 
     setBalanceLoading(true);
 
     readOnce({
-      address: mainnetAddress,
+      address: tokenAddress,
       functionName: "balanceOf",
       args: [address],
     })
@@ -85,7 +85,7 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
             size="1"
             className="w-max text-black/70 dark:text-white/70"
           >
-            {tokenId}
+            {getSymbolByTokenId(tokenId)}
           </Text>
         </div>
       )}

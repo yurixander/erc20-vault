@@ -9,19 +9,20 @@ export type Deposit = {
   unlockTimestamp: number;
 };
 
+// Use strings to avoid unnecessary filtering with Object.values.
 export enum Erc20TokenId {
-  USDC = "USDC",
-  USDT = "USDT",
-  DAI = "DAI",
-  LINK = "LINK",
-  PEPE = "PEPE",
-  SHIB = "SHIB",
-  BNB = "BNB",
-  UNI = "UNI",
-  ARB = "ARB",
-  WBTC = "WBTC",
+  USDC = "0",
+  USDT = "1",
+  DAI = "2",
+  LINK = "3",
+  PEPE = "4",
+  SHIB = "5",
+  BNB = "6",
+  UNI = "7",
+  ARB = "8",
+  WBTC = "9",
   // Testing
-  MTK = "MTK",
+  MTK = "10",
 }
 
 export enum CoingekoId {
@@ -55,10 +56,11 @@ export enum AssetPath {
 }
 
 export type Erc20TokenDefinition = {
-  id: Erc20TokenId;
+  tokenId: Erc20TokenId;
   coingeckoId: CoingekoId;
+  isTestToken?: boolean;
   name: string;
-  mainnetAddress: Address;
+  address: Address;
   decimals: number;
   iconAssetPath: AssetPath;
 };

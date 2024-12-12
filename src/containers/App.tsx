@@ -2,7 +2,7 @@ import Navbar from "@/components/Navbar";
 import AppSidebar from "@/components/Sidebar";
 import { FC } from "react";
 import DepositsTable from "./DepositsTable";
-import { useAccount } from "wagmi";
+import DepositButton from "./DepositButton";
 
 const App: FC = () => {
   return (
@@ -13,13 +13,15 @@ const App: FC = () => {
 
       <section className="relative flex w-full grow flex-col">
         {/** Background */}
-        <div className="absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none -z-1" />
+        <div className="-z-1 pointer-events-none absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
-        <header className="h-16 w-full sm:h-20 sm:border-b sm:border-b-gray-200 md:h-24 dark:sm:border-b-gray-200/50 z-0">
+        <header className="z-0 h-16 w-full sm:h-20 sm:border-b sm:border-b-gray-200 md:h-24 dark:sm:border-b-gray-200/50">
           <Navbar />
         </header>
 
-        <main className="grow basis-0 flex size-full flex-col gap-8 z-0 p-5">
+        <main className="z-0 flex size-full grow basis-0 flex-col gap-8 p-5">
+          <DepositButton />
+
           <DepositsTable />
         </main>
       </section>
