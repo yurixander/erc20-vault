@@ -13,7 +13,7 @@ export enum AppRoute {
 }
 
 export const VAULT_CONTRACT_ADDRESS =
-  "0x3db090F12972aa4A35F54c32D0709bAf03fD3CD8";
+  "0x59214D25e56c11CB0A7dBAB8C93a52a011761e3d";
 
 export const TEST_TOKEN_SEPOLIA_ADDRESS =
   "0xcAC8935Fa8253575CAF0F63eA45A61a9E352A2ae";
@@ -27,6 +27,10 @@ export const SEPOLIA_ALCHEMY_TRANSPORT = http(
 export const MAINNET_ALCHEMY_TRANSPORT = http(`
   https://eth-mainnet.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}
   `);
+
+export const MAINNET_TOKENS = Object.values(Erc20TokenId).filter(
+  (t) => t !== Erc20TokenId.MTK,
+);
 
 // Test token.
 export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {

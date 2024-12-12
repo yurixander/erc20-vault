@@ -38,7 +38,7 @@ export enum CoingekoId {
   ARB = "arbitrum",
   WBTC = "wrapped-bitcoin",
   // Testing
-  MTK = "",
+  MTK = "mtk",
 }
 
 export enum AssetPath {

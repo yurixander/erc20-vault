@@ -27,10 +27,14 @@ contract Vault {
     error DepositStillLocked();
     error InvalidDepositIndex();
     error InsufficientBalance();
+    error TokenAddressMismatch();
+    error DepositAlreadyWithdrawn();
+    error Unauthorized();
 
     struct Deposit {
         uint256 depositId;
         address tokenAddress;
+        address owner;
         uint256 priceInUsd;
         uint256 amount;
         uint256 startTimestamp;
@@ -38,9 +42,8 @@ contract Vault {
         bool withdrawn;
     }
 
-    mapping(address => Deposit[]) public deposits;
-    address[] public depositors;
-    mapping(address => bool) private isDepositor;
+    Deposit[] public deposits;
+    mapping(address => uint256[]) public depositIds;
 
     function deposit(
         address tokenAddress,
@@ -67,26 +70,24 @@ contract Vault {
             revert TransferFailed();
         }
 
-        uint256 depositId = deposits[msg.sender].length;
+        uint256 depositId = deposits.length;
 
         // On the initial deposit, this will still work even though the
         // inner array hasn't been explicitly initialized.
-        deposits[msg.sender].push(
-            Deposit(
-                depositId,
-                tokenAddress,
-                priceInUsd,
-                amount,
-                block.timestamp,
-                unlockTimestamp,
-                false
-            )
+        deposits.push(
+            Deposit({
+                depositId: depositId,
+                tokenAddress: tokenAddress,
+                owner: msg.sender,
+                priceInUsd: priceInUsd,
+                amount: amount,
+                startTimestamp: block.timestamp,
+                unlockTimestamp: unlockTimestamp,
+                withdrawn: false
+            })
         );
 
-        if (!isDepositor[msg.sender]) {
-            isDepositor[msg.sender] = true;
-            depositors.push(msg.sender);
-        }
+        depositIds[msg.sender].push(depositId);
 
         emit DepositMade(
             depositId,
@@ -101,11 +102,23 @@ contract Vault {
     }
 
     function withdraw(address tokenAddress, uint256 depositId) public {
-        if (depositId >= deposits[msg.sender].length) {
+        if (depositId >= deposits.length) {
             revert InvalidDepositIndex();
         }
 
-        Deposit storage userDeposit = deposits[msg.sender][depositId];
+        Deposit storage userDeposit = deposits[depositId];
+
+        if (userDeposit.owner != msg.sender) {
+            revert Unauthorized();
+        }
+
+        if (userDeposit.withdrawn) {
+            revert DepositAlreadyWithdrawn();
+        }
+
+        if (userDeposit.tokenAddress != tokenAddress) {
+            revert TokenAddressMismatch();
+        }
 
         // Check if the deposit is still locked.
         if (userDeposit.unlockTimestamp > block.timestamp) {
@@ -137,14 +150,22 @@ contract Vault {
     function getDeposits(
         address account
     ) public view returns (Deposit[] memory) {
-        if (deposits[account].length == 0) {
+        uint256[] storage userDepositsIds = depositIds[account];
+
+        if (userDepositsIds.length == 0) {
             return new Deposit[](0);
         }
 
-        return deposits[account];
+        Deposit[] memory userDeposits = new Deposit[](userDepositsIds.length);
+
+        for (uint256 i = 0; i < userDepositsIds.length; i++) {
+            userDeposits[i] = deposits[userDepositsIds[i]];
+        }
+
+        return userDeposits;
     }
 
-    function getDepositors() public view returns (address[] memory) {
-        return depositors;
+    function getAllDeposits() public view returns (Deposit[] memory) {
+        return deposits;
     }
 }

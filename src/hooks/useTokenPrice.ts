@@ -28,7 +28,7 @@ const useTokenPricesStore = create<TokenPricesStore>((set) => ({
   setCachedUsdPrices: (cachedUsdPrices) => set({ cachedUsdPrices }),
 }));
 
-const useTokenPrice = () => {
+const useTokenPrice = (tokens: Erc20TokenId[]) => {
   const { cachedUsdPrices, setCachedUsdPrices } = useTokenPricesStore();
 
   useEffect(() => {
@@ -36,7 +36,7 @@ const useTokenPrice = () => {
       return;
     }
 
-    const timeoutId = setTimeout(() => setCachedUsdPrices(null), 60000);
+    const timeoutId = setTimeout(() => setCachedUsdPrices(null), 70000);
 
     return () => clearTimeout(timeoutId);
   }, [cachedUsdPrices, setCachedUsdPrices]);
@@ -46,14 +46,14 @@ const useTokenPrice = () => {
       return;
     }
 
-    getTokenPrices(Object.values(Erc20TokenId))
+    getTokenPrices(tokens)
       .then(setCachedUsdPrices)
       .catch((error) => {
         console.error(`Error getting token prices ${error}`);
 
         setCachedUsdPrices(null);
       });
-  }, [cachedUsdPrices, setCachedUsdPrices]);
+  }, [cachedUsdPrices, setCachedUsdPrices, tokens]);
 
   const getPriceInUsd = useCallback(
     async (erc20TokenId: Erc20TokenId): Promise<number> => {
@@ -85,14 +85,15 @@ const useTokenPrice = () => {
       }
 
       try {
-        const prices = await getTokenPrices(Object.values(Erc20TokenId));
+        const prices = await getTokenPrices(tokens);
+
         setCachedUsdPrices(prices);
 
         return prices;
       } catch {
         return null;
       }
-    }, [cachedUsdPrices, setCachedUsdPrices]);
+    }, [cachedUsdPrices, setCachedUsdPrices, tokens]);
 
   return {
     getPriceInUsd,
