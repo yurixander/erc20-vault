@@ -15,7 +15,7 @@ import { Text } from "@/components/Typography";
 import { Erc20TokenId } from "@/config/types";
 import useToast from "@/hooks/useToast";
 import { convertAmountToBN } from "@/utils/amount";
-import getErc20TokenDef from "@/utils/getErc20TokenDef";
+import { getErc20TokenDef } from "@/utils/tokens";
 import BN from "bn.js";
 import { AnimatePresence, motion } from "framer-motion";
 import { FC, useCallback, useEffect, useState } from "react";
@@ -76,6 +76,12 @@ const DevPreview: FC = () => {
 
 type ApprovalData = {
   amount: BN;
+  token: Erc20TokenId;
+};
+
+type DepositDetail = {
+  amount: BN;
+  displayAmount: string;
   token: Erc20TokenId;
 };
 
@@ -159,8 +165,9 @@ const DepositStep: FC<
     onDeposit: () => void;
     onBack: () => void;
   }
-> = ({ onBack }) => {
+> = ({ onBack, amount, token }) => {
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
+  const [depositDetail, setDepositDetail] = useState<string | null>(null);
 
   return (
     <>

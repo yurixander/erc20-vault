@@ -1,5 +1,5 @@
 import { Erc20TokenId } from "@/config/types";
-import getErc20TokenDef from "@/utils/getErc20TokenDef";
+import { getErc20TokenDef } from "@/utils/tokens";
 import { useCallback, useEffect, useState } from "react";
 
 type Erc20TokenPrices = Record<Erc20TokenId, number | null> | null;
@@ -16,7 +16,7 @@ const EMPTY_CACHED_PRICES: Erc20TokenPrices = {
   [Erc20TokenId.ARB]: null,
   [Erc20TokenId.WBTC]: null,
   // Testing
-  [Erc20TokenId.MTK]: null,
+  [Erc20TokenId.MTK]: 0,
 } as const;
 
 const useTokenPrice = () => {

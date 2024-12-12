@@ -35,7 +35,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
       assetTokenId(newValue);
       setTokenId(newValue);
     },
-    [setTokenId]
+    [setTokenId],
   );
 
   const selectableItems: React.ReactNode = useMemo(() => {
@@ -66,7 +66,7 @@ const TokenSelect: FC<TokenSelectProps> = ({
         <SelectValue placeholder="Select a token" />
       </SelectTrigger>
 
-      <SelectContent onCloseAutoFocus={(e) => e.preventDefault()}>
+      <SelectContent>
         <SelectGroup>
           <SelectLabel>ERC-20 Tokens</SelectLabel>
 

@@ -24,17 +24,13 @@ import {
   DialogTrigger,
 } from "../components/Dialog";
 import LegendWrapper from "../components/LegendWrapper";
-import {
-  TEST_TOKEN_SEPOLIA_ADDRESS,
-  SEPOLIA_CHAIN_ID,
-  VAULT_CONTRACT_ADDRESS,
-} from "../config/constants";
+import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "../config/constants";
 import { Erc20TokenId } from "../config/types";
-import getErc20TokenDef from "../utils/getErc20TokenDef";
 import TokenBalance from "@/components/TokenBalance";
 import useTokenPrice from "@/hooks/useTokenPrice";
 import useTokenApproval from "@/hooks/useTokenApproval";
 import { wagmiConfig } from "./Providers";
+import { getErc20TokenDef, getSymbolByTokenId } from "@/utils/tokens";
 
 const DepositButton: FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,10 +47,10 @@ const DepositButton: FC = () => {
       return;
     }
 
-    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+    const { decimals, address: tokenAddress } = getErc20TokenDef(tokenId);
 
     readOnce({
-      address: mainnetAddress,
+      address: tokenAddress,
       functionName: "allowance",
       args: [address, VAULT_CONTRACT_ADDRESS],
     }).then((allowance) => {
@@ -69,7 +65,7 @@ const DepositButton: FC = () => {
 
       toast({
         title: "You already have an approval",
-        description: `You already have ${amountApproved} ${tokenId} approved`,
+        description: `You already have ${amountApproved} ${getSymbolByTokenId(tokenId)} approved`,
         action: (
           <ToastAction
             altText="Use this amount for deposit."
@@ -212,14 +208,14 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       return;
     }
 
-    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+    const { decimals, address: tokenAddress } = getErc20TokenDef(tokenId);
 
     const amountInCents = convertAmountToBN(amount, decimals);
 
     approve({
       amount: BigInt(amountInCents.toString()),
       spender: VAULT_CONTRACT_ADDRESS,
-      tokenAddress: mainnetAddress,
+      tokenAddress: tokenAddress,
       onError: (err) => {
         if (err instanceof Error) {
           toast({
@@ -253,15 +249,16 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       return;
     }
 
-    const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
+    const {
+      decimals,
+      address: tokenAddress,
+      isTestToken,
+    } = getErc20TokenDef(tokenId);
 
     const amountInCents = convertAmountToBN(amount, decimals);
 
     try {
-      const price =
-        mainnetAddress === TEST_TOKEN_SEPOLIA_ADDRESS
-          ? 0
-          : await getPriceInUsd(tokenId);
+      const price = isTestToken === true ? 0 : await getPriceInUsd(tokenId);
 
       writeContract(
         {
@@ -269,7 +266,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
           address: VAULT_CONTRACT_ADDRESS,
           functionName: "deposit",
           args: [
-            mainnetAddress,
+            tokenAddress,
             BigInt(price),
             BigInt(amountInCents.toString()),
             BigInt(getUnixTime(unlockTimestamp)),
