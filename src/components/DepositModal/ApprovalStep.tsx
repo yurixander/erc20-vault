@@ -2,8 +2,8 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "@/components/DepositModal/DepositModal";
 import useToast from "@/hooks/useToast";
 import { Erc20TokenId } from "@/config/types";
-import { getErc20TokenDef } from "@/utils/tokens";
-import { convertAmountToBN } from "@/utils/amount";
+import { getErc20TokenDef, getSymbolByTokenId } from "@/utils/tokens";
+import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
 import {
   DialogDescription,
   DialogFooter,
@@ -14,24 +14,70 @@ import Button from "@components/Button";
 import AmountInput from "@components/AmountInput";
 import useTokenApproval from "@/hooks/useTokenApproval";
 import { wagmiConfig } from "@/containers/Providers";
-import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { WriteContractErrorType } from "wagmi/actions";
 import { ContractFunctionExecutionError } from "viem";
+import useContractReadOnce from "@/hooks/useContractRead";
+import IERC20_ABI from "@/abi/ierc20Abi";
+import { useAccount } from "wagmi";
+import BN from "bn.js";
+import { ToastAction } from "../Toast";
 
 type ApprovalStepProps = {
   className?: string;
   onNextStep: (data: ApprovalData) => void;
 };
 
-const IS_TESTNET_CHAIN = true;
-
 const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
+  const { chainId, address: userAddress } = useAccount();
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
   const [approvalData, setApprovalData] = useState<ApprovalData | null>(null);
   const { toast } = useToast();
 
   const { approve, isApproved, isPending } = useTokenApproval(wagmiConfig);
+  const readOnce = useContractReadOnce(IERC20_ABI);
+
+  useEffect(() => {
+    if (tokenId === null || userAddress === undefined) {
+      return;
+    }
+
+    const { decimals, address: tokenAddress } = getErc20TokenDef(tokenId);
+
+    readOnce({
+      address: tokenAddress,
+      functionName: "allowance",
+      args: [userAddress, VAULT_CONTRACT_ADDRESS],
+    }).then((allowance) => {
+      if (allowance === BigInt("0") || allowance instanceof Error) {
+        return;
+      }
+
+      const amountApproved = convertBNToAmount(
+        new BN(allowance.toString()),
+        decimals,
+      );
+
+      toast({
+        title: "You already have an approval",
+        description: `You already have ${amountApproved} ${getSymbolByTokenId(tokenId)} approved`,
+        action: (
+          <ToastAction
+            altText="Use this amount for deposit."
+            onClick={() =>
+              onNextStep({
+                token: tokenId,
+                amount: new BN(allowance.toString()),
+              })
+            }
+          >
+            Use it
+          </ToastAction>
+        ),
+      });
+    });
+  }, [userAddress, readOnce, toast, tokenId, onNextStep]);
 
   const approveAmount = useCallback(() => {
     if (isPending) {
@@ -112,7 +158,7 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
       <div className="flex flex-col gap-6">
         <AmountInput
           amount={amount}
-          isChainTest={IS_TESTNET_CHAIN}
+          isChainTest={chainId === SEPOLIA_CHAIN_ID}
           tokenId={tokenId}
           setTokenId={setTokenId}
           onAmountChange={setAmount}
