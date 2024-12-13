@@ -15,6 +15,13 @@ import SmallLoader from "@components/SmallLoader";
 import LegendWrapper from "@components/LegendWrapper";
 import DatePicker from "@components/DatePicker";
 import Button from "@components/Button";
+import { useWriteContract } from "wagmi";
+import useToast from "@/hooks/useToast";
+import VAULT_ABI from "@/abi/vaultAbi";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { getUnixTime } from "date-fns/getUnixTime";
+import { WriteContractErrorType } from "wagmi/actions";
+import { ContractFunctionExecutionError } from "viem";
 
 type DepositDetail = {
   displayAmount: string;
@@ -23,12 +30,19 @@ type DepositDetail = {
 
 interface DepositStepProps extends ApprovalData {
   className?: string;
-  onDeposit: () => void;
+  onDepositAccepted: () => void;
   onBack: () => void;
 }
 
-const DepositStep: FC<DepositStepProps> = ({ onBack, amount, token }) => {
+const DepositStep: FC<DepositStepProps> = ({
+  onBack,
+  amount,
+  token,
+  onDepositAccepted,
+}) => {
   const { getPriceInUsd } = useTokenPrice();
+  const { writeContract, isPending } = useWriteContract();
+  const { toast } = useToast();
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
   const [detail, setDetail] = useState<DepositDetail | null>(null);
 
@@ -55,6 +69,83 @@ const DepositStep: FC<DepositStepProps> = ({ onBack, amount, token }) => {
 
     generateDepositDetail();
   }, [generateDepositDetail, detail]);
+
+  const submitDepositTx = useCallback(async () => {
+    if (unlockTimestamp === null) {
+      toast({
+        title: "Unlock Date Failed",
+        description: "Please set a valid unlock date",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
+    const { address, isTestToken } = getErc20TokenDef(token);
+
+    try {
+      const price = isTestToken === true ? 0 : await getPriceInUsd(token);
+
+      writeContract(
+        {
+          abi: VAULT_ABI,
+          address: VAULT_CONTRACT_ADDRESS,
+          functionName: "deposit",
+          args: [
+            address,
+            BigInt(price),
+            BigInt(amount.toString()),
+            BigInt(getUnixTime(unlockTimestamp)),
+          ],
+        },
+        {
+          onSuccess: onDepositAccepted,
+          onError: (error) => {
+            const { description, title } = handleDepositErrors(error);
+
+            toast({
+              title,
+              description,
+              variant: "destructive",
+            });
+          },
+          onSettled(_, error) {
+            if (error !== null) {
+              const { title, description } = handleDepositErrors(error);
+
+              toast({
+                title: title,
+                description: description,
+                variant: "destructive",
+              });
+
+              return;
+            }
+
+            toast({
+              title: "Transaction in block",
+              description: "Transaction is processing, please wait.",
+            });
+          },
+        },
+      );
+    } catch {
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description:
+          "Failed to get the price of the token. Please try again later.",
+      });
+    }
+  }, [
+    amount,
+    token,
+    toast,
+    unlockTimestamp,
+    writeContract,
+    getPriceInUsd,
+    onDepositAccepted,
+  ]);
 
   return (
     <>
@@ -108,12 +199,48 @@ const DepositStep: FC<DepositStepProps> = ({ onBack, amount, token }) => {
           Back to Approval
         </Button>
 
-        <Button disabled={unlockTimestamp === null}>
+        <Button
+          disabled={unlockTimestamp === null}
+          isLoading={isPending}
+          onClick={submitDepositTx}
+        >
           Deposit & lock tokens
         </Button>
       </DialogFooter>
     </>
   );
 };
+
+const GAS_ERROR_SHORT_MESSAGE = `The contract function \"deposit"\ reverted with the following reason:\nArithmetic operation resulted in underflow or overflow.`;
+
+function handleDepositErrors(error: WriteContractErrorType): {
+  title: string;
+  description: string;
+} {
+  console.error(error);
+
+  if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === "User rejected the request."
+  ) {
+    return {
+      title: "Deposit Error",
+      description: "User rejected the request, please try again.",
+    };
+  } else if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === GAS_ERROR_SHORT_MESSAGE
+  ) {
+    return {
+      title: "Deposit Error",
+      description: "The gas fee is too large, please try again later.",
+    };
+  }
+
+  return {
+    title: "Unexpected error",
+    description: "Deposit failed, please try again.",
+  };
+}
 
 export default DepositStep;

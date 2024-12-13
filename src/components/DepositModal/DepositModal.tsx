@@ -16,13 +16,14 @@ export type ApprovalData = {
 };
 
 const DepositModal: FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
   const [approval, setApproval] = useState<ApprovalData | null>(null);
   const [step, setStep] = useState(0);
 
   const isApprovalStep = approval === null || step === 0;
 
   return (
-    <Dialog>
+    <Dialog onOpenChange={setIsModalVisible} open={isModalVisible}>
       <DialogTrigger>{children}</DialogTrigger>
 
       <DialogContent className="overflow-hidden">
@@ -59,10 +60,11 @@ const DepositModal: FC<{ children: React.ReactNode }> = ({ children }) => {
                 <DepositStep
                   {...approval}
                   onBack={() => setStep(0)}
-                  onDeposit={() => {
+                  onDepositAccepted={() => {
                     // Clear data after deposit.
                     setApproval(null);
                     setStep(0);
+                    setIsModalVisible(false);
                   }}
                 />
               )}

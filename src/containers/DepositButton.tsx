@@ -356,36 +356,4 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
   );
 };
 
-const GAS_ERROR_SHORT_MESSAGE = `The contract function \"deposit"\ reverted with the following reason:\nArithmetic operation resulted in underflow or overflow.`;
-
-function handleDepositErrors(error: WriteContractErrorType): {
-  title: string;
-  description: string;
-} {
-  console.error(error);
-
-  if (
-    error instanceof ContractFunctionExecutionError &&
-    error.cause.shortMessage === "User rejected the request."
-  ) {
-    return {
-      title: "Deposit Error",
-      description: "User rejected the request, please try again.",
-    };
-  } else if (
-    error instanceof ContractFunctionExecutionError &&
-    error.cause.shortMessage === GAS_ERROR_SHORT_MESSAGE
-  ) {
-    return {
-      title: "Deposit Error",
-      description: "The gas fee is too large, please try again later.",
-    };
-  }
-
-  return {
-    title: "Unexpected error",
-    description: "Deposit failed, please try again.",
-  };
-}
-
 export default DepositButton;
