@@ -1,6 +1,8 @@
 import BN from "bn.js";
 import { Address } from "viem";
 
+export type ERC20TokenPrices = Record<Erc20TokenId, number | null>;
+
 export type Deposit = {
   depositId: bigint;
   tokenAddress: `0x${string}`;
