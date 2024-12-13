@@ -28,6 +28,10 @@ export const MAINNET_ALCHEMY_TRANSPORT = http(`
   https://eth-mainnet.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}
   `);
 
+export const MAINNET_TOKENS = Object.values(Erc20TokenId).filter(
+  (t) => t !== Erc20TokenId.MTK,
+);
+
 // Test token.
 export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   tokenId: Erc20TokenId.MTK,

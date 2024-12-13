@@ -12,7 +12,7 @@ const App: FC = () => {
 
   return (
     <div className="flex h-screen w-full flex-col sm:flex-row">
-      <aside className="hidden size-full max-w-xs grow flex-col bg-blue-600 sm:flex dark:bg-blue-300">
+      <aside className="hidden size-full max-w-xs grow flex-col bg-blue-600 sm:flex dark:bg-blue-00">
         <AppSidebar className="grow" />
       </aside>
 
