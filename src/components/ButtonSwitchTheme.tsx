@@ -7,10 +7,10 @@ import { Icon } from "@radix-ui/react-select";
 import { IoIosMoon, IoIosSunny } from "react-icons/io";
 
 const ButtonSwitchTheme: FC = () =>{
-    const {toggleTheme, isDarkMode} = useTheme()
+    const {toggleTheme, theme} = useTheme()
     return (
         <Button onClick={toggleTheme} className="size-8">
-          <Icon>{isDarkMode ? (<IoIosMoon/>) : (<IoIosSunny/>)}</Icon>
+          <Icon>{theme === "dark" ? (<IoIosSunny/>) : (<IoIosMoon/>)}</Icon>
         </Button>
     )
 }
