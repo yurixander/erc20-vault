@@ -18,7 +18,7 @@ const App: FC = () => {
 
       <section className="relative flex w-full grow flex-col">
         {/** Background */}
-        <div className="-z-1 pointer-events-none absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+        <div className="-z-1 pointer-events-none absolute h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] dark:opacity-20" />
 
         <header className="z-0 h-16 w-full sm:h-20 sm:border-b sm:border-b-gray-200 md:h-24 dark:sm:border-b-gray-200/50">
           <Navbar />
