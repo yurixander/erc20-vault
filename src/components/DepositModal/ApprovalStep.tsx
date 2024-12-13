@@ -22,6 +22,7 @@ import IERC20_ABI from "@/abi/ierc20Abi";
 import { useAccount } from "wagmi";
 import BN from "bn.js";
 import { ToastAction } from "../Toast";
+import TokenBalance from "../TokenBalance";
 
 type ApprovalStepProps = {
   className?: string;
@@ -155,7 +156,7 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
         </DialogDescription>
       </DialogHeader>
 
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col">
         <AmountInput
           amount={amount}
           isChainTest={chainId === SEPOLIA_CHAIN_ID}
@@ -169,6 +170,8 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
               : "You won't be able to access these funds while they're locked up."
           }
         />
+
+        <TokenBalance tokenId={tokenId} />
       </div>
 
       <DialogFooter className="mt-auto">

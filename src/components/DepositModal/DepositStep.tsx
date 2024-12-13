@@ -195,7 +195,7 @@ const DepositStep: FC<DepositStepProps> = ({
       </div>
 
       <DialogFooter className="mt-auto">
-        <Button variant="outline" onClick={onBack}>
+        <Button variant="outline" onClick={onBack} disabled={isPending}>
           Back to Approval
         </Button>
 

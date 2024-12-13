@@ -24,7 +24,7 @@ const DepositModal: FC<{ children: React.ReactNode }> = ({ children }) => {
 
   return (
     <Dialog onOpenChange={setIsModalVisible} open={isModalVisible}>
-      <DialogTrigger>{children}</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
       <DialogContent className="overflow-hidden">
         <AnimatePresence mode="wait" initial={false}>
