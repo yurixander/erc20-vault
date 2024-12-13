@@ -7,6 +7,7 @@ import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenPrice from "@/hooks/useTokenPrice";
+import {calculateEstimateInUsd} from "@/utils/amount";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
@@ -92,7 +93,7 @@ const AmountInput: FC<AmountInputProps> = ({
         setError("Unexpected error.");
       }
     },
-    [onAmountChange]
+    [onAmountChange],
   );
 
   return (
@@ -127,11 +128,5 @@ const AmountInput: FC<AmountInputProps> = ({
     />
   );
 };
-
-function calculateEstimateInUsd(amount: Decimal, priceForOne: number): string {
-  const estimate = amount.mul(priceForOne).toString();
-
-  return `$${estimate} USD`;
-}
 
 export default AmountInput;
