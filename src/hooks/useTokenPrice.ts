@@ -58,6 +58,12 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
 
   const getPriceInUsd = useCallback(
     async (erc20TokenId: Erc20TokenId): Promise<number> => {
+      const { isTestToken } = getErc20TokenDef(erc20TokenId);
+
+      if (isTestToken === true) {
+        return 0;
+      }
+
       const cachedPrice =
         cachedUsdPrices === null
           ? null
