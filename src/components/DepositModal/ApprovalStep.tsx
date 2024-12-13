@@ -12,6 +12,11 @@ import {
 } from "@components/Dialog/index";
 import Button from "@components/Button";
 import AmountInput from "@components/AmountInput";
+import useTokenApproval from "@/hooks/useTokenApproval";
+import { wagmiConfig } from "@/containers/Providers";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { WriteContractErrorType } from "wagmi/actions";
+import { ContractFunctionExecutionError } from "viem";
 
 type ApprovalStepProps = {
   className?: string;
@@ -21,13 +26,15 @@ type ApprovalStepProps = {
 const IS_TESTNET_CHAIN = true;
 
 const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
-  const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState<string | null>(null);
   const [tokenId, setTokenId] = useState<Erc20TokenId | null>(null);
+  const [approvalData, setApprovalData] = useState<ApprovalData | null>(null);
   const { toast } = useToast();
 
+  const { approve, isApproved, isPending } = useTokenApproval(wagmiConfig);
+
   const approveAmount = useCallback(() => {
-    if (isLoading) {
+    if (isPending) {
       return;
     }
 
@@ -41,12 +48,56 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
       return;
     }
 
-    const { decimals } = getErc20TokenDef(tokenId);
-
+    const { decimals, address } = getErc20TokenDef(tokenId);
     const amountInCents = convertAmountToBN(amount, decimals);
 
-    onNextStep({ amount: amountInCents, token: tokenId });
-  }, [toast, tokenId, amount, isLoading, onNextStep]);
+    approve({
+      amount: BigInt(amountInCents.toString()),
+      spender: VAULT_CONTRACT_ADDRESS,
+      tokenAddress: address,
+      onSuccess: () =>
+        setApprovalData({ amount: amountInCents, token: tokenId }),
+      onError: (err) => {
+        setApprovalData(null);
+
+        if (err instanceof Error) {
+          toast({
+            title: "Failed to Approve Spend",
+            description: err.message,
+            variant: "destructive",
+          });
+
+          return;
+        }
+
+        const { description, title } = handleApprovalErrors(err);
+
+        toast({
+          title,
+          description,
+          variant: "destructive",
+        });
+      },
+    });
+  }, [toast, tokenId, amount, approve, isPending]);
+
+  useEffect(() => {
+    if (!isApproved) {
+      return;
+    }
+
+    if (approvalData === null) {
+      toast({
+        title: "Approval data error",
+        description: "Approval data has expired or is not valid",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
+    onNextStep(approvalData);
+  }, [isApproved, onNextStep, approvalData, toast]);
 
   return (
     <>
@@ -77,7 +128,7 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
       <DialogFooter className="mt-auto">
         <Button
           disabled={tokenId === null || amount === null}
-          isLoading={isLoading}
+          isLoading={isPending}
           onClick={approveAmount}
         >
           Approve Amount
@@ -86,5 +137,27 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
     </>
   );
 };
+
+function handleApprovalErrors(error: WriteContractErrorType): {
+  title: string;
+  description: string;
+} {
+  console.error(error);
+
+  if (
+    error instanceof ContractFunctionExecutionError &&
+    error.cause.shortMessage === "User rejected the request."
+  ) {
+    return {
+      title: "Approve Error",
+      description: "User rejected the request, please try again.",
+    };
+  }
+
+  return {
+    title: "Unexpected error",
+    description: "Approve failed, please try again.",
+  };
+}
 
 export default ApprovalStep;
