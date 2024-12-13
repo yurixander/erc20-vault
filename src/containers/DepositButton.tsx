@@ -28,6 +28,7 @@ import {
   TEST_TOKEN_SEPOLIA_ADDRESS,
   SEPOLIA_CHAIN_ID,
   VAULT_CONTRACT_ADDRESS,
+  MAINNET_TOKENS,
 } from "../config/constants";
 import { Erc20TokenId } from "../config/types";
 import getErc20TokenDef from "../utils/getErc20TokenDef";
@@ -190,7 +191,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
 }) => {
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
-  const { getPriceInUsd } = useTokenPrice();
+  const { getPriceInUsd } = useTokenPrice(MAINNET_TOKENS);
 
   const {
     approve,
