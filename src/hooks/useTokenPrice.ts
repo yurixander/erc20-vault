@@ -1,6 +1,7 @@
-import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
-import getErc20TokenDef from "@/utils/getErc20TokenDef";
+import { Erc20TokenId } from "@/config/types";
+import { getErc20TokenDef } from "@/utils/tokens";
 import { useCallback, useEffect } from "react";
+import { ERC20TokenPrices } from "@/config/types";
 import { create } from "zustand";
 
 const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
@@ -14,9 +15,9 @@ const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.UNI]: null,
   [Erc20TokenId.ARB]: null,
   [Erc20TokenId.WBTC]: null,
-  // Test token.
+  // Testing
   [Erc20TokenId.MTK]: 0,
-};
+} as const;
 
 type TokenPricesStore = {
   cachedUsdPrices: ERC20TokenPrices | null;
@@ -57,6 +58,12 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
 
   const getPriceInUsd = useCallback(
     async (erc20TokenId: Erc20TokenId): Promise<number> => {
+      const { isTestToken } = getErc20TokenDef(erc20TokenId);
+
+      if (isTestToken === true) {
+        return 0;
+      }
+
       const cachedPrice =
         cachedUsdPrices === null
           ? null
@@ -144,7 +151,7 @@ export async function getTokenPrices(
     throw new Error("Failed to fetch price data");
   }
 
-  for (const { coingeckoId, id } of erc20TokenDefs) {
+  for (const { coingeckoId, tokenId } of erc20TokenDefs) {
     const erc20TokenData = data[coingeckoId];
 
     if (erc20TokenData === undefined || erc20TokenData.usd === undefined) {
@@ -153,7 +160,7 @@ export async function getTokenPrices(
       continue;
     }
 
-    tokenPrices[id] = Number(erc20TokenData.usd);
+    tokenPrices[tokenId] = Number(erc20TokenData.usd);
   }
 
   return tokenPrices;

@@ -19,3 +19,12 @@ export function convertBNToAmount(bn: BN, decimal: number): string {
 
   return decimalAmount.div(10 ** decimal).toFixed(2);
 }
+
+export function calculateEstimateInUsd(
+  amount: Decimal,
+  priceForOne: number,
+): string {
+  const estimate = amount.mul(priceForOne).toString();
+
+  return `$${estimate} USD`;
+}

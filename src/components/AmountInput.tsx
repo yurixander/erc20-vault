@@ -7,6 +7,8 @@ import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenPrice from "@/hooks/useTokenPrice";
+import { calculateEstimateInUsd } from "@/utils/amount";
+import { getErc20TokenDef } from "@/utils/tokens";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
@@ -40,6 +42,14 @@ const AmountInput: FC<AmountInputProps> = ({
   useEffect(() => {
     if (tokenId === null || amountDebounce === null) {
       setEstimatedPrice(null);
+
+      return;
+    }
+
+    const { isTestToken } = getErc20TokenDef(tokenId);
+
+    if (isTestToken === true) {
+      setEstimatedPrice(calculateEstimateInUsd(new Decimal(amountDebounce), 0));
 
       return;
     }
@@ -127,11 +137,5 @@ const AmountInput: FC<AmountInputProps> = ({
     />
   );
 };
-
-function calculateEstimateInUsd(amount: Decimal, priceForOne: number): string {
-  const estimate = amount.mul(priceForOne).toString();
-
-  return `$${estimate} USD`;
-}
 
 export default AmountInput;
