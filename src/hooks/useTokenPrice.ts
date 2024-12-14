@@ -3,7 +3,7 @@ import {
   EMPTY_TOKEN_PRICES,
   useTokenPricesStore,
 } from "@/store/useTokenPriceStore";
-import getErc20TokenDef from "@/utils/getErc20TokenDef";
+import { getErc20TokenDef } from "@/utils/tokens";
 import { useCallback, useEffect, useRef } from "react";
 
 const useTokenPrice = (tokens: Erc20TokenId[]) => {
@@ -50,6 +50,11 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
   const getPriceByTokenId = useCallback(
     async (erc20TokenId: Erc20TokenId): Promise<number> => {
       const cachedPrice = pricesRef.current[erc20TokenId] ?? null;
+      const { isTestToken } = getErc20TokenDef(erc20TokenId);
+
+      if (isTestToken === true) {
+        return 0;
+      }
 
       if (cachedPrice !== null) {
         return cachedPrice;
@@ -138,7 +143,7 @@ export async function getTokenPrices(
     throw new Error("Failed to fetch price data");
   }
 
-  for (const { coingeckoId, id } of erc20TokenDefs) {
+  for (const { coingeckoId, tokenId } of erc20TokenDefs) {
     const erc20TokenData = data[coingeckoId];
 
     if (erc20TokenData === undefined || erc20TokenData.usd === undefined) {
@@ -147,7 +152,7 @@ export async function getTokenPrices(
       continue;
     }
 
-    tokenPrices[id] = Number(erc20TokenData.usd);
+    tokenPrices[tokenId] = Number(erc20TokenData.usd);
   }
 
   return tokenPrices;

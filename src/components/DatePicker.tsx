@@ -10,11 +10,13 @@ import Popover, { PopoverContent, PopoverTrigger } from "./Popover";
 export type DatePickerProps = {
   setTimestamp: (timestamp: number | null) => void;
   label?: string;
+  className?: string;
 };
 
 const DatePicker: FC<DatePickerProps> = ({
   setTimestamp,
   label = "Pick a date",
+  className,
 }) => {
   const [internalDate, setInternalDate] = useState<Date>();
 
@@ -23,7 +25,7 @@ const DatePicker: FC<DatePickerProps> = ({
       setInternalDate(newDate);
       setTimestamp(newDate?.getTime() ?? null);
     },
-    [setTimestamp]
+    [setTimestamp],
   );
 
   return (
@@ -33,8 +35,10 @@ const DatePicker: FC<DatePickerProps> = ({
           variant="outline"
           className={cn(
             "w-64 justify-start gap-x-2 text-left font-normal",
-            !internalDate && "text-muted-foreground"
-          )}>
+            !internalDate && "text-muted-foreground",
+            className,
+          )}
+        >
           <FiCalendar className="size-4" />
           {internalDate ? format(internalDate, "PPP") : <span>{label}</span>}
         </Button>

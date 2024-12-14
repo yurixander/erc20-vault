@@ -33,7 +33,6 @@ import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
-import { getTokenByAddress } from "@/utils/findTokenByAddress";
 import { convertBNToAmount } from "@/utils/amount";
 import { BN } from "bn.js";
 import useToast from "@/hooks/useToast";
@@ -41,6 +40,7 @@ import { Deposit } from "@/config/types";
 import DepositTableSkeleton from "@/containers/DepositTableSkeleton";
 import { Heading } from "@/components/Typography";
 import { cn } from "@/lib/utils";
+import { getSymbolByTokenId, getTokenByAddress } from "@/utils/tokens";
 
 type DepositsTableProps = {
   className?: string;
@@ -71,7 +71,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
           continue;
         }
 
-        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+        const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
@@ -80,7 +80,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
         toast({
           title: "New deposit",
-          description: `You've made a deposit of ${amount} (ID #${id})`,
+          description: `You've made a deposit of ${amount} ${getSymbolByTokenId(tokenId)}`,
         });
 
         setDeposits((prevDeposits) => {
@@ -124,7 +124,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
           continue;
         }
 
-        const { id, decimals } = getTokenByAddress(args.tokenAddress);
+        const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
@@ -133,7 +133,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
         toast({
           title: "Withdrawal Success",
-          description: `You withdrew ${amount} ${id}`,
+          description: `You withdrew ${amount} ${getSymbolByTokenId(tokenId)}`,
         });
 
         setDeposits((prevDeposits) => {

@@ -2,8 +2,8 @@ import CircularProgress from "@/components/CircularProgress";
 import UnlockDeposit from "@/components/UnlockDeposit";
 import { Deposit } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
-import { getTokenByAddress } from "@/utils/findTokenByAddress";
 import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
+import { getTokenByAddress } from "@/utils/tokens";
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper<Deposit>();
@@ -43,7 +43,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
     cell: ({ getValue, row }) =>
       convertBNToAmount(
         getValue(),
-        getTokenByAddress(row.original.tokenAddress).decimals
+        getTokenByAddress(row.original.tokenAddress).decimals,
       ),
   }),
   columnHelper.accessor(
@@ -60,7 +60,7 @@ const DEPOSIT_TABLE_COLUMNS: ColumnDef<Deposit, any>[] = [
           </div>
         );
       },
-    }
+    },
   ),
   columnHelper.display({
     id: COLUMNS_ID.TIME_REMAINING,

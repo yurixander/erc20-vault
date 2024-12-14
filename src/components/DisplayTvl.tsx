@@ -5,7 +5,6 @@ import VAULT_ABI from "@/abi/vaultAbi";
 import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import useContractReadOnce from "@/hooks/useContractRead";
 import useTokenPrice from "@/hooks/useTokenPrice";
-import { getTokenByAddress } from "@/utils/findTokenByAddress";
 import BN from "bn.js";
 import { Erc20TokenDefinition } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
@@ -17,6 +16,7 @@ import {
   TooltipTrigger,
 } from "./Tooltip";
 import { IoIosInformationCircle } from "react-icons/io";
+import { getTokenByAddress } from "@/utils/tokens";
 
 class PricesUnavailableError extends Error {
   message = "No prices available.";
@@ -55,7 +55,8 @@ const DisplayTvl: FC = () => {
       const tokenDef = getTokenByAddress(deposit.tokenAddress);
 
       const priceOfToken =
-        prices[tokenDef.id] ?? (await getPriceByTokenId?.(tokenDef.id));
+        prices[tokenDef.tokenId] ??
+        (await getPriceByTokenId?.(tokenDef.tokenId));
 
       if (priceOfToken === undefined) {
         throw new PricesUnavailableError();
