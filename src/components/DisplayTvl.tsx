@@ -18,11 +18,15 @@ import {
 } from "./Tooltip";
 import { IoIosInformationCircle } from "react-icons/io";
 
+class PricesUnavailableError extends Error {
+  message = "No prices available.";
+}
+
 const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
   const [tvl, setTvl] = useState<number | null | Error>(null);
   const readOnce = useContractReadOnce(VAULT_ABI);
-  const { getAllPricesInUsd, getPriceInUsd } = useTokenPrice(MAINNET_TOKENS);
+  const { getAllPrices, getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
 
   const fetchTvl = useCallback(async () => {
     const allDeposits = await readOnce({
@@ -35,10 +39,10 @@ const DisplayTvl: FC = () => {
       throw allDeposits;
     }
 
-    const prices = await getAllPricesInUsd();
+    const prices = await getAllPrices?.();
 
-    if (prices === null) {
-      throw new Error("No prices available.");
+    if (prices === null || prices === undefined) {
+      throw new PricesUnavailableError();
     }
 
     const tvl = new BN(0);
@@ -51,7 +55,11 @@ const DisplayTvl: FC = () => {
       const tokenDef = getTokenByAddress(deposit.tokenAddress);
 
       const priceOfToken =
-        prices[tokenDef.id] ?? (await getPriceInUsd(tokenDef.id));
+        prices[tokenDef.id] ?? (await getPriceByTokenId?.(tokenDef.id));
+
+      if (priceOfToken === undefined) {
+        throw new PricesUnavailableError();
+      }
 
       const depositPrice = priceOfDeposit(
         deposit.amount,
@@ -63,7 +71,7 @@ const DisplayTvl: FC = () => {
     }
 
     return tvl.toNumber();
-  }, [readOnce, getAllPricesInUsd, getPriceInUsd]);
+  }, [readOnce, getAllPrices, getPriceByTokenId]);
 
   useEffect(() => {
     fetchTvl()

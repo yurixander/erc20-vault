@@ -191,7 +191,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
 }) => {
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
-  const { getPriceInUsd } = useTokenPrice(MAINNET_TOKENS);
+  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
 
   const {
     approve,
@@ -254,6 +254,16 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       return;
     }
 
+    if (getPriceByTokenId === null) {
+      toast({
+        title: "Prices Unavailable.",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+
+      return;
+    }
+
     const { decimals, mainnetAddress } = getErc20TokenDef(tokenId);
 
     const amountInCents = convertAmountToBN(amount, decimals);
@@ -262,7 +272,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
       const price =
         mainnetAddress === TEST_TOKEN_SEPOLIA_ADDRESS
           ? 0
-          : await getPriceInUsd(tokenId);
+          : await getPriceByTokenId(tokenId);
 
       writeContract(
         {
@@ -322,7 +332,7 @@ const ExecuteTxButton: FC<ExecuteTxButton> = ({
     unlockTimestamp,
     writeContract,
     onCloseModal,
-    getPriceInUsd,
+    getPriceByTokenId,
   ]);
 
   const isButtonLoading = useMemo(

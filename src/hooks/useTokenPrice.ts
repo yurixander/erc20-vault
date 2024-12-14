@@ -1,66 +1,55 @@
 import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
+import {
+  EMPTY_TOKEN_PRICES,
+  useTokenPricesStore,
+} from "@/store/useTokenPriceStore";
 import getErc20TokenDef from "@/utils/getErc20TokenDef";
-import { useCallback, useEffect } from "react";
-import { create } from "zustand";
-
-const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
-  [Erc20TokenId.USDC]: null,
-  [Erc20TokenId.USDT]: null,
-  [Erc20TokenId.DAI]: null,
-  [Erc20TokenId.LINK]: null,
-  [Erc20TokenId.PEPE]: null,
-  [Erc20TokenId.SHIB]: null,
-  [Erc20TokenId.BNB]: null,
-  [Erc20TokenId.UNI]: null,
-  [Erc20TokenId.ARB]: null,
-  [Erc20TokenId.WBTC]: null,
-  // Test token.
-  [Erc20TokenId.MTK]: 0,
-};
-
-type TokenPricesStore = {
-  cachedUsdPrices: ERC20TokenPrices | null;
-  setCachedUsdPrices: (cachedUsdPrices: ERC20TokenPrices | null) => void;
-};
-
-const useTokenPricesStore = create<TokenPricesStore>((set) => ({
-  cachedUsdPrices: null,
-  setCachedUsdPrices: (cachedUsdPrices) => set({ cachedUsdPrices }),
-}));
+import { useCallback, useEffect, useRef } from "react";
 
 const useTokenPrice = (tokens: Erc20TokenId[]) => {
-  const { cachedUsdPrices, setCachedUsdPrices } = useTokenPricesStore();
+  const { prices, loading, setPrices, setIsLoading } = useTokenPricesStore();
+  const pricesRef = useRef(EMPTY_TOKEN_PRICES);
 
   useEffect(() => {
-    if (cachedUsdPrices === null) {
+    if (prices instanceof Error) {
       return;
     }
 
-    const timeoutId = setTimeout(() => setCachedUsdPrices(null), 70000);
-
-    return () => clearTimeout(timeoutId);
-  }, [cachedUsdPrices, setCachedUsdPrices]);
+    pricesRef.current = prices;
+  }, [prices]);
 
   useEffect(() => {
-    if (cachedUsdPrices !== null) {
+    if (loading) {
       return;
     }
 
-    getTokenPrices(tokens)
-      .then(setCachedUsdPrices)
-      .catch((error) => {
-        console.error(`Error getting token prices ${error}`);
+    const updater = async () => {
+      setIsLoading(true);
 
-        setCachedUsdPrices(null);
-      });
-  }, [cachedUsdPrices, setCachedUsdPrices, tokens]);
+      try {
+        const prices = await getTokenPrices(tokens);
 
-  const getPriceInUsd = useCallback(
+        setPrices(prices);
+      } catch (error) {
+        setPrices(
+          error instanceof Error
+            ? error
+            : new Error("Error getting token prices."),
+        );
+
+        console.error(`Error fetching token prices ${error}`);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    const id = setInterval(updater, 60_000);
+    return () => clearInterval(id);
+  }, [loading, tokens, setIsLoading, setPrices]);
+
+  const getPriceByTokenId = useCallback(
     async (erc20TokenId: Erc20TokenId): Promise<number> => {
-      const cachedPrice =
-        cachedUsdPrices === null
-          ? null
-          : (cachedUsdPrices[erc20TokenId] ?? null);
+      const cachedPrice = pricesRef.current[erc20TokenId] ?? null;
 
       if (cachedPrice !== null) {
         return cachedPrice;
@@ -68,36 +57,41 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
 
       const currentPrice = await fetchErc20TokenPrice(erc20TokenId);
 
-      setCachedUsdPrices({
-        ...EMPTY_TOKEN_PRICES,
+      setPrices({
+        ...pricesRef.current,
         [erc20TokenId]: currentPrice,
       });
 
       return currentPrice;
     },
-    [cachedUsdPrices, setCachedUsdPrices],
+    [setPrices],
   );
 
-  const getAllPricesInUsd =
+  const getAllPrices =
     useCallback(async (): Promise<ERC20TokenPrices | null> => {
-      if (cachedUsdPrices !== null) {
-        return cachedUsdPrices;
+      const cachedPrices = pricesRef.current;
+
+      if (!Object.values(cachedPrices).some((price) => price === null)) {
+        return cachedPrices;
       }
+
+      setIsLoading(true);
 
       try {
         const prices = await getTokenPrices(tokens);
-
-        setCachedUsdPrices(prices);
+        setPrices(prices);
 
         return prices;
       } catch {
         return null;
+      } finally {
+        setIsLoading(false);
       }
-    }, [cachedUsdPrices, setCachedUsdPrices, tokens]);
+    }, [setPrices, setIsLoading, tokens]);
 
   return {
-    getPriceInUsd,
-    getAllPricesInUsd,
+    getPriceByTokenId: loading ? null : getPriceByTokenId,
+    getAllPrices: loading ? null : getAllPrices,
   };
 };
 

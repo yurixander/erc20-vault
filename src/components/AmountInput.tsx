@@ -7,6 +7,7 @@ import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenPrice from "@/hooks/useTokenPrice";
+import { MAINNET_TOKENS } from "@/config/constants";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
@@ -35,10 +36,15 @@ const AmountInput: FC<AmountInputProps> = ({
   const [estimatePrice, setEstimatedPrice] = useState<string | null>(null);
   const [estimateLoading, setEstimatedLoading] = useState(false);
   const amountDebounce = useDebounce(amount, 700);
-  const { getPriceInUsd } = useTokenPrice();
+
+  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
 
   useEffect(() => {
-    if (tokenId === null || amountDebounce === null) {
+    if (
+      tokenId === null ||
+      amountDebounce === null ||
+      getPriceByTokenId === null
+    ) {
       setEstimatedPrice(null);
 
       return;
@@ -46,7 +52,7 @@ const AmountInput: FC<AmountInputProps> = ({
 
     setEstimatedLoading(true);
 
-    getPriceInUsd(tokenId)
+    getPriceByTokenId(tokenId)
       .finally(() => setEstimatedLoading(false))
       .then((price) => {
         const estimateInUsd = calculateEstimateInUsd(
@@ -61,7 +67,7 @@ const AmountInput: FC<AmountInputProps> = ({
 
         console.error(error);
       });
-  }, [tokenId, amountDebounce, getPriceInUsd]);
+  }, [tokenId, amountDebounce, getPriceByTokenId]);
 
   const handleValueChange = useCallback(
     (newValue: string) => {

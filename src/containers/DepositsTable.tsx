@@ -38,6 +38,9 @@ import { convertBNToAmount } from "@/utils/amount";
 import { BN } from "bn.js";
 import useToast from "@/hooks/useToast";
 import { Deposit } from "@/config/types";
+import DepositTableSkeleton from "@/containers/DepositTableSkeleton";
+import { Heading } from "@/components/Typography";
+import { cn } from "@/lib/utils";
 
 type DepositsTableProps = {
   className?: string;
@@ -198,10 +201,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         description={error.message}
       />
     );
-  }
-  // TODO: Replace this with a container/table skeleton.
-  else if (isLoading) {
-    return <TableStatus title="Loading Deposits" description="..." />;
+  } else if (isLoading) {
+    return <DepositTableSkeleton />;
   } else if (rows.length === 0) {
     return (
       <TableStatus
@@ -213,6 +214,10 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
   return (
     <div className="mb-4 flex max-w-6xl flex-col justify-center gap-y-4">
+      <Heading level="h5">
+        {address === undefined ? "Global Deposits" : "Your Deposits"}:
+      </Heading>
+
       <Table
         className={twMerge("min-w-[640px] border md:min-w-full", className)}
       >
@@ -234,16 +239,17 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         <TableBody>
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
+              {row.getVisibleCells().map(({ id, column, getContext }) => (
                 <TableCell
-                  key={cell.id}
-                  className={
-                    cell.column.id === COLUMNS_ID.DEPOSIT_ID
-                      ? "w-[100px]"
-                      : undefined
-                  }
+                  key={id}
+                  className={cn(
+                    column.id === COLUMNS_ID.DEPOSIT_ID && "w-[100px]",
+                    column.id === COLUMNS_ID.DEPOSIT_ID &&
+                      address === undefined &&
+                      "[&>button]:pointer-events-none [&>button]:opacity-50",
+                  )}
                 >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {flexRender(column.columnDef.cell, getContext())}
                 </TableCell>
               ))}
             </TableRow>
