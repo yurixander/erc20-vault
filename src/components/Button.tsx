@@ -64,10 +64,12 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Tag = asChild ? Slot : "button";
 
     return (
+      <motion.button className="w-max">
       <motion.button layout transition={{ duration: 0.25 }}>
         <Tag
           ref={ref}
           disabled={isLoading || props.disabled}
+          style={isLoading ? {opacity: "0.9"} : {}}
           className={cn(
             "space-x-2 flex items-center justify-center gap-2",
             buttonVariants({ variant, size, className }),
@@ -83,6 +85,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
             <div className="ml-2">{rightIcon}</div>
           )}
         </Tag>
+      </motion.button>
       </motion.button>
     );
   }
