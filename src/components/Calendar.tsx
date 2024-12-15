@@ -25,12 +25,12 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
         caption_label: "text-sm font-medium",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
-          "size-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "size-7 bg-transparent dark:bg-slate-600 p-0 opacity-50 hover:opacity-100",
            "absolute left-1 z-10"
         ),
         button_next: cn(
           buttonVariants({ variant: "outline" }),
-          "size-7 bg-transparent p-0 opacity-50 hover:opacity-100",
+          "size-7 bg-transparent dark:bg-slate-600 p-0 opacity-50 hover:opacity-100",
           "absolute right-1 z-10"
         ),
         month_grid: "w-full border-collapse space-y-1",
