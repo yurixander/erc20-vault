@@ -28,3 +28,13 @@ export function calculateEstimateInUsd(
 
   return `$${estimate} USD`;
 }
+
+export function convertUsdToBn(usd: string | number): BN {
+  return new BN(new Decimal(usd).mul(100).toFixed(0));
+}
+
+export function convertBnToUsd(amount: bigint | BN): number {
+  const result = new Decimal(amount.toString()).div(100);
+
+  return result.toNumber();
+}

@@ -2,7 +2,11 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "./DepositModal";
 import useTokenPrice from "@/hooks/useTokenPrice";
 import { getErc20TokenDef } from "@/utils/tokens";
-import { calculateEstimateInUsd, convertBNToAmount } from "@/utils/amount";
+import {
+  calculateEstimateInUsd,
+  convertBNToAmount,
+  convertUsdToBn,
+} from "@/utils/amount";
 import Decimal from "decimal.js";
 import {
   DialogDescription,
@@ -95,6 +99,7 @@ const DepositStep: FC<DepositStepProps> = ({
 
     try {
       const price = isTestToken === true ? 0 : await getPriceByTokenId(token);
+      const priceInBn = convertUsdToBn(price);
 
       writeContract(
         {
@@ -103,7 +108,7 @@ const DepositStep: FC<DepositStepProps> = ({
           functionName: "deposit",
           args: [
             address,
-            BigInt(price),
+            BigInt(priceInBn.toString()),
             BigInt(amount.toString()),
             BigInt(getUnixTime(unlockTimestamp)),
           ],

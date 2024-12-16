@@ -96,6 +96,7 @@ function getAvailableDeposits(rawDeposits: RawDeposits): Deposit[] {
 
     availableDeposits.push({
       amount: new BN(rawDeposit.amount.toString()),
+      initialPrice: new BN(rawDeposit.priceInUsd.toString()),
       depositId: rawDeposit.depositId,
       tokenAddress: rawDeposit.tokenAddress,
       startTimestamp: Number(rawDeposit.startTimestamp),

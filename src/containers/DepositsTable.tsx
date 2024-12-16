@@ -16,7 +16,9 @@ import {
   TableRow,
 } from "@/components/Table";
 import {
+  ColumnDef,
   PaginationState,
+  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -26,14 +28,13 @@ import {
 import React, { FC, useMemo, useState } from "react";
 import { TfiReload } from "react-icons/tfi";
 import { twMerge } from "tailwind-merge";
-import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
 import useDeposits from "../hooks/useDeposits";
 import TableStatus from "../components/TableStatus";
 import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
-import { convertBNToAmount } from "@/utils/amount";
+import { convertBNToAmount, convertUsdToBn } from "@/utils/amount";
 import { BN } from "bn.js";
 import useToast from "@/hooks/useToast";
 import { Deposit } from "@/config/types";
@@ -41,6 +42,10 @@ import DepositTableSkeleton from "@/containers/DepositTableSkeleton";
 import { Heading } from "@/components/Typography";
 import { cn } from "@/lib/utils";
 import { getSymbolByTokenId, getTokenByAddress } from "@/utils/tokens";
+import CircularProgress from "@/components/CircularProgress";
+import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
+import UnlockDeposit from "@/components/UnlockDeposit";
+import useTokenPrice from "@/hooks/useTokenPrice";
 
 type DepositsTableProps = {
   className?: string;
@@ -48,8 +53,21 @@ type DepositsTableProps = {
 
 const PAGE_SIZE = 8;
 
+const columnHelper = createColumnHelper<Deposit>();
+
+const TOKEN_ICON_SIZE = 16;
+
+export const COLUMNS_ID = {
+  TOKEN: "tokenAddress",
+  AMOUNT: "amount",
+  UNLOCK_STATUS: "unlockStatus",
+  TIME_REMAINING: "timeRemaining",
+  DEPOSIT_ID: "depositId",
+};
+
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
+  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
   const { toast } = useToast();
   const { address } = useAccount();
 
@@ -72,11 +90,22 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         }
 
         const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
+        const priceOfToken = await getPriceByTokenId?.(tokenId);
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
           decimals,
         );
+
+        if (priceOfToken === undefined) {
+          toast({
+            title: "Deposit Price Error",
+            description: `No price available for ${amount} ${getSymbolByTokenId(tokenId)}`,
+            variant: "destructive",
+          });
+
+          continue;
+        }
 
         toast({
           title: "New deposit",
@@ -86,6 +115,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         setDeposits((prevDeposits) => {
           const newDeposit: Deposit = {
             amount: new BN(args.amount.toString()),
+            initialPrice: convertUsdToBn(priceOfToken),
             depositId: args.depositId,
             tokenAddress: args.tokenAddress,
             startTimestamp: Number(args.startTimestamp),
@@ -162,9 +192,83 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
     return deposits;
   }, [deposits]);
 
+  const columns: ColumnDef<Deposit, any>[] = useMemo(
+    () => [
+      columnHelper.accessor("tokenAddress", {
+        header: "Token",
+        cell: ({ row }) => {
+          const token = getTokenByAddress(row.original.tokenAddress);
+
+          return (
+            <div className="flex max-h-max items-center gap-2 font-medium">
+              <img
+                src={token.iconAssetPath}
+                alt={`Logo of ${token.name}`}
+                width={TOKEN_ICON_SIZE}
+                height={TOKEN_ICON_SIZE}
+              />
+
+              <span className="leading-tight">{token.name}</span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("amount", {
+        header: "Amount",
+        cell: ({ getValue, row }) =>
+          convertBNToAmount(
+            getValue(),
+            getTokenByAddress(row.original.tokenAddress).decimals,
+          ),
+      }),
+      columnHelper.accessor(
+        (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
+        {
+          id: COLUMNS_ID.UNLOCK_STATUS,
+          header: "Unlock Status",
+          cell: ({ getValue }) => {
+            return (
+              <div className="flex w-[90%] items-center gap-x-2 lg:w-auto">
+                <CircularProgress
+                  progress={getValue()}
+                  size={18}
+                  strokeWidth={3}
+                />
+
+                <span>{getValue()}%</span>
+              </div>
+            );
+          },
+        },
+      ),
+      columnHelper.display({
+        id: COLUMNS_ID.TIME_REMAINING,
+        header: "Time Remaining",
+        cell: ({ row }) => generateTimeRemaining(row.original.unlockTimestamp),
+      }),
+      columnHelper.accessor("depositId", {
+        header: "",
+        cell: ({ getValue, row }) => {
+          const isReadyToUnlock =
+            row.getValue(COLUMNS_ID.UNLOCK_STATUS) === 100;
+
+          return (
+            <UnlockDeposit
+              className="w-full"
+              tokenAddress={row.original.tokenAddress}
+              depositId={getValue()}
+              disabled={!isReadyToUnlock}
+            />
+          );
+        },
+      }),
+    ],
+    [],
+  );
+
   const table = useReactTable({
     data: rows,
-    columns: DEPOSIT_TABLE_COLUMNS,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
