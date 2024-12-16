@@ -46,6 +46,7 @@ import CircularProgress from "@/components/CircularProgress";
 import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
 import UnlockDeposit from "@/components/UnlockDeposit";
 import useTokenPrice from "@/hooks/useTokenPrice";
+import DepositProfitGenerator from "@/components/DepositProfitGenerator";
 
 type DepositsTableProps = {
   className?: string;
@@ -60,6 +61,7 @@ const TOKEN_ICON_SIZE = 16;
 export const COLUMNS_ID = {
   TOKEN: "tokenAddress",
   AMOUNT: "amount",
+  PROFIT_OR_LESS: "profitOrLess",
   UNLOCK_STATUS: "unlockStatus",
   TIME_REMAINING: "timeRemaining",
   DEPOSIT_ID: "depositId",
@@ -220,6 +222,16 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
             getValue(),
             getTokenByAddress(row.original.tokenAddress).decimals,
           ),
+      }),
+      columnHelper.display({
+        id: COLUMNS_ID.PROFIT_OR_LESS,
+        header: "Profit or Less",
+        cell: ({ row }) => (
+          <DepositProfitGenerator
+            initialPrice={row.original.initialPrice}
+            tokenAddress={row.original.tokenAddress}
+          />
+        ),
       }),
       columnHelper.accessor(
         (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),

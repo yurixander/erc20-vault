@@ -38,3 +38,19 @@ export function convertBnToUsd(amount: bigint | BN): number {
 
   return result.toNumber();
 }
+
+export function calculateProfitInUsd(
+  tokenInitialPrice: BN,
+  currentPrice: number,
+): number {
+  if (currentPrice === 0) {
+    return 0;
+  }
+
+  const initialPriceInUsd = convertBnToUsd(tokenInitialPrice);
+  const difference = currentPrice - initialPriceInUsd;
+
+  console.log(difference);
+
+  return (difference / initialPriceInUsd) * 100;
+}

@@ -97,7 +97,7 @@ const Text: FC<TextProps> = ({
       className={cn(
         textVariants({ size }),
         typographyVariants({ color, weight, align }),
-        className
+        className,
       )}
       {...props}
     />
@@ -147,7 +147,7 @@ function Heading({
       className={cn(
         typographyVariants({ color, weight, align }),
         headingVariants({ level }),
-        className
+        className,
       )}
       {...props}
     />
