@@ -322,44 +322,46 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         {address === undefined ? "Global Deposits" : "Your Deposits"}:
       </Heading>
 
-      <Table
-        className={twMerge("min-w-[640px] border md:min-w-full", className)}
-      >
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext(),
-                  )}
-                </TableHead>
+      <div className="overflow-auto">
+        <div className="min-w-[900px]">
+          <Table className={twMerge("border md:min-w-full", className)}>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableHeader>
+            </TableHeader>
 
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map(({ id, column, getContext }) => (
-                <TableCell
-                  key={id}
-                  className={cn(
-                    column.id === COLUMNS_ID.DEPOSIT_ID && "w-[100px]",
-                    column.id === COLUMNS_ID.DEPOSIT_ID &&
-                      address === undefined &&
-                      "[&>button]:pointer-events-none [&>button]:opacity-50",
-                  )}
-                >
-                  {flexRender(column.columnDef.cell, getContext())}
-                </TableCell>
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map(({ id, column, getContext }) => (
+                    <TableCell
+                      key={id}
+                      className={cn(
+                        column.id === COLUMNS_ID.DEPOSIT_ID && "w-[100px]",
+                        column.id === COLUMNS_ID.DEPOSIT_ID &&
+                          address === undefined &&
+                          "[&>button]:pointer-events-none [&>button]:opacity-50",
+                      )}
+                    >
+                      {flexRender(column.columnDef.cell, getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       <div className="flex">
         <Pagination>
