@@ -32,7 +32,7 @@ import useDeposits from "../hooks/useDeposits";
 import TableStatus from "../components/TableStatus";
 import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
 import { convertBNToAmount, convertUsdToBn } from "@/utils/amount";
 import { BN } from "bn.js";
@@ -69,7 +69,7 @@ export const COLUMNS_ID = {
 
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
-  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getPriceByTokenId } = useTokenPrice();
   const { toast } = useToast();
   const { address } = useAccount();
 
@@ -92,14 +92,15 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         }
 
         const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
-        const priceOfToken = await getPriceByTokenId?.(tokenId);
+        // TODO: Actualize DepositMade for this.
+        const priceOfToken = getPriceByTokenId?.(tokenId) ?? null;
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
           decimals,
         );
 
-        if (priceOfToken === undefined) {
+        if (priceOfToken === null) {
           toast({
             title: "Deposit Price Error",
             description: `No price available for ${amount} ${getSymbolByTokenId(tokenId)}`,

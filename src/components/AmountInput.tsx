@@ -7,7 +7,6 @@ import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
 import useDebounce from "@/hooks/useDebounce";
 import useTokenPrice from "@/hooks/useTokenPrice";
-import { MAINNET_TOKENS } from "@/config/constants";
 import { calculateEstimateInUsd } from "@/utils/amount";
 import { getErc20TokenDef } from "@/utils/tokens";
 
@@ -39,7 +38,7 @@ const AmountInput: FC<AmountInputProps> = ({
   const [estimateLoading, setEstimatedLoading] = useState(false);
   const amountDebounce = useDebounce(amount, 700);
 
-  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getPriceByTokenId } = useTokenPrice();
 
   useEffect(() => {
     if (
@@ -62,21 +61,24 @@ const AmountInput: FC<AmountInputProps> = ({
 
     setEstimatedLoading(true);
 
-    getPriceByTokenId(tokenId)
-      .finally(() => setEstimatedLoading(false))
-      .then((price) => {
-        const estimateInUsd = calculateEstimateInUsd(
-          new Decimal(amountDebounce),
-          price,
-        );
+    const priceOfToken = getPriceByTokenId(tokenId);
 
-        setEstimatedPrice(estimateInUsd);
-      })
-      .catch((error) => {
-        setEstimatedPrice(null);
+    if (priceOfToken === null) {
+      setEstimatedPrice(null);
+      setEstimatedLoading(false);
 
-        console.error(error);
-      });
+      console.error("Amount Input: Failed to fetch price for token.");
+
+      return;
+    }
+
+    const estimateInUsd = calculateEstimateInUsd(
+      new Decimal(amountDebounce),
+      priceOfToken,
+    );
+
+    setEstimatedPrice(estimateInUsd);
+    setEstimatedLoading(false);
   }, [tokenId, amountDebounce, getPriceByTokenId]);
 
   const handleValueChange = useCallback(

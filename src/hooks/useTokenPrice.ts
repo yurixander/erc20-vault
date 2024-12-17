@@ -1,3 +1,4 @@
+import { MAINNET_TOKENS } from "@/config/constants";
 import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
 import {
   EMPTY_TOKEN_PRICES,
@@ -12,7 +13,7 @@ export class PricesUnavailableError extends Error {
 
 const PRICE_UPDATE_TIME = 60_000;
 
-const useTokenPrice = (tokens: Erc20TokenId[]) => {
+const useTokenPrice = () => {
   const { prices, loading, setPrices, setIsLoading } = useTokenPricesStore();
   const beforePricesRef = useRef<ERC20TokenPrices | null>(null);
 
@@ -25,7 +26,7 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
       setIsLoading(true);
 
       try {
-        const prices = await getTokenPrices(tokens);
+        const prices = await getTokenPrices(MAINNET_TOKENS);
 
         setPrices((prevPrices) => {
           // Prioritize a previous error-free state.
@@ -45,7 +46,7 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
 
     const id = setInterval(updater, PRICE_UPDATE_TIME);
     return () => clearInterval(id);
-  }, [loading, tokens, setIsLoading, setPrices]);
+  }, [loading, setIsLoading, setPrices]);
 
   const getPriceByTokenId = useCallback(
     (erc20TokenId: Erc20TokenId): number | null => {

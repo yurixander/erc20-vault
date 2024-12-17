@@ -2,7 +2,7 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heading } from "./Typography";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import useContractReadOnce from "@/hooks/useContractRead";
 import useTokenPrice, { PricesUnavailableError } from "@/hooks/useTokenPrice";
 import BN from "bn.js";
@@ -21,7 +21,7 @@ const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
   const [tvl, setTvl] = useState<number | null | Error>(null);
   const readOnce = useContractReadOnce(VAULT_ABI);
-  const { getAllPrices } = useTokenPrice(MAINNET_TOKENS);
+  const { getAllPrices } = useTokenPrice();
 
   const fetchTvl = useCallback(async () => {
     const allDeposits = await readOnce({
@@ -34,7 +34,7 @@ const DisplayTvl: FC = () => {
       throw allDeposits;
     }
 
-    const prices = await getAllPrices?.();
+    const prices = getAllPrices?.();
 
     if (prices === undefined) {
       throw new PricesUnavailableError();
