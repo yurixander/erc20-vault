@@ -48,7 +48,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
           setIsUnlocking(true);
 
           toast({
-            title: "The withdrawal has been processed.",
+            title: "Transaction in block.",
             description: "Your deposit has been unlocked.",
           });
         },

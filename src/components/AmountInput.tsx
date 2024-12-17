@@ -55,7 +55,7 @@ const AmountInput: FC<AmountInputProps> = ({
     const { isTestToken } = getErc20TokenDef(tokenId);
 
     if (isTestToken === true) {
-      setEstimatedPrice(calculateEstimateInUsd(new Decimal(amountDebounce), 0));
+      setEstimatedPrice("0 USD");
 
       return;
     }

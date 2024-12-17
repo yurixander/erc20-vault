@@ -4,9 +4,8 @@ import { Heading } from "./Typography";
 import VAULT_ABI from "@/abi/vaultAbi";
 import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import useContractReadOnce from "@/hooks/useContractRead";
-import useTokenPrice from "@/hooks/useTokenPrice";
+import useTokenPrice, { PricesUnavailableError } from "@/hooks/useTokenPrice";
 import BN from "bn.js";
-import { Erc20TokenDefinition } from "@/config/types";
 import { convertBNToAmount } from "@/utils/amount";
 import Decimal from "decimal.js";
 import {
@@ -18,15 +17,11 @@ import {
 import { IoIosInformationCircle } from "react-icons/io";
 import { getTokenByAddress } from "@/utils/tokens";
 
-class PricesUnavailableError extends Error {
-  message = "No prices available.";
-}
-
 const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
   const [tvl, setTvl] = useState<number | null | Error>(null);
   const readOnce = useContractReadOnce(VAULT_ABI);
-  const { getAllPrices, getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getAllPrices } = useTokenPrice(MAINNET_TOKENS);
 
   const fetchTvl = useCallback(async () => {
     const allDeposits = await readOnce({
@@ -41,8 +36,10 @@ const DisplayTvl: FC = () => {
 
     const prices = await getAllPrices?.();
 
-    if (prices === null || prices === undefined) {
+    if (prices === undefined) {
       throw new PricesUnavailableError();
+    } else if (prices instanceof PricesUnavailableError) {
+      throw prices;
     }
 
     const tvl = new BN(0);
@@ -52,27 +49,27 @@ const DisplayTvl: FC = () => {
         continue;
       }
 
-      const tokenDef = getTokenByAddress(deposit.tokenAddress);
+      const { tokenId, decimals, isTestToken } = getTokenByAddress(
+        deposit.tokenAddress,
+      );
 
-      const priceOfToken =
-        prices[tokenDef.tokenId] ??
-        (await getPriceByTokenId?.(tokenDef.tokenId));
+      const priceOfToken = isTestToken === true ? 0 : (prices[tokenId] ?? null);
 
-      if (priceOfToken === undefined) {
+      if (priceOfToken === null) {
         throw new PricesUnavailableError();
       }
 
       const depositPrice = priceOfDeposit(
         deposit.amount,
         priceOfToken,
-        tokenDef,
+        decimals,
       );
 
       tvl.add(depositPrice);
     }
 
     return tvl.toNumber();
-  }, [readOnce, getAllPrices, getPriceByTokenId]);
+  }, [readOnce, getAllPrices]);
 
   useEffect(() => {
     fetchTvl()
@@ -168,7 +165,7 @@ const DisplayTvl: FC = () => {
 function priceOfDeposit(
   rawAmount: bigint,
   priceOfToken: number,
-  { decimals }: Erc20TokenDefinition,
+  decimals: number,
 ): BN {
   const amount = convertBNToAmount(new BN(rawAmount.toString()), decimals);
   const result = new Decimal(amount);

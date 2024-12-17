@@ -6,17 +6,15 @@ import {
 import { getErc20TokenDef } from "@/utils/tokens";
 import { useCallback, useEffect, useRef } from "react";
 
+export class PricesUnavailableError extends Error {
+  message = "No prices available.";
+}
+
+const PRICE_UPDATE_TIME = 60_000;
+
 const useTokenPrice = (tokens: Erc20TokenId[]) => {
   const { prices, loading, setPrices, setIsLoading } = useTokenPricesStore();
-  const pricesRef = useRef(EMPTY_TOKEN_PRICES);
-
-  useEffect(() => {
-    if (prices instanceof Error) {
-      return;
-    }
-
-    pricesRef.current = prices;
-  }, [prices]);
+  const beforePricesRef = useRef<ERC20TokenPrices | null>(null);
 
   useEffect(() => {
     if (loading) {
@@ -29,13 +27,15 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
       try {
         const prices = await getTokenPrices(tokens);
 
-        setPrices(prices);
+        setPrices((prevPrices) => {
+          // Prioritize a previous error-free state.
+          beforePricesRef.current =
+            prevPrices instanceof Error ? prices : prevPrices;
+
+          return prices;
+        });
       } catch (error) {
-        setPrices(
-          error instanceof Error
-            ? error
-            : new Error("Error getting token prices."),
-        );
+        setPrices(new PricesUnavailableError());
 
         console.error(`Error fetching token prices ${error}`);
       } finally {
@@ -43,56 +43,44 @@ const useTokenPrice = (tokens: Erc20TokenId[]) => {
       }
     };
 
-    const id = setInterval(updater, 60_000);
+    const id = setInterval(updater, PRICE_UPDATE_TIME);
     return () => clearInterval(id);
   }, [loading, tokens, setIsLoading, setPrices]);
 
   const getPriceByTokenId = useCallback(
-    async (erc20TokenId: Erc20TokenId): Promise<number> => {
-      const cachedPrice = pricesRef.current[erc20TokenId] ?? null;
+    (erc20TokenId: Erc20TokenId): number | null => {
       const { isTestToken } = getErc20TokenDef(erc20TokenId);
 
       if (isTestToken === true) {
         return 0;
       }
 
-      if (cachedPrice !== null) {
-        return cachedPrice;
+      // If prices could not be obtained then use the previous price status.
+      const cachedPrices =
+        prices instanceof Error ? beforePricesRef.current : prices;
+
+      if (cachedPrices === null) {
+        return null;
       }
 
-      const currentPrice = await fetchErc20TokenPrice(erc20TokenId);
-
-      setPrices({
-        ...pricesRef.current,
-        [erc20TokenId]: currentPrice,
-      });
-
-      return currentPrice;
+      return cachedPrices[erc20TokenId] ?? null;
     },
-    [setPrices],
+    [prices],
   );
 
-  const getAllPrices =
-    useCallback(async (): Promise<ERC20TokenPrices | null> => {
-      const cachedPrices = pricesRef.current;
-
-      if (!Object.values(cachedPrices).some((price) => price === null)) {
-        return cachedPrices;
+  const getAllPrices = useCallback(():
+    | ERC20TokenPrices
+    | PricesUnavailableError => {
+    if (prices instanceof Error) {
+      if (beforePricesRef.current !== null) {
+        return beforePricesRef.current;
       }
 
-      setIsLoading(true);
+      return new PricesUnavailableError();
+    }
 
-      try {
-        const prices = await getTokenPrices(tokens);
-        setPrices(prices);
-
-        return prices;
-      } catch {
-        return null;
-      } finally {
-        setIsLoading(false);
-      }
-    }, [setPrices, setIsLoading, tokens]);
+    return prices;
+  }, [prices]);
 
   return {
     getPriceByTokenId: loading ? null : getPriceByTokenId,
@@ -104,30 +92,42 @@ export enum Currencies {
   USD = "usd",
 }
 
-async function fetchErc20TokenPrice(
+export async function fetchErc20TokenPrice(
   erc20TokenId: Erc20TokenId,
   currencies: Currencies = Currencies.USD,
-): Promise<number> {
+): Promise<number | null> {
   const { coingeckoId } = getErc20TokenDef(erc20TokenId);
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoId}&vs_currencies=${currencies}`;
 
   const response = await fetch(url);
 
   if (!response.ok) {
-    throw new Error("Failed to fetch price data");
+    console.error(`Failed to fetch price data in coingeko for ${coingeckoId}`);
+
+    return null;
   }
 
-  const data = await response.json();
-  const tokenData = data[coingeckoId];
+  try {
+    const data = await response.json();
+    const tokenData = data[coingeckoId];
 
-  if (tokenData === undefined) {
-    throw new Error(`The token was not found in coingeko: ${coingeckoId}`);
+    if (tokenData === undefined) {
+      console.error(`The token was not found in coingeko: ${coingeckoId}`);
+
+      return null;
+    }
+
+    return Number(tokenData.usd);
+  } catch {
+    console.error(
+      `An error occurred while getting the json from the response from coingeko.`,
+    );
+
+    return null;
   }
-
-  return Number(tokenData.usd);
 }
 
-export async function getTokenPrices(
+async function getTokenPrices(
   erc20TokenIds: Erc20TokenId[],
   currencies: Currencies = Currencies.USD,
 ): Promise<ERC20TokenPrices> {
@@ -140,7 +140,7 @@ export async function getTokenPrices(
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error("Failed to fetch price data");
+    throw new PricesUnavailableError();
   }
 
   for (const { coingeckoId, tokenId } of erc20TokenDefs) {

@@ -33,16 +33,12 @@ const DepositProfitGenerator: FC<{
 
     setIsLoading(true);
 
-    const timer = setTimeout(() => {
-      getPriceByTokenId(tokenId)
-        .finally(() => setIsLoading(false))
-        .then((currentPrice) =>
-          setPercentage(calculateProfitInUsd(initialPrice, currentPrice)),
-        )
-        .catch(() => setPercentage(null));
-    }, 5000);
-
-    return () => clearTimeout(timer);
+    getPriceByTokenId(tokenId)
+      .finally(() => setIsLoading(false))
+      .then((currentPrice) =>
+        setPercentage(calculateProfitInUsd(initialPrice, currentPrice)),
+      )
+      .catch(() => setPercentage(null));
   }, [tokenAddress, getPriceByTokenId, initialPrice]);
 
   return (

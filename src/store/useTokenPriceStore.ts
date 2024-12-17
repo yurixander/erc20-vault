@@ -16,16 +16,24 @@ export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.MTK]: 0,
 };
 
+type SetPricesValue =
+  | ERC20TokenPrices
+  | Error
+  | ((prevPrices: ERC20TokenPrices | Error) => ERC20TokenPrices | Error);
+
 type TokenPricesStore = {
   prices: ERC20TokenPrices | Error;
   loading: boolean;
   setIsLoading: (isLoading: boolean) => void;
-  setPrices: (prices: ERC20TokenPrices | Error) => void;
+  setPrices: (value: SetPricesValue) => void;
 };
 
 export const useTokenPricesStore = create<TokenPricesStore>((set) => ({
   prices: EMPTY_TOKEN_PRICES,
   loading: false,
-  setPrices: (prices) => set({ prices }),
+  setPrices: (value) =>
+    set((state) => ({
+      prices: typeof value === "function" ? value(state.prices) : value,
+    })),
   setIsLoading: (isLoading: boolean) => set({ loading: isLoading }),
 }));
