@@ -1,5 +1,8 @@
 import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
 import { create } from "zustand";
+import z from "zod";
+import { LocalStorageKeys, MAINNET_TOKENS } from "@/config/constants";
+import { getTokenPrices, PricesUnavailableError } from "@/hooks/useTokenPrice";
 
 export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.USDC]: null,
@@ -16,24 +19,101 @@ export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.MTK]: 0,
 };
 
-type SetPricesValue =
-  | ERC20TokenPrices
-  | Error
-  | ((prevPrices: ERC20TokenPrices | Error) => ERC20TokenPrices | Error);
-
 type TokenPricesStore = {
   prices: ERC20TokenPrices | Error;
   loading: boolean;
-  setIsLoading: (isLoading: boolean) => void;
-  setPrices: (value: SetPricesValue) => void;
+  updatePrices: () => Promise<{
+    prevPrices: ERC20TokenPrices | Error;
+    newPrices: ERC20TokenPrices | null;
+  }>;
 };
 
-export const useTokenPricesStore = create<TokenPricesStore>((set) => ({
+export const useTokenPricesStore = create<TokenPricesStore>((set, get) => ({
   prices: EMPTY_TOKEN_PRICES,
   loading: false,
-  setPrices: (value) =>
-    set((state) => ({
-      prices: typeof value === "function" ? value(state.prices) : value,
-    })),
-  setIsLoading: (isLoading: boolean) => set({ loading: isLoading }),
+  updatePrices: async () => {
+    console.log("Update prices");
+    set({ loading: true });
+
+    const cachedPrices = getAvailableCachedPrices();
+    const prevPrices = get().prices;
+
+    try {
+      const prices = cachedPrices ?? (await getTokenPrices(MAINNET_TOKENS));
+
+      set({ prices: prices, loading: false });
+
+      if (cachedPrices === null) {
+        saveCachedPrices(prices);
+      }
+
+      return {
+        prevPrices,
+        newPrices: prices,
+      };
+    } catch {
+      set({ prices: new PricesUnavailableError(), loading: false });
+
+      return {
+        prevPrices,
+        newPrices: null,
+      };
+    }
+  },
 }));
+
+// Validity time of local storage data.
+// Avoid re-doing a request if the user reloads the page.
+const TIME_FOR_BE_VALID = 70_000;
+
+export function getAvailableCachedPrices(): ERC20TokenPrices | null {
+  const cachedPrices = getCachedPrices();
+
+  if (
+    cachedPrices === null ||
+    cachedPrices.lastTimestamp + TIME_FOR_BE_VALID < Date.now()
+  ) {
+    return null;
+  }
+
+  return Object.values(Erc20TokenId).reduce((acc, tokenId) => {
+    acc[tokenId] = cachedPrices.prices[tokenId] ?? null;
+
+    return acc;
+  }, EMPTY_TOKEN_PRICES);
+}
+
+const cachedPricesSchema = z.object({
+  prices: z.record(z.nativeEnum(Erc20TokenId), z.number().nullable()),
+  lastTimestamp: z.number(),
+});
+
+type CachedPrices = z.infer<typeof cachedPricesSchema>;
+
+function getCachedPrices(): CachedPrices | null {
+  const data = localStorage.getItem(LocalStorageKeys.CachedPrices);
+
+  if (data === null) {
+    return null;
+  }
+
+  const result = cachedPricesSchema.safeParse(data);
+
+  if (result.success) {
+    return result.data;
+  } else {
+    return null;
+  }
+}
+
+function saveCachedPrices(prices: ERC20TokenPrices) {
+  const cachedPrices: CachedPrices = {
+    lastTimestamp: Date.now(),
+    prices,
+  };
+
+  localStorage.setItem(
+    LocalStorageKeys.CachedPrices,
+    JSON.stringify(cachedPrices),
+  );
+}

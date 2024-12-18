@@ -1,4 +1,3 @@
-import { MAINNET_TOKENS } from "@/config/constants";
 import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
 import {
   EMPTY_TOKEN_PRICES,
@@ -11,10 +10,10 @@ export class PricesUnavailableError extends Error {
   message = "No prices available.";
 }
 
-const PRICE_UPDATE_TIME = 60_000;
+export const PRICE_UPDATE_TIME = 60_000;
 
 const useTokenPrice = () => {
-  const { prices, loading, setPrices, setIsLoading } = useTokenPricesStore();
+  const { prices, loading, updatePrices } = useTokenPricesStore();
   const beforePricesRef = useRef<ERC20TokenPrices | null>(null);
 
   useEffect(() => {
@@ -23,30 +22,20 @@ const useTokenPrice = () => {
     }
 
     const updater = async () => {
-      setIsLoading(true);
+      const state = await updatePrices();
 
-      try {
-        const prices = await getTokenPrices(MAINNET_TOKENS);
+      // Prioritize a previous error-free state.
+      beforePricesRef.current =
+        state.prevPrices instanceof Error ? state.newPrices : state.prevPrices;
 
-        setPrices((prevPrices) => {
-          // Prioritize a previous error-free state.
-          beforePricesRef.current =
-            prevPrices instanceof Error ? prices : prevPrices;
-
-          return prices;
-        });
-      } catch (error) {
-        setPrices(new PricesUnavailableError());
-
-        console.error(`Error fetching token prices ${error}`);
-      } finally {
-        setIsLoading(false);
+      if (state.newPrices instanceof Error) {
+        console.error(`Error fetching token prices ${state.newPrices}`);
       }
     };
 
     const id = setInterval(updater, PRICE_UPDATE_TIME);
     return () => clearInterval(id);
-  }, [loading, setIsLoading, setPrices]);
+  }, [loading, updatePrices]);
 
   const getPriceByTokenId = useCallback(
     (erc20TokenId: Erc20TokenId): number | null => {
@@ -128,13 +117,14 @@ export async function fetchErc20TokenPrice(
   }
 }
 
-async function getTokenPrices(
+export async function getTokenPrices(
   erc20TokenIds: Erc20TokenId[],
   currencies: Currencies = Currencies.USD,
 ): Promise<ERC20TokenPrices> {
   const tokenPrices = EMPTY_TOKEN_PRICES;
   const erc20TokenDefs = erc20TokenIds.map(getErc20TokenDef);
   const coingeckoIds = erc20TokenDefs.map((def) => def.coingeckoId).join(",");
+  console.log("Fetch prices");
 
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=${currencies}`;
   const response = await fetch(url);

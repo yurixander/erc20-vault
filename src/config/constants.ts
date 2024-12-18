@@ -7,6 +7,10 @@ import {
 } from "./types";
 import { EnvKey, requireEnvVariable } from "./env";
 
+export enum LocalStorageKeys {
+  CachedPrices = "cached_prices_storage_key",
+}
+
 export enum AppRoute {
   App = "/",
   Dev = "/dev",
