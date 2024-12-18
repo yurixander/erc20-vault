@@ -18,7 +18,7 @@ type TokenBalanceProps = {
 const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
   const tokenIdRef = useRef(tokenId);
   const [tokenBalance, setTokenBalance] = useState<string | null>(null);
-  const [isBalanceLoading, setBalanceLoading] = useState(false);
+  const [loading, setIsLoading] = useState(false);
   const readOnce = useContractReadOnce(IERC20_ABI);
   const { address } = useAccount();
   const { toast } = useToast();
@@ -34,14 +34,14 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
 
     const { decimals, address: tokenAddress } = getErc20TokenDef(tokenId);
 
-    setBalanceLoading(true);
+    setIsLoading(true);
 
     readOnce({
       address: tokenAddress,
       functionName: "balanceOf",
       args: [address],
     })
-      .finally(() => setBalanceLoading(false))
+      .finally(() => setIsLoading(false))
       .then((balance) => {
         if (tokenIdRef.current !== tokenId) {
           return;
@@ -68,7 +68,7 @@ const TokenBalance: FC<TokenBalanceProps> = ({ tokenId }) => {
 
   return (
     <div className="mt-0.5 ml-0.5 flex h-5 items-center">
-      {isBalanceLoading ? (
+      {loading ? (
         <SmallLoader />
       ) : (
         <div className="space-x-1">

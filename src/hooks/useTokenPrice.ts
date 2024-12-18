@@ -33,9 +33,13 @@ const useTokenPrice = () => {
       }
     };
 
+    if (prices === null) {
+      updater();
+    }
+
     const id = setInterval(updater, PRICE_UPDATE_TIME);
     return () => clearInterval(id);
-  }, [loading, updatePrices]);
+  }, [loading, updatePrices, prices]);
 
   const getPriceByTokenId = useCallback(
     (erc20TokenId: Erc20TokenId): number | null => {
@@ -61,7 +65,7 @@ const useTokenPrice = () => {
   const getAllPrices = useCallback(():
     | ERC20TokenPrices
     | PricesUnavailableError => {
-    if (prices instanceof Error) {
+    if (prices instanceof Error || prices === null) {
       if (beforePricesRef.current !== null) {
         return beforePricesRef.current;
       }
@@ -124,7 +128,6 @@ export async function getTokenPrices(
   const tokenPrices = EMPTY_TOKEN_PRICES;
   const erc20TokenDefs = erc20TokenIds.map(getErc20TokenDef);
   const coingeckoIds = erc20TokenDefs.map((def) => def.coingeckoId).join(",");
-  console.log("Fetch prices");
 
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=${currencies}`;
   const response = await fetch(url);

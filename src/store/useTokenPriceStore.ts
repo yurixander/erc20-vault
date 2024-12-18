@@ -20,19 +20,18 @@ export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
 };
 
 type TokenPricesStore = {
-  prices: ERC20TokenPrices | Error;
+  prices: ERC20TokenPrices | Error | null;
   loading: boolean;
   updatePrices: () => Promise<{
-    prevPrices: ERC20TokenPrices | Error;
+    prevPrices: ERC20TokenPrices | Error | null;
     newPrices: ERC20TokenPrices | null;
   }>;
 };
 
 export const useTokenPricesStore = create<TokenPricesStore>((set, get) => ({
-  prices: EMPTY_TOKEN_PRICES,
+  prices: null,
   loading: false,
   updatePrices: async () => {
-    console.log("Update prices");
     set({ loading: true });
 
     const cachedPrices = getAvailableCachedPrices();
