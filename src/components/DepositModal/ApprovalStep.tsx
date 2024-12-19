@@ -14,7 +14,7 @@ import Button from "@components/Button";
 import AmountInput from "@components/AmountInput";
 import useTokenApproval from "@/hooks/useTokenApproval";
 import { wagmiConfig } from "@/containers/Providers";
-import { SEPOLIA_CHAIN_ID, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { WriteContractErrorType } from "wagmi/actions";
 import { ContractFunctionExecutionError } from "viem";
 import useContractReadOnce from "@/hooks/useContractRead";
@@ -23,6 +23,7 @@ import { useAccount } from "wagmi";
 import BN from "bn.js";
 import { ToastAction } from "../Toast";
 import TokenBalance from "../TokenBalance";
+import { sepolia } from "viem/chains";
 
 type ApprovalStepProps = {
   className?: string;
@@ -159,7 +160,7 @@ const ApprovalStep: FC<ApprovalStepProps> = ({ onNextStep }) => {
       <div className="flex flex-col">
         <AmountInput
           amount={amount}
-          isChainTest={chainId === SEPOLIA_CHAIN_ID}
+          isChainTest={chainId === sepolia.id}
           tokenId={tokenId}
           setTokenId={setTokenId}
           onAmountChange={setAmount}
