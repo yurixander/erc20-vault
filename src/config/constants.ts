@@ -4,6 +4,8 @@ import {
   Erc20TokenDefinition,
   Erc20TokenId,
 } from "./types";
+import { createPublicClient, webSocket } from "viem";
+import { sepolia } from "viem/chains";
 
 export enum LocalStorageKeys {
   CachedPrices = "cached_prices_storage_key",
@@ -13,6 +15,17 @@ export enum AppRoute {
   App = "/",
   Dev = "/dev",
 }
+
+export enum WebSocketsUrl {
+  Sepolia = "https://rpc.ankr.com/eth_sepolia",
+  Mainnet = "https://rpc.ankr.com/eth",
+}
+
+// TODO: In production change sepolia for mainnet.
+export const mainnetPublicClient = createPublicClient({
+  chain: sepolia,
+  transport: webSocket(WebSocketsUrl.Sepolia),
+});
 
 export const VAULT_CONTRACT_ADDRESS =
   "0xb85a341671cf6DEFdaf781960ef66D03A93f6791";

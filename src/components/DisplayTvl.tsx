@@ -2,8 +2,10 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heading } from "./Typography";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
-import useContractReadOnce from "@/hooks/useContractRead";
+import {
+  mainnetPublicClient,
+  VAULT_CONTRACT_ADDRESS,
+} from "@/config/constants";
 import useTokenPrice, { PricesUnavailableError } from "@/hooks/useTokenPrice";
 import BN from "bn.js";
 import { convertBNToAmount } from "@/utils/amount";
@@ -21,58 +23,53 @@ import { ERC20TokenPrices } from "@/config/types";
 const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
   const [tvl, setTvl] = useState<number | null | Error>(null);
-  const readOnce = useContractReadOnce(VAULT_ABI);
   const { getAllPrices } = useTokenPrice();
 
-  const fetchTvl = useCallback(
-    async (prices: ERC20TokenPrices) => {
-      const allDeposits = await readOnce({
-        address: VAULT_CONTRACT_ADDRESS,
-        functionName: "getAllDeposits",
-        args: [],
-      });
+  const fetchTvl = useCallback(async (prices: ERC20TokenPrices) => {
+    const allDeposits = await mainnetPublicClient.readContract({
+      abi: VAULT_ABI,
+      address: VAULT_CONTRACT_ADDRESS,
+      functionName: "getAllDeposits",
+    });
 
-      if (allDeposits instanceof Error) {
-        throw allDeposits;
+    if (allDeposits instanceof Error) {
+      throw allDeposits;
+    }
+
+    if (prices === undefined) {
+      throw new PricesUnavailableError();
+    } else if (prices instanceof PricesUnavailableError) {
+      throw prices;
+    }
+
+    const tvl = new BN(0);
+
+    for (const deposit of allDeposits) {
+      if (deposit.withdrawn) {
+        continue;
       }
 
-      if (prices === undefined) {
+      const { tokenId, decimals, isTestToken } = getTokenByAddress(
+        deposit.tokenAddress,
+      );
+
+      const priceOfToken = isTestToken === true ? 0 : (prices[tokenId] ?? null);
+
+      if (priceOfToken === null) {
         throw new PricesUnavailableError();
-      } else if (prices instanceof PricesUnavailableError) {
-        throw prices;
       }
 
-      const tvl = new BN(0);
+      const depositPrice = priceOfDeposit(
+        deposit.amount,
+        priceOfToken,
+        decimals,
+      );
 
-      for (const deposit of allDeposits) {
-        if (deposit.withdrawn) {
-          continue;
-        }
+      tvl.add(depositPrice);
+    }
 
-        const { tokenId, decimals, isTestToken } = getTokenByAddress(
-          deposit.tokenAddress,
-        );
-
-        const priceOfToken =
-          isTestToken === true ? 0 : (prices[tokenId] ?? null);
-
-        if (priceOfToken === null) {
-          throw new PricesUnavailableError();
-        }
-
-        const depositPrice = priceOfDeposit(
-          deposit.amount,
-          priceOfToken,
-          decimals,
-        );
-
-        tvl.add(depositPrice);
-      }
-
-      return tvl.toNumber();
-    },
-    [readOnce],
-  );
+    return tvl.toNumber();
+  }, []);
 
   useEffect(() => {
     const prices = getAllPrices?.();

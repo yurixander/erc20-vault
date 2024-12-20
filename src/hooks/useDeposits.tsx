@@ -2,7 +2,10 @@ import BN from "bn.js";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import VAULT_ABI from "../abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
+import {
+  mainnetPublicClient,
+  VAULT_CONTRACT_ADDRESS,
+} from "../config/constants";
 import { Deposit } from "../config/types";
 import useContractReadOnce from "./useContractRead";
 import { ToastAction } from "../components/Toast";
@@ -18,10 +21,10 @@ const useDeposits = () => {
 
   const fetchDeposits = useCallback(async () => {
     if (address === undefined) {
-      const allRawDeposits = await readOnce({
+      const allRawDeposits = await mainnetPublicClient.readContract({
+        abi: VAULT_ABI,
         address: VAULT_CONTRACT_ADDRESS,
         functionName: "getAllDeposits",
-        args: [],
       });
 
       if (allRawDeposits instanceof Error) {
