@@ -16,6 +16,7 @@ import {
 } from "./Tooltip";
 import { IoIosInformationCircle } from "react-icons/io";
 import { getTokenByAddress } from "@/utils/tokens";
+import { ERC20TokenPrices } from "@/config/types";
 
 const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
@@ -23,60 +24,75 @@ const DisplayTvl: FC = () => {
   const readOnce = useContractReadOnce(VAULT_ABI);
   const { getAllPrices } = useTokenPrice();
 
-  const fetchTvl = useCallback(async () => {
-    const allDeposits = await readOnce({
-      address: VAULT_CONTRACT_ADDRESS,
-      functionName: "getAllDeposits",
-      args: [],
-    });
+  const fetchTvl = useCallback(
+    async (prices: ERC20TokenPrices) => {
+      const allDeposits = await readOnce({
+        address: VAULT_CONTRACT_ADDRESS,
+        functionName: "getAllDeposits",
+        args: [],
+      });
 
-    if (allDeposits instanceof Error) {
-      throw allDeposits;
-    }
-
-    const prices = getAllPrices?.();
-
-    if (prices === undefined) {
-      throw new PricesUnavailableError();
-    } else if (prices instanceof PricesUnavailableError) {
-      throw prices;
-    }
-
-    const tvl = new BN(0);
-
-    for (const deposit of allDeposits) {
-      if (deposit.withdrawn) {
-        continue;
+      if (allDeposits instanceof Error) {
+        throw allDeposits;
       }
 
-      const { tokenId, decimals, isTestToken } = getTokenByAddress(
-        deposit.tokenAddress,
-      );
-
-      const priceOfToken = isTestToken === true ? 0 : (prices[tokenId] ?? null);
-
-      if (priceOfToken === null) {
+      if (prices === undefined) {
         throw new PricesUnavailableError();
+      } else if (prices instanceof PricesUnavailableError) {
+        throw prices;
       }
 
-      const depositPrice = priceOfDeposit(
-        deposit.amount,
-        priceOfToken,
-        decimals,
-      );
+      const tvl = new BN(0);
 
-      tvl.add(depositPrice);
-    }
+      for (const deposit of allDeposits) {
+        if (deposit.withdrawn) {
+          continue;
+        }
 
-    return tvl.toNumber();
-  }, [readOnce, getAllPrices]);
+        const { tokenId, decimals, isTestToken } = getTokenByAddress(
+          deposit.tokenAddress,
+        );
+
+        const priceOfToken =
+          isTestToken === true ? 0 : (prices[tokenId] ?? null);
+
+        if (priceOfToken === null) {
+          throw new PricesUnavailableError();
+        }
+
+        const depositPrice = priceOfDeposit(
+          deposit.amount,
+          priceOfToken,
+          decimals,
+        );
+
+        tvl.add(depositPrice);
+      }
+
+      return tvl.toNumber();
+    },
+    [readOnce],
+  );
 
   useEffect(() => {
-    fetchTvl()
+    const prices = getAllPrices?.();
+
+    if (prices === null || prices === undefined) {
+      return;
+    }
+
+    if (prices instanceof Error) {
+      setIsLoading(false);
+      setTvl(prices);
+
+      return;
+    }
+
+    fetchTvl(prices)
       .then(setTvl)
       .catch((e: Error) => setTvl(e))
       .finally(() => setIsLoading(false));
-  }, [fetchTvl]);
+  }, [fetchTvl, getAllPrices]);
 
   return (
     <div className="flex flex-col">

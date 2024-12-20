@@ -2,7 +2,12 @@ import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
 import { create } from "zustand";
 import z from "zod";
 import { LocalStorageKeys, MAINNET_TOKENS } from "@/config/constants";
-import { getTokenPrices, PricesUnavailableError } from "@/hooks/useTokenPrice";
+import {
+  PRICE_UPDATE_TIME,
+  PricesUnavailableError,
+} from "@/hooks/useTokenPrice";
+import { getErc20TokenDef } from "@/utils/tokens";
+import { lessThanOfInSeconds } from "@/utils/time";
 
 export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.USDC]: null,
@@ -34,17 +39,11 @@ export const useTokenPricesStore = create<TokenPricesStore>((set, get) => ({
   updatePrices: async () => {
     set({ loading: true });
 
-    const cachedPrices = getAvailableCachedPrices();
     const prevPrices = get().prices;
 
     try {
-      const prices = cachedPrices ?? (await getTokenPrices(MAINNET_TOKENS));
-
+      const prices = await getTokenPrices(MAINNET_TOKENS);
       set({ prices: prices, loading: false });
-
-      if (cachedPrices === null) {
-        saveCachedPrices(prices);
-      }
 
       return {
         prevPrices,
@@ -61,33 +60,15 @@ export const useTokenPricesStore = create<TokenPricesStore>((set, get) => ({
   },
 }));
 
-// Validity time of local storage data.
-// Avoid re-doing a request if the user reloads the page.
-const TIME_FOR_BE_VALID = 70_000;
-
-export function getAvailableCachedPrices(): ERC20TokenPrices | null {
-  const cachedPrices = getCachedPrices();
-
-  if (
-    cachedPrices === null ||
-    cachedPrices.lastTimestamp + TIME_FOR_BE_VALID < Date.now()
-  ) {
-    return null;
-  }
-
-  return Object.values(Erc20TokenId).reduce((acc, tokenId) => {
-    acc[tokenId] = cachedPrices.prices[tokenId] ?? null;
-
-    return acc;
-  }, EMPTY_TOKEN_PRICES);
-}
-
 const cachedPricesSchema = z.object({
   prices: z.record(z.nativeEnum(Erc20TokenId), z.number().nullable()),
   lastTimestamp: z.number(),
 });
 
-type CachedPrices = z.infer<typeof cachedPricesSchema>;
+type CachedPrices = {
+  prices: ERC20TokenPrices;
+  lastTimestamp: number;
+};
 
 function getCachedPrices(): CachedPrices | null {
   const data = localStorage.getItem(LocalStorageKeys.CachedPrices);
@@ -96,11 +77,19 @@ function getCachedPrices(): CachedPrices | null {
     return null;
   }
 
-  const result = cachedPricesSchema.safeParse(data);
+  try {
+    const parseJson = JSON.parse(data);
+    const rawCachedPrices = cachedPricesSchema.parse(parseJson);
 
-  if (result.success) {
-    return result.data;
-  } else {
+    return {
+      lastTimestamp: rawCachedPrices.lastTimestamp,
+      prices: Object.values(Erc20TokenId).reduce((acc, tokenId) => {
+        acc[tokenId] = rawCachedPrices.prices[tokenId] ?? null;
+
+        return acc;
+      }, EMPTY_TOKEN_PRICES),
+    };
+  } catch {
     return null;
   }
 }
@@ -115,4 +104,112 @@ function saveCachedPrices(prices: ERC20TokenPrices) {
     LocalStorageKeys.CachedPrices,
     JSON.stringify(cachedPrices),
   );
+}
+
+export enum Currencies {
+  USD = "usd",
+}
+
+export async function fetchErc20TokenPrice(
+  erc20TokenId: Erc20TokenId,
+  currencies: Currencies = Currencies.USD,
+): Promise<number | null> {
+  const { coingeckoId } = getErc20TokenDef(erc20TokenId);
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoId}&vs_currencies=${currencies}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    console.error(`Failed to fetch price data in coingeko for ${coingeckoId}`);
+
+    return null;
+  }
+
+  try {
+    const data = await response.json();
+    const tokenData = data[coingeckoId];
+
+    if (tokenData === undefined) {
+      console.error(`The token was not found in coingeko: ${coingeckoId}`);
+
+      return null;
+    }
+
+    return Number(tokenData.usd);
+  } catch {
+    console.error(
+      `An error occurred while getting the json from the response from coingeko.`,
+    );
+
+    return null;
+  }
+}
+
+async function getTokenPrices(
+  erc20TokenIds: Erc20TokenId[],
+  currencies: Currencies = Currencies.USD,
+): Promise<ERC20TokenPrices> {
+  // Validity time of local storage data.
+  // Avoid re-doing a request if the user reloads the page.
+  // Converted to seconds.
+  const TIME_FOR_BE_VALID = PRICE_UPDATE_TIME / 1000;
+  const cachedPrices = getCachedPrices();
+
+  if (
+    cachedPrices !== null &&
+    lessThanOfInSeconds(cachedPrices.lastTimestamp, TIME_FOR_BE_VALID)
+  ) {
+    return cachedPrices.prices;
+  } else if (cachedPrices !== null) {
+    console.log("For here fetch");
+
+    try {
+      const newPrices = await fetchTokenPrices(erc20TokenIds, currencies);
+      saveCachedPrices(newPrices);
+      return newPrices;
+    } catch {
+      console.warn(
+        "Could not get new prices, cached prices were returned instead.",
+      );
+
+      return cachedPrices.prices;
+    }
+  }
+
+  const newPrices = await fetchTokenPrices(erc20TokenIds, currencies);
+  console.log("For here");
+  saveCachedPrices(newPrices);
+
+  return newPrices;
+}
+
+async function fetchTokenPrices(
+  erc20TokenIds: Erc20TokenId[],
+  currencies: Currencies = Currencies.USD,
+): Promise<ERC20TokenPrices> {
+  const tokenPrices = EMPTY_TOKEN_PRICES;
+  const erc20TokenDefs = erc20TokenIds.map(getErc20TokenDef);
+  const coingeckoIds = erc20TokenDefs.map((def) => def.coingeckoId).join(",");
+
+  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${coingeckoIds}&vs_currencies=${currencies}`;
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new PricesUnavailableError();
+  }
+
+  for (const { coingeckoId, tokenId } of erc20TokenDefs) {
+    const erc20TokenData = data[coingeckoId];
+
+    if (erc20TokenData === undefined || erc20TokenData.usd === undefined) {
+      console.error(`No USD price for ${coingeckoId}`);
+
+      continue;
+    }
+
+    tokenPrices[tokenId] = Number(erc20TokenData.usd);
+  }
+
+  return tokenPrices;
 }

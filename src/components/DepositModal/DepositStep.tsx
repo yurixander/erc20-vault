@@ -1,6 +1,6 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "./DepositModal";
-import useTokenPrice, { fetchErc20TokenPrice } from "@/hooks/useTokenPrice";
+import useTokenPrice from "@/hooks/useTokenPrice";
 import { getErc20TokenDef } from "@/utils/tokens";
 import {
   calculateEstimateInUsd,
@@ -26,6 +26,7 @@ import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { getUnixTime } from "date-fns/getUnixTime";
 import { WriteContractErrorType } from "wagmi/actions";
 import { ContractFunctionExecutionError } from "viem";
+import { fetchErc20TokenPrice } from "@/store/useTokenPriceStore";
 
 type DepositDetail = {
   displayAmount: string;
