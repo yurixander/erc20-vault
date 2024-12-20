@@ -1,5 +1,5 @@
 export enum EnvKey {
-  AlchemyKey = "VITE_ALCHEMY_KEY",
+  QuickNodeKey = "VITE_QUICK_NODE_API_KEY",
 }
 
 export function requireEnvVariable(key: EnvKey): string {
