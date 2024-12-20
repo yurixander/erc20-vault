@@ -34,7 +34,7 @@ import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
-import { convertBNToAmount, convertUsdToBn } from "@/utils/amount";
+import { convertBNToAmount } from "@/utils/amount";
 import { BN } from "bn.js";
 import useToast from "@/hooks/useToast";
 import { Deposit } from "@/config/types";
@@ -45,7 +45,6 @@ import { getSymbolByTokenId, getTokenByAddress } from "@/utils/tokens";
 import CircularProgress from "@/components/CircularProgress";
 import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
 import UnlockDeposit from "@/components/UnlockDeposit";
-import useTokenPrice from "@/hooks/useTokenPrice";
 import DepositProfitGenerator from "@/components/DepositProfitGenerator";
 
 type DepositsTableProps = {
@@ -69,7 +68,6 @@ export const COLUMNS_ID = {
 
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
-  const { getPriceByTokenId } = useTokenPrice();
   const { toast } = useToast();
   const { address } = useAccount();
 
@@ -92,23 +90,11 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         }
 
         const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
-        // TODO: Actualize DepositMade for this.
-        const priceOfToken = getPriceByTokenId?.(tokenId) ?? null;
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
           decimals,
         );
-
-        if (priceOfToken === null) {
-          toast({
-            title: "Deposit Price Error",
-            description: `No price available for ${amount} ${getSymbolByTokenId(tokenId)}`,
-            variant: "destructive",
-          });
-
-          continue;
-        }
 
         toast({
           title: "New deposit",
@@ -118,7 +104,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         setDeposits((prevDeposits) => {
           const newDeposit: Deposit = {
             amount: new BN(args.amount.toString()),
-            initialPrice: convertUsdToBn(priceOfToken),
+            initialPrice: new BN(args.priceInUsd.toString()),
             depositId: args.depositId,
             tokenAddress: args.tokenAddress,
             startTimestamp: Number(args.startTimestamp),
