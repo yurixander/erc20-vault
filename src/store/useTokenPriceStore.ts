@@ -161,8 +161,6 @@ async function getTokenPrices(
   ) {
     return cachedPrices.prices;
   } else if (cachedPrices !== null) {
-    console.log("For here fetch");
-
     try {
       const newPrices = await fetchTokenPrices(erc20TokenIds, currencies);
       saveCachedPrices(newPrices);

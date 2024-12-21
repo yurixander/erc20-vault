@@ -87,8 +87,17 @@ const DisplayTvl: FC = () => {
 
     fetchTvl(prices)
       .then(setTvl)
-      // TODO: Handle any error to custom error and display error in console.
-      .catch((e: Error) => setTvl(e))
+      .catch((e: Error) => {
+        if (e instanceof PricesUnavailableError) {
+          setTvl(e);
+        } else {
+          console.error(e);
+
+          setTvl(
+            new Error("Unexpected error occurred, check your connection."),
+          );
+        }
+      })
       .finally(() => setIsLoading(false));
   }, [fetchTvl, getAllPrices]);
 
@@ -148,7 +157,7 @@ const DisplayTvl: FC = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center text-blue-50"
           >
-            Error: {tvl?.message ?? "No TVL found"}
+            {tvl?.message ?? "No TVL found"}
           </motion.div>
         ) : (
           <motion.div

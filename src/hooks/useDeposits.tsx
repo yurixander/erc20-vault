@@ -10,6 +10,7 @@ import { Deposit } from "../config/types";
 import useContractReadOnce from "./useContractRead";
 import { ToastAction } from "../components/Toast";
 import useToast from "./useToast";
+import { debugVaultContractError } from "@/utils/errors";
 
 const useDeposits = () => {
   const { address } = useAccount();
@@ -55,11 +56,12 @@ const useDeposits = () => {
       .then(setDeposits)
       .finally(() => setIsLoading(false))
       .catch((error) => {
-        setError(error);
+        const safeError = debugVaultContractError(error);
+        setError(safeError);
 
         toast({
-          title: "Unable to Fetch Deposits",
-          description: error.message,
+          title: "Fetch Deposits Error",
+          description: "Please try again.",
           variant: "destructive",
           action: (
             <ToastAction altText="Reload deposits" onClick={refresh}>

@@ -6,7 +6,7 @@ import {
   Abi as ViemAbi,
 } from "viem";
 import { readContract, ReadContractReturnType } from "wagmi/actions";
-import ensureError from "../utils/ensureError";
+import { ensureError } from "../utils/errors";
 import { wagmiConfig } from "@/containers/Providers";
 
 export type ContractReadOptions<
