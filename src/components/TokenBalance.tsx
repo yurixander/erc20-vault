@@ -1,14 +1,14 @@
 import { Erc20TokenId } from "@/config/types";
 import { FC, useEffect, useRef, useState } from "react";
 import { Text } from "./Typography";
-import useContractReadOnce from "@/hooks/useContractRead";
+import useContractReadOnce from "@hooks/useContractRead";
 import IERC20_ABI from "@/abi/ierc20Abi";
 import { useAccount } from "wagmi";
-import useToast from "@/hooks/useToast";
-import { convertBNToAmount } from "@/utils/amount";
+import useToast from "@hooks/useToast";
+import { convertBNToAmount } from "@utils/amount";
 import BN from "bn.js";
 import SmallLoader from "./SmallLoader";
-import { getErc20TokenDef, getSymbolByTokenId } from "@/utils/tokens";
+import { getErc20TokenDef, getSymbolByTokenId } from "@utils/tokens";
 
 type TokenBalanceProps = {
   tokenId: Erc20TokenId | null;

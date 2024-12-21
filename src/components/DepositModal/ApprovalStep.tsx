@@ -1,9 +1,9 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "@/components/DepositModal/DepositModal";
-import useToast from "@/hooks/useToast";
+import useToast from "@hooks/useToast";
 import { Erc20TokenId } from "@/config/types";
-import { getErc20TokenDef, getSymbolByTokenId } from "@/utils/tokens";
-import { convertAmountToBN, convertBNToAmount } from "@/utils/amount";
+import { getErc20TokenDef, getSymbolByTokenId } from "@utils/tokens";
+import { convertAmountToBN, convertBNToAmount } from "@utils/amount";
 import {
   DialogDescription,
   DialogFooter,
@@ -12,12 +12,12 @@ import {
 } from "@components/Dialog/index";
 import Button from "@components/Button";
 import AmountInput from "@components/AmountInput";
-import useTokenApproval from "@/hooks/useTokenApproval";
+import useTokenApproval from "@hooks/useTokenApproval";
 import { wagmiConfig } from "@/containers/Providers";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { WriteContractErrorType } from "wagmi/actions";
 import { ContractFunctionExecutionError } from "viem";
-import useContractReadOnce from "@/hooks/useContractRead";
+import useContractReadOnce from "@hooks/useContractRead";
 import IERC20_ABI from "@/abi/ierc20Abi";
 import { useAccount } from "wagmi";
 import BN from "bn.js";

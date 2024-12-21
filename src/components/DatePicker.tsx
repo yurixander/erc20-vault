@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 import { FC, useCallback, useState } from "react";
 import { FiCalendar } from "react-icons/fi";
 import Button from "./Button";

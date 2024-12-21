@@ -10,7 +10,7 @@ import { Deposit } from "../config/types";
 import useContractReadOnce from "./useContractRead";
 import { ToastAction } from "../components/Toast";
 import useToast from "./useToast";
-import { debugVaultContractError } from "@/utils/errors";
+import { debugVaultContractError } from "@utils/errors";
 
 const useDeposits = () => {
   const { address } = useAccount();

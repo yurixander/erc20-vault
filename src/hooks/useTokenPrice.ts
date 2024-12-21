@@ -1,6 +1,6 @@
 import { Erc20TokenId, ERC20TokenPrices } from "@/config/types";
 import { useTokenPricesStore } from "@/store/useTokenPriceStore";
-import { getErc20TokenDef } from "@/utils/tokens";
+import { getErc20TokenDef } from "@utils/tokens";
 import { useCallback, useEffect, useRef } from "react";
 
 export class PricesUnavailableError extends Error {

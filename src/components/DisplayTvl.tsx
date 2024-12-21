@@ -6,9 +6,9 @@ import {
   mainnetPublicClient,
   VAULT_CONTRACT_ADDRESS,
 } from "@/config/constants";
-import useTokenPrice, { PricesUnavailableError } from "@/hooks/useTokenPrice";
+import useTokenPrice, { PricesUnavailableError } from "@hooks/useTokenPrice";
 import BN from "bn.js";
-import { convertBNToAmount } from "@/utils/amount";
+import { convertBNToAmount } from "@utils/amount";
 import Decimal from "decimal.js";
 import {
   Tooltip,
@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "./Tooltip";
 import { IoIosInformationCircle } from "react-icons/io";
-import { getTokenByAddress } from "@/utils/tokens";
+import { getTokenByAddress } from "@utils/tokens";
 import { ERC20TokenPrices } from "@/config/types";
 
 const DisplayTvl: FC = () => {

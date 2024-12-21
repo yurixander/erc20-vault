@@ -1,12 +1,12 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "./DepositModal";
-import useTokenPrice from "@/hooks/useTokenPrice";
-import { getErc20TokenDef } from "@/utils/tokens";
+import useTokenPrice from "@hooks/useTokenPrice";
+import { getErc20TokenDef } from "@utils/tokens";
 import {
   calculateEstimateInUsd,
   convertBNToAmount,
   convertUsdToBn,
-} from "@/utils/amount";
+} from "@utils/amount";
 import Decimal from "decimal.js";
 import {
   DialogDescription,
@@ -20,7 +20,7 @@ import LegendWrapper from "@components/LegendWrapper";
 import DatePicker from "@components/DatePicker";
 import Button from "@components/Button";
 import { useWriteContract } from "wagmi";
-import useToast from "@/hooks/useToast";
+import useToast from "@hooks/useToast";
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { getUnixTime } from "date-fns/getUnixTime";

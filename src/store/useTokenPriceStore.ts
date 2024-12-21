@@ -5,9 +5,9 @@ import { LocalStorageKeys, MAINNET_TOKENS } from "@/config/constants";
 import {
   PRICE_UPDATE_TIME,
   PricesUnavailableError,
-} from "@/hooks/useTokenPrice";
-import { getErc20TokenDef } from "@/utils/tokens";
-import { lessThanOfInSeconds } from "@/utils/time";
+} from "@hooks/useTokenPrice";
+import { getErc20TokenDef } from "@utils/tokens";
+import { lessThanOfInSeconds } from "@utils/time";
 
 export const EMPTY_TOKEN_PRICES: ERC20TokenPrices = {
   [Erc20TokenId.USDC]: null,

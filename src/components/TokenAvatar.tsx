@@ -1,6 +1,6 @@
 import { Erc20TokenDefinition } from "@/config/types";
 import { FC, useState } from "react";
-import { getSymbolByTokenId } from "@/utils/tokens";
+import { getSymbolByTokenId } from "@utils/tokens";
 import { motion, Variants } from "framer-motion";
 
 const avatarVariants: Variants = {

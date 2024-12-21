@@ -5,10 +5,10 @@ import { TokenSelectProps } from "./TokenSelect";
 import { Text } from "./Typography";
 import Decimal from "decimal.js";
 import SmallLoader from "./SmallLoader";
-import useDebounce from "@/hooks/useDebounce";
-import useTokenPrice from "@/hooks/useTokenPrice";
-import { calculateEstimateInUsd } from "@/utils/amount";
-import { getErc20TokenDef } from "@/utils/tokens";
+import useDebounce from "@hooks/useDebounce";
+import useTokenPrice from "@hooks/useTokenPrice";
+import { calculateEstimateInUsd } from "@utils/amount";
+import { getErc20TokenDef } from "@utils/tokens";
 
 export type AmountInputProps = TokenSelectProps & {
   amount: string | null;
