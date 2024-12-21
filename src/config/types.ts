@@ -7,6 +7,7 @@ export type Deposit = {
   depositId: bigint;
   tokenAddress: `0x${string}`;
   amount: BN;
+  initialPrice: BN;
   startTimestamp: number;
   unlockTimestamp: number;
 };

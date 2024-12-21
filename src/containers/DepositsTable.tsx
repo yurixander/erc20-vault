@@ -16,7 +16,9 @@ import {
   TableRow,
 } from "@/components/Table";
 import {
+  ColumnDef,
   PaginationState,
+  createColumnHelper,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
@@ -26,18 +28,25 @@ import {
 import React, { FC, useMemo, useState } from "react";
 import { TfiReload } from "react-icons/tfi";
 import { twMerge } from "tailwind-merge";
-import DEPOSIT_TABLE_COLUMNS, { COLUMNS_ID } from "./DepositTableColumns";
 import useDeposits from "../hooks/useDeposits";
 import TableStatus from "../components/TableStatus";
 import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
-import { convertBNToAmount } from "@/utils/amount";
+import { convertBNToAmount, convertUsdToBn } from "@/utils/amount";
 import { BN } from "bn.js";
 import useToast from "@/hooks/useToast";
 import { Deposit } from "@/config/types";
+import DepositTableSkeleton from "@/containers/DepositTableSkeleton";
+import { Heading } from "@/components/Typography";
+import { cn } from "@/lib/utils";
 import { getSymbolByTokenId, getTokenByAddress } from "@/utils/tokens";
+import CircularProgress from "@/components/CircularProgress";
+import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
+import UnlockDeposit from "@/components/UnlockDeposit";
+import useTokenPrice from "@/hooks/useTokenPrice";
+import DepositProfitGenerator from "@/components/DepositProfitGenerator";
 
 type DepositsTableProps = {
   className?: string;
@@ -45,8 +54,22 @@ type DepositsTableProps = {
 
 const PAGE_SIZE = 8;
 
+const columnHelper = createColumnHelper<Deposit>();
+
+const TOKEN_ICON_SIZE = 16;
+
+export const COLUMNS_ID = {
+  TOKEN: "tokenAddress",
+  AMOUNT: "amount",
+  PROFIT_OR_LESS: "profitOrLess",
+  UNLOCK_STATUS: "unlockStatus",
+  TIME_REMAINING: "timeRemaining",
+  DEPOSIT_ID: "depositId",
+};
+
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
+  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
   const { toast } = useToast();
   const { address } = useAccount();
 
@@ -69,11 +92,22 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         }
 
         const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
+        const priceOfToken = await getPriceByTokenId?.(tokenId);
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
           decimals,
         );
+
+        if (priceOfToken === undefined) {
+          toast({
+            title: "Deposit Price Error",
+            description: `No price available for ${amount} ${getSymbolByTokenId(tokenId)}`,
+            variant: "destructive",
+          });
+
+          continue;
+        }
 
         toast({
           title: "New deposit",
@@ -83,6 +117,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         setDeposits((prevDeposits) => {
           const newDeposit: Deposit = {
             amount: new BN(args.amount.toString()),
+            initialPrice: convertUsdToBn(priceOfToken),
             depositId: args.depositId,
             tokenAddress: args.tokenAddress,
             startTimestamp: Number(args.startTimestamp),
@@ -159,9 +194,93 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
     return deposits;
   }, [deposits]);
 
+  const columns: ColumnDef<Deposit, any>[] = useMemo(
+    () => [
+      columnHelper.accessor("tokenAddress", {
+        header: "Token",
+        cell: ({ row }) => {
+          const token = getTokenByAddress(row.original.tokenAddress);
+
+          return (
+            <div className="flex max-h-max items-center gap-2 font-medium">
+              <img
+                src={token.iconAssetPath}
+                alt={`Logo of ${token.name}`}
+                width={TOKEN_ICON_SIZE}
+                height={TOKEN_ICON_SIZE}
+              />
+
+              <span className="leading-tight">{token.name}</span>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor("amount", {
+        header: "Amount",
+        cell: ({ getValue, row }) =>
+          convertBNToAmount(
+            getValue(),
+            getTokenByAddress(row.original.tokenAddress).decimals,
+          ),
+      }),
+      columnHelper.display({
+        id: COLUMNS_ID.PROFIT_OR_LESS,
+        header: "Profit or Less",
+        cell: ({ row }) => (
+          <DepositProfitGenerator
+            initialPrice={row.original.initialPrice}
+            tokenAddress={row.original.tokenAddress}
+          />
+        ),
+      }),
+      columnHelper.accessor(
+        (row) => generateUnlockStatus(row.startTimestamp, row.unlockTimestamp),
+        {
+          id: COLUMNS_ID.UNLOCK_STATUS,
+          header: "Unlock Status",
+          cell: ({ getValue }) => {
+            return (
+              <div className="flex w-[90%] items-center gap-x-2 lg:w-auto">
+                <CircularProgress
+                  progress={getValue()}
+                  size={18}
+                  strokeWidth={3}
+                />
+
+                <span>{getValue()}%</span>
+              </div>
+            );
+          },
+        },
+      ),
+      columnHelper.display({
+        id: COLUMNS_ID.TIME_REMAINING,
+        header: "Time Remaining",
+        cell: ({ row }) => generateTimeRemaining(row.original.unlockTimestamp),
+      }),
+      columnHelper.accessor("depositId", {
+        header: "",
+        cell: ({ getValue, row }) => {
+          const isReadyToUnlock =
+            row.getValue(COLUMNS_ID.UNLOCK_STATUS) === 100;
+
+          return (
+            <UnlockDeposit
+              className="w-full"
+              tokenAddress={row.original.tokenAddress}
+              depositId={getValue()}
+              disabled={!isReadyToUnlock}
+            />
+          );
+        },
+      }),
+    ],
+    [],
+  );
+
   const table = useReactTable({
     data: rows,
-    columns: DEPOSIT_TABLE_COLUMNS,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -198,10 +317,8 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         description={error.message}
       />
     );
-  }
-  // TODO: Replace this with a container/table skeleton.
-  else if (isLoading) {
-    return <TableStatus title="Loading Deposits" description="..." />;
+  } else if (isLoading) {
+    return <DepositTableSkeleton />;
   } else if (rows.length === 0) {
     return (
       <TableStatus
@@ -213,43 +330,50 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
   return (
     <div className="mb-4 flex max-w-6xl flex-col justify-center gap-y-4">
-      <Table
-        className={twMerge("min-w-[640px] border md:min-w-full", className)}
-      >
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext(),
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
+      <Heading level="h5">
+        {address === undefined ? "Global Deposits" : "Your Deposits"}:
+      </Heading>
 
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  className={
-                    cell.column.id === COLUMNS_ID.DEPOSIT_ID
-                      ? "w-[100px]"
-                      : undefined
-                  }
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
+      <div className="overflow-auto">
+        <div className="min-w-[900px]">
+          <Table className={twMerge("border md:min-w-full", className)}>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows.map((row) => (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map(({ id, column, getContext }) => (
+                    <TableCell
+                      key={id}
+                      className={cn(
+                        column.id === COLUMNS_ID.DEPOSIT_ID && "w-[100px]",
+                        column.id === COLUMNS_ID.DEPOSIT_ID &&
+                          address === undefined &&
+                          "[&>button]:pointer-events-none [&>button]:opacity-50",
+                      )}
+                    >
+                      {flexRender(column.columnDef.cell, getContext())}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
 
       <div className="flex">
         <Pagination>
