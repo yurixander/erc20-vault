@@ -301,6 +301,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
     return (
       <TableStatus
         title="Unable to Fetch Deposits"
+        // TODO: Handle any error to custom error and display error in console.
         description={error.message}
       />
     );

@@ -87,6 +87,7 @@ const DisplayTvl: FC = () => {
 
     fetchTvl(prices)
       .then(setTvl)
+      // TODO: Handle any error to custom error and display error in console.
       .catch((e: Error) => setTvl(e))
       .finally(() => setIsLoading(false));
   }, [fetchTvl, getAllPrices]);
