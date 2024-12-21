@@ -46,6 +46,7 @@ import CircularProgress from "@/components/CircularProgress";
 import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
 import UnlockDeposit from "@/components/UnlockDeposit";
 import DepositProfitGenerator from "@/components/DepositProfitGenerator";
+import TokenAvatar from "@/components/TokenAvatar";
 
 type DepositsTableProps = {
   className?: string;
@@ -54,8 +55,6 @@ type DepositsTableProps = {
 const PAGE_SIZE = 8;
 
 const columnHelper = createColumnHelper<Deposit>();
-
-const TOKEN_ICON_SIZE = 16;
 
 export const COLUMNS_ID = {
   TOKEN: "tokenAddress",
@@ -190,12 +189,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
           return (
             <div className="flex max-h-max items-center gap-2 font-medium">
-              <img
-                src={token.iconAssetPath}
-                alt={`Logo of ${token.name}`}
-                width={TOKEN_ICON_SIZE}
-                height={TOKEN_ICON_SIZE}
-              />
+              <TokenAvatar tokenDef={token} />
 
               <span className="leading-tight">{token.name}</span>
             </div>

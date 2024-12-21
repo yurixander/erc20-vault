@@ -44,7 +44,7 @@ export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   isTestToken: true,
   address: TEST_TOKEN_SEPOLIA_ADDRESS,
   decimals: 18,
-  iconAssetPath: AssetPath.LINK,
+  iconAssetPath: AssetPath.MTK,
   coingeckoId: CoingekoId.MTK,
 };
 
