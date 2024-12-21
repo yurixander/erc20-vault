@@ -64,8 +64,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Tag = asChild ? Slot : "button";
 
     return (
-      <motion.button className="w-max">
-      <motion.button layout transition={{ duration: 0.25 }}>
+      <motion.div className="w-max">
+      <motion.button layout transition={{ duration: 0.2 }}>
         <Tag
           ref={ref}
           disabled={isLoading || props.disabled}
@@ -86,7 +86,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           )}
         </Tag>
       </motion.button>
-      </motion.button>
+      </motion.div>
     );
   }
 );
