@@ -8,7 +8,7 @@ const ButtonSwitchTheme: FC = () => {
   const { toggleTheme, theme } = useTheme();
 
   return (
-    <Button onClick={toggleTheme} className="size-8">
+    <Button onClick={toggleTheme} variant="ghost" size="icon">
       <Icon>{theme === "dark" ? <IoIosSunny /> : <IoIosMoon />}</Icon>
     </Button>
   );
