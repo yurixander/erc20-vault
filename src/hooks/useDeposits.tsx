@@ -17,9 +17,18 @@ const useDeposits = () => {
   const { toast } = useToast();
 
   const fetchDeposits = useCallback(async () => {
-    // TODO: If no account is connected, fetch all deposits from all users instead.
     if (address === undefined) {
-      throw new Error("No account connected");
+      const allRawDeposits = await readOnce({
+        address: VAULT_CONTRACT_ADDRESS,
+        functionName: "getAllDeposits",
+        args: [],
+      });
+
+      if (allRawDeposits instanceof Error) {
+        throw allRawDeposits;
+      }
+
+      return getAvailableDeposits(allRawDeposits);
     }
 
     const rawDeposits = await readOnce({
@@ -32,23 +41,7 @@ const useDeposits = () => {
       throw rawDeposits;
     }
 
-    const availableDeposits: Deposit[] = [];
-
-    for (const rawDeposit of rawDeposits) {
-      if (rawDeposit.withdrawn) {
-        continue;
-      }
-
-      availableDeposits.push({
-        amount: new BN(rawDeposit.amount.toString()),
-        depositId: rawDeposit.depositId,
-        tokenAddress: rawDeposit.tokenAddress,
-        startTimestamp: Number(rawDeposit.startTimestamp),
-        unlockTimestamp: Number(rawDeposit.unlockTimestamp),
-      });
-    }
-
-    return availableDeposits;
+    return getAvailableDeposits(rawDeposits);
   }, [readOnce, address]);
 
   const refresh = useCallback(() => {
@@ -81,5 +74,37 @@ const useDeposits = () => {
 
   return { isLoading, error, deposits, refresh, setDeposits };
 };
+
+type RawDeposits = readonly {
+  depositId: bigint;
+  tokenAddress: `0x${string}`;
+  owner: `0x${string}`;
+  priceInUsd: bigint;
+  amount: bigint;
+  startTimestamp: bigint;
+  unlockTimestamp: bigint;
+  withdrawn: boolean;
+}[];
+
+function getAvailableDeposits(rawDeposits: RawDeposits): Deposit[] {
+  const availableDeposits: Deposit[] = [];
+
+  for (const rawDeposit of rawDeposits) {
+    if (rawDeposit.withdrawn) {
+      continue;
+    }
+
+    availableDeposits.push({
+      amount: new BN(rawDeposit.amount.toString()),
+      initialPrice: new BN(rawDeposit.priceInUsd.toString()),
+      depositId: rawDeposit.depositId,
+      tokenAddress: rawDeposit.tokenAddress,
+      startTimestamp: Number(rawDeposit.startTimestamp),
+      unlockTimestamp: Number(rawDeposit.unlockTimestamp),
+    });
+  }
+
+  return availableDeposits;
+}
 
 export default useDeposits;

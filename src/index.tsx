@@ -2,7 +2,6 @@
 import "./styles/globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
-import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import App from "@/containers/App";
@@ -17,15 +16,13 @@ if (root === null) {
 }
 
 createRoot(root).render(
-  <StrictMode>
-    <Providers>
-      <BrowserRouter>
-        <Routes>
-          <Route index element={<App />} />
+  <Providers>
+    <BrowserRouter>
+      <Routes>
+        <Route index element={<App />} />
 
-          <Route path={AppRoute.Dev} element={<DevPreview />} />
-        </Routes>
-      </BrowserRouter>
-    </Providers>
-  </StrictMode>
+        <Route path={AppRoute.Dev} element={<DevPreview />} />
+      </Routes>
+    </BrowserRouter>
+  </Providers>,
 );
