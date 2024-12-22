@@ -47,7 +47,7 @@ const Calendar: FC<CalendarProps> = ({ className, selected, onSelect }) => {
         ),
         range_start: "day-range-start",
         selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-lg",
         today: "bg-accent text-accent-foreground",
         outside:
           "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
