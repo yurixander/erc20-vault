@@ -1,7 +1,7 @@
 import { differenceInSeconds, formatDistanceToNow } from "date-fns";
 
 export function generateTimeRemaining(unlockTimestamp: number): string {
-  if (Date.now() >= unlockTimestamp) {
+  if (Date.now() >= unlockTimestamp * 1000) {
     return "Ready to unlock";
   }
 
