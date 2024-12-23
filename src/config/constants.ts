@@ -1,32 +1,37 @@
-import { http } from "viem";
 import {
   AssetPath,
   CoingekoId,
   Erc20TokenDefinition,
   Erc20TokenId,
 } from "./types";
-import { EnvKey, requireEnvVariable } from "./env";
+import { createPublicClient, webSocket } from "viem";
+import { sepolia } from "viem/chains";
+
+export enum LocalStorageKeys {
+  CachedPrices = "cached_prices_storage_key",
+}
 
 export enum AppRoute {
   App = "/",
   Dev = "/dev",
 }
 
+export enum WebSocketsUrl {
+  Sepolia = "https://rpc.ankr.com/eth_sepolia",
+  Mainnet = "https://rpc.ankr.com/eth",
+}
+
+// TODO: In production change sepolia for mainnet.
+export const mainnetPublicClient = createPublicClient({
+  chain: sepolia,
+  transport: webSocket(WebSocketsUrl.Sepolia),
+});
+
 export const VAULT_CONTRACT_ADDRESS =
-  "0x59214D25e56c11CB0A7dBAB8C93a52a011761e3d";
+  "0xb85a341671cf6DEFdaf781960ef66D03A93f6791";
 
 export const TEST_TOKEN_SEPOLIA_ADDRESS =
   "0xcAC8935Fa8253575CAF0F63eA45A61a9E352A2ae";
-
-export const SEPOLIA_CHAIN_ID = 11155111;
-
-export const SEPOLIA_ALCHEMY_TRANSPORT = http(
-  `https://eth-sepolia.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}`,
-);
-
-export const MAINNET_ALCHEMY_TRANSPORT = http(`
-  https://eth-mainnet.g.alchemy.com/v2/${requireEnvVariable(EnvKey.AlchemyKey)}
-  `);
 
 export const MAINNET_TOKENS = Object.values(Erc20TokenId).filter(
   (t) => t !== Erc20TokenId.MTK,
@@ -39,7 +44,7 @@ export const TEST_TOKEN_SEPOLIA: Erc20TokenDefinition = {
   isTestToken: true,
   address: TEST_TOKEN_SEPOLIA_ADDRESS,
   decimals: 18,
-  iconAssetPath: AssetPath.LINK,
+  iconAssetPath: AssetPath.MTK,
   coingeckoId: CoingekoId.MTK,
 };
 

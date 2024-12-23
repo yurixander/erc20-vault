@@ -62,5 +62,5 @@
 }
 
 body {
-  @apply bg-background text-foreground font-sans;
+  @apply dark:bg-neutral-950 text-foreground font-sans;
 }

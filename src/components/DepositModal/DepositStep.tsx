@@ -1,12 +1,12 @@
 import { FC, useCallback, useEffect, useState } from "react";
 import { ApprovalData } from "./DepositModal";
-import useTokenPrice from "@/hooks/useTokenPrice";
-import { getErc20TokenDef } from "@/utils/tokens";
+import useTokenPrice from "@hooks/useTokenPrice";
+import { getErc20TokenDef } from "@utils/tokens";
 import {
   calculateEstimateInUsd,
   convertBNToAmount,
   convertUsdToBn,
-} from "@/utils/amount";
+} from "@utils/amount";
 import Decimal from "decimal.js";
 import {
   DialogDescription,
@@ -20,12 +20,13 @@ import LegendWrapper from "@components/LegendWrapper";
 import DatePicker from "@components/DatePicker";
 import Button from "@components/Button";
 import { useWriteContract } from "wagmi";
-import useToast from "@/hooks/useToast";
+import useToast from "@hooks/useToast";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { getUnixTime } from "date-fns/getUnixTime";
 import { WriteContractErrorType } from "wagmi/actions";
 import { ContractFunctionExecutionError } from "viem";
+import { fetchErc20TokenPrice } from "@/store/useTokenPriceStore";
 
 type DepositDetail = {
   displayAmount: string;
@@ -44,7 +45,7 @@ const DepositStep: FC<DepositStepProps> = ({
   token,
   onDepositAccepted,
 }) => {
-  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getPriceByTokenId } = useTokenPrice();
   const { writeContract, isPending } = useWriteContract();
   const { toast } = useToast();
   const [unlockTimestamp, setUnlockTimestamp] = useState<number | null>(null);
@@ -53,10 +54,13 @@ const DepositStep: FC<DepositStepProps> = ({
   const generateDepositDetail = useCallback(async () => {
     const { isTestToken, decimals } = getErc20TokenDef(token);
     const displayAmount = convertBNToAmount(amount, decimals);
-    const priceOfToken = isTestToken ? 0 : await getPriceByTokenId?.(token);
+
+    const priceOfToken = isTestToken
+      ? 0
+      : (getPriceByTokenId?.(token) ?? (await fetchErc20TokenPrice(token)));
 
     const price =
-      priceOfToken === undefined
+      priceOfToken === null
         ? "Price unavailable."
         : calculateEstimateInUsd(new Decimal(displayAmount), priceOfToken);
 
@@ -98,7 +102,21 @@ const DepositStep: FC<DepositStepProps> = ({
     const { address, isTestToken } = getErc20TokenDef(token);
 
     try {
-      const price = isTestToken === true ? 0 : await getPriceByTokenId(token);
+      const price =
+        isTestToken === true
+          ? 0
+          : (getPriceByTokenId(token) ?? (await fetchErc20TokenPrice(token)));
+
+      if (price === null) {
+        toast({
+          title: "Price Unavailable",
+          description: "Please try again later.",
+          variant: "destructive",
+        });
+
+        return;
+      }
+
       const priceInBn = convertUsdToBn(price);
 
       writeContract(

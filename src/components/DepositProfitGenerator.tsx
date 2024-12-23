@@ -1,12 +1,11 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 import { FC, useEffect, useState } from "react";
 import { IoMdTrendingUp, IoMdTrendingDown, IoMdLocate } from "react-icons/io";
 import BN from "bn.js";
-import useTokenPrice from "@/hooks/useTokenPrice";
-import { MAINNET_TOKENS } from "@/config/constants";
+import useTokenPrice from "@hooks/useTokenPrice";
 import { Address } from "viem";
-import { getTokenByAddress } from "@/utils/tokens";
-import { calculateProfitInUsd } from "@/utils/amount";
+import { getTokenByAddress } from "@utils/tokens";
+import { calculateProfitInUsd } from "@utils/amount";
 import { motion, AnimatePresence } from "framer-motion";
 
 const DepositProfitGenerator: FC<{
@@ -16,7 +15,7 @@ const DepositProfitGenerator: FC<{
 }> = ({ initialPrice, tokenAddress }) => {
   const [percentage, setPercentage] = useState<number | null>(null);
   const [loading, setIsLoading] = useState(false);
-  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getPriceByTokenId } = useTokenPrice();
 
   useEffect(() => {
     if (getPriceByTokenId === null) {
@@ -33,16 +32,16 @@ const DepositProfitGenerator: FC<{
 
     setIsLoading(true);
 
-    const timer = setTimeout(() => {
-      getPriceByTokenId(tokenId)
-        .finally(() => setIsLoading(false))
-        .then((currentPrice) =>
-          setPercentage(calculateProfitInUsd(initialPrice, currentPrice)),
-        )
-        .catch(() => setPercentage(null));
-    }, 5000);
+    const currentPrice = getPriceByTokenId?.(tokenId) ?? null;
+    if (currentPrice === null) {
+      setPercentage(null);
+      setIsLoading(false);
 
-    return () => clearTimeout(timer);
+      return;
+    }
+
+    setPercentage(calculateProfitInUsd(initialPrice, currentPrice));
+    setIsLoading(false);
   }, [tokenAddress, getPriceByTokenId, initialPrice]);
 
   return (

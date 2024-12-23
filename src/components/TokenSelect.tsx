@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./Select";
-import { getSymbolByTokenId } from "@/utils/tokens";
+import { getSymbolByTokenId } from "@utils/tokens";
 
 export type TokenSelectProps = {
   tokenId: Erc20TokenId | null;

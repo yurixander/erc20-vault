@@ -2,12 +2,13 @@ import { FC, useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Heading } from "./Typography";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
-import useContractReadOnce from "@/hooks/useContractRead";
-import useTokenPrice from "@/hooks/useTokenPrice";
+import {
+  mainnetPublicClient,
+  VAULT_CONTRACT_ADDRESS,
+} from "@/config/constants";
+import useTokenPrice, { PricesUnavailableError } from "@hooks/useTokenPrice";
 import BN from "bn.js";
-import { Erc20TokenDefinition } from "@/config/types";
-import { convertBNToAmount } from "@/utils/amount";
+import { convertBNToAmount } from "@utils/amount";
 import Decimal from "decimal.js";
 import {
   Tooltip,
@@ -16,33 +17,29 @@ import {
   TooltipTrigger,
 } from "./Tooltip";
 import { IoIosInformationCircle } from "react-icons/io";
-import { getTokenByAddress } from "@/utils/tokens";
-
-class PricesUnavailableError extends Error {
-  message = "No prices available.";
-}
+import { getTokenByAddress } from "@utils/tokens";
+import { ERC20TokenPrices } from "@/config/types";
 
 const DisplayTvl: FC = () => {
   const [loading, setIsLoading] = useState(true);
   const [tvl, setTvl] = useState<number | null | Error>(null);
-  const readOnce = useContractReadOnce(VAULT_ABI);
-  const { getAllPrices, getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
+  const { getAllPrices } = useTokenPrice();
 
-  const fetchTvl = useCallback(async () => {
-    const allDeposits = await readOnce({
+  const fetchTvl = useCallback(async (prices: ERC20TokenPrices) => {
+    const allDeposits = await mainnetPublicClient.readContract({
+      abi: VAULT_ABI,
       address: VAULT_CONTRACT_ADDRESS,
       functionName: "getAllDeposits",
-      args: [],
     });
 
     if (allDeposits instanceof Error) {
       throw allDeposits;
     }
 
-    const prices = await getAllPrices?.();
-
-    if (prices === null || prices === undefined) {
+    if (prices === undefined) {
       throw new PricesUnavailableError();
+    } else if (prices instanceof PricesUnavailableError) {
+      throw prices;
     }
 
     const tvl = new BN(0);
@@ -52,34 +49,57 @@ const DisplayTvl: FC = () => {
         continue;
       }
 
-      const tokenDef = getTokenByAddress(deposit.tokenAddress);
+      const { tokenId, decimals, isTestToken } = getTokenByAddress(
+        deposit.tokenAddress,
+      );
 
-      const priceOfToken =
-        prices[tokenDef.tokenId] ??
-        (await getPriceByTokenId?.(tokenDef.tokenId));
+      const priceOfToken = isTestToken === true ? 0 : (prices[tokenId] ?? null);
 
-      if (priceOfToken === undefined) {
+      if (priceOfToken === null) {
         throw new PricesUnavailableError();
       }
 
       const depositPrice = priceOfDeposit(
         deposit.amount,
         priceOfToken,
-        tokenDef,
+        decimals,
       );
 
       tvl.add(depositPrice);
     }
 
     return tvl.toNumber();
-  }, [readOnce, getAllPrices, getPriceByTokenId]);
+  }, []);
 
   useEffect(() => {
-    fetchTvl()
+    const prices = getAllPrices?.();
+
+    if (prices === null || prices === undefined) {
+      return;
+    }
+
+    if (prices instanceof Error) {
+      setIsLoading(false);
+      setTvl(prices);
+
+      return;
+    }
+
+    fetchTvl(prices)
       .then(setTvl)
-      .catch((e: Error) => setTvl(e))
+      .catch((e: Error) => {
+        if (e instanceof PricesUnavailableError) {
+          setTvl(e);
+        } else {
+          console.error(e);
+
+          setTvl(
+            new Error("Unexpected error occurred, check your connection."),
+          );
+        }
+      })
       .finally(() => setIsLoading(false));
-  }, [fetchTvl]);
+  }, [fetchTvl, getAllPrices]);
 
   return (
     <div className="flex flex-col">
@@ -137,7 +157,7 @@ const DisplayTvl: FC = () => {
             transition={{ duration: 0.5 }}
             className="flex items-center text-blue-50"
           >
-            Error: {tvl?.message ?? "No TVL found"}
+            {tvl?.message ?? "No TVL found"}
           </motion.div>
         ) : (
           <motion.div
@@ -168,7 +188,7 @@ const DisplayTvl: FC = () => {
 function priceOfDeposit(
   rawAmount: bigint,
   priceOfToken: number,
-  { decimals }: Erc20TokenDefinition,
+  decimals: number,
 ): BN {
   const amount = convertBNToAmount(new BN(rawAmount.toString()), decimals);
   const result = new Decimal(amount);

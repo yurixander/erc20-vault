@@ -1,6 +1,6 @@
 import { type VariantProps, cva } from "class-variance-authority";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 import { forwardRef } from "react";
 
 const VARIANTS = cva(
@@ -16,7 +16,7 @@ const VARIANTS = cva(
     defaultVariants: {
       variant: "default",
     },
-  }
+  },
 );
 
 const Alert = forwardRef<

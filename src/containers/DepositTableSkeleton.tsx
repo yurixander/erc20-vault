@@ -7,7 +7,7 @@ import {
   TableBody,
   TableCell,
 } from "../components/Table";
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 
 const DepositTableSkeleton: FC = () => {
   return (

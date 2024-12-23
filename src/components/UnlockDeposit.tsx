@@ -1,6 +1,6 @@
 import VAULT_ABI from "@/abi/vaultAbi";
 import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
-import useToast from "@/hooks/useToast";
+import useToast from "@hooks/useToast";
 import { FC, useCallback, useState } from "react";
 import { useWatchContractEvent, useWriteContract } from "wagmi";
 import Button from "./Button";
@@ -48,7 +48,7 @@ const UnlockDeposit: FC<UnlockDepositProps> = ({
           setIsUnlocking(true);
 
           toast({
-            title: "The withdrawal has been processed.",
+            title: "Transaction in block.",
             description: "Your deposit has been unlocked.",
           });
         },
