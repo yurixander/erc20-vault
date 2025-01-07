@@ -44,18 +44,18 @@ export enum CoingekoId {
 }
 
 export enum AssetPath {
-  USDC = "icons/usdc.svg",
-  USDT = "icons/usdt.svg",
-  DAI = "icons/dai.svg",
-  LINK = "icons/link.svg",
-  PEPE = "icons/pepe.webp",
-  SHIB = "icons/shib.svg",
-  BNB = "icons/bnb.svg",
-  UNI = "icons/uni.svg",
-  ARB = "icons/arb.svg",
-  WBTC = "icons/wbtc.svg",
+  USDC = "https://cryptologos.cc/logos/usd-coin-usdc-logo.svg?v=040",
+  USDT = "https://cryptologos.cc/logos/tether-usdt-logo.svg?v=040",
+  DAI = "https://cryptologos.cc/logos/multi-collateral-dai-dai-logo.svg?v=040",
+  LINK = "https://cryptologos.cc/logos/chainlink-link-logo.svg?v=040",
+  PEPE = "https://cryptologos.cc/logos/pepe-pepe-logo.png?v=040",
+  SHIB = "https://cryptologos.cc/logos/shiba-inu-shib-logo.png?v=040",
+  BNB = "https://cryptologos.cc/logos/bnb-bnb-logo.png?v=040",
+  UNI = "https://cryptologos.cc/logos/uniswap-uni-logo.png?v=040",
+  ARB = "https://cryptologos.cc/logos/arbitrum-arb-logo.png?v=040",
+  WBTC = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/wrapped-bitcoin-wbtc-icon.svg",
   // Test icon.
-  MTK = "icons/usdc.svg",
+  MTK = "",
 }
 
 export type Erc20TokenDefinition = {

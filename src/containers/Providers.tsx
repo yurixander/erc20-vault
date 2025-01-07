@@ -1,21 +1,19 @@
 import { Toaster } from "@/components/Toast";
-import {
-  MAINNET_ALCHEMY_TRANSPORT,
-  SEPOLIA_ALCHEMY_TRANSPORT,
-} from "@/config/constants";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { FC, ReactNode } from "react";
 import { mainnet, sepolia } from "viem/chains";
 import { WagmiProvider } from "wagmi";
+import { webSocket } from "@wagmi/core";
+import { WebSocketsUrl } from "@/config/constants";
 
 export const wagmiConfig = getDefaultConfig({
   appName: "ERC20 Vault",
   projectId: "0c145e73f74608526249fa5c8ab223a0",
   chains: [mainnet, sepolia],
   transports: {
-    [sepolia.id]: SEPOLIA_ALCHEMY_TRANSPORT,
-    [mainnet.id]: MAINNET_ALCHEMY_TRANSPORT,
+    [sepolia.id]: webSocket(WebSocketsUrl.Sepolia),
+    [mainnet.id]: webSocket(WebSocketsUrl.Mainnet),
   },
 });
 
