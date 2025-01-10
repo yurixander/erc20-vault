@@ -7,6 +7,7 @@ import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Heading } from "./Typography";
+import SwitchTheme from "./SwitchTheme";
 
 const NETWORK_ICON_SIZE = 24;
 
@@ -80,7 +81,7 @@ const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
       className={cn(
         "select-none ",
         className,
-        buttonVariants({ variant: "ghost" }),
+        buttonVariants({ variant: "ghost" })
       )}
     >
       {children}

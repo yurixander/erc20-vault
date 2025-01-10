@@ -6,6 +6,7 @@ import DepositModal from "@/components/DepositModal/DepositModal";
 import { useAccount } from "wagmi";
 import Button from "@/components/Button";
 import { FiPlusCircle } from "react-icons/fi";
+import SwitchTheme from "@/components/SwitchTheme";
 
 const App: FC = () => {
   const { isConnected } = useAccount();
@@ -25,13 +26,18 @@ const App: FC = () => {
         </header>
 
         <main className="z-0 flex size-full grow basis-0 flex-col gap-8 p-5">
-          <DepositModal>
-            <Button disabled={!isConnected} className="w-max">
-              <FiPlusCircle />
+          <div className="flex w-full">
+            <DepositModal>
+              <Button disabled={!isConnected} className="w-max">
+                <FiPlusCircle />
 
-              <span>Create a new deposit</span>
-            </Button>
-          </DepositModal>
+                <span>Create a new deposit</span>
+              </Button>
+            </DepositModal>
+            <div className="w-full text-right">
+              <SwitchTheme />
+            </div>
+          </div>
 
           <DepositsTable />
         </main>
