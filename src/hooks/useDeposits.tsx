@@ -2,11 +2,15 @@ import BN from "bn.js";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import VAULT_ABI from "../abi/vaultAbi";
-import { VAULT_CONTRACT_ADDRESS } from "../config/constants";
+import {
+  mainnetPublicClient,
+  VAULT_CONTRACT_ADDRESS,
+} from "../config/constants";
 import { Deposit } from "../config/types";
 import useContractReadOnce from "./useContractRead";
 import { ToastAction } from "../components/Toast";
 import useToast from "./useToast";
+import { debugVaultContractError } from "@utils/errors";
 
 const useDeposits = () => {
   const { address } = useAccount();
@@ -18,10 +22,10 @@ const useDeposits = () => {
 
   const fetchDeposits = useCallback(async () => {
     if (address === undefined) {
-      const allRawDeposits = await readOnce({
+      const allRawDeposits = await mainnetPublicClient.readContract({
+        abi: VAULT_ABI,
         address: VAULT_CONTRACT_ADDRESS,
         functionName: "getAllDeposits",
-        args: [],
       });
 
       if (allRawDeposits instanceof Error) {
@@ -52,11 +56,12 @@ const useDeposits = () => {
       .then(setDeposits)
       .finally(() => setIsLoading(false))
       .catch((error) => {
-        setError(error);
+        const safeError = debugVaultContractError(error);
+        setError(safeError);
 
         toast({
-          title: "Unable to Fetch Deposits",
-          description: error.message,
+          title: "Fetch Deposits Error",
+          description: "Please try again.",
           variant: "destructive",
           action: (
             <ToastAction altText="Reload deposits" onClick={refresh}>

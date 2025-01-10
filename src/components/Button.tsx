@@ -2,10 +2,9 @@ import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 import { ReactNode } from "react";
 import { FiLoader } from "react-icons/fi";
-import { motion } from "framer-motion";
 
 export const buttonVariants = cva(
   "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
@@ -34,7 +33,7 @@ export const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 export interface ButtonProps
@@ -59,36 +58,32 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       ...props
     },
-    ref
+    ref,
   ) => {
     const Tag = asChild ? Slot : "button";
 
+    // TODO: Make it so that the width between loading and default state changes smoothly instead of jumping, likely using Framer Motion.
     return (
-      <motion.div className="w-max">
-      <motion.button layout transition={{ duration: 0.2 }}>
-        <Tag
-          ref={ref}
-          disabled={isLoading || props.disabled}
-          style={isLoading ? {opacity: "0.9"} : {}}
-          className={cn(
-            "space-x-2 flex items-center justify-center gap-2",
-            buttonVariants({ variant, size, className }),
-            isLoading && "animate-pulse"
-          )}
-          {...props}
-        >
-          {isLoading && <FiLoader className="size-4 animate-spin" />}
+      <Tag
+        ref={ref}
+        disabled={isLoading || props.disabled}
+        className={cn(
+          "space-x-2",
+          buttonVariants({ variant, size, className }),
+          isLoading && "animate-pulse",
+        )}
+        {...props}
+      >
+        {isLoading && <FiLoader className="size-4 animate-spin" />}
 
-          {isLoading ? loadingText : children}
+        {isLoading ? loadingText : children}
 
-          {!isLoading && rightIcon !== undefined && (
-            <div className="ml-2">{rightIcon}</div>
-          )}
-        </Tag>
-      </motion.button>
-      </motion.div>
+        {!isLoading && rightIcon !== undefined && (
+          <div className="ml-2">{rightIcon}</div>
+        )}
+      </Tag>
     );
-  }
+  },
 );
 
 Button.displayName = "Button";

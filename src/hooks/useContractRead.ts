@@ -6,12 +6,12 @@ import {
   Abi as ViemAbi,
 } from "viem";
 import { readContract, ReadContractReturnType } from "wagmi/actions";
-import ensureError from "../utils/ensureError";
+import { ensureError } from "../utils/errors";
 import { wagmiConfig } from "@/containers/Providers";
 
 export type ContractReadOptions<
   Abi extends ViemAbi,
-  FunctionName extends ContractFunctionName<Abi, "pure" | "view">
+  FunctionName extends ContractFunctionName<Abi, "pure" | "view">,
 > = {
   address: Address;
   functionName: FunctionName;
@@ -44,13 +44,13 @@ const useContractReadOnce = <Abi extends ViemAbi>(abi: Abi) => {
 
         console.error(
           `Error reading contract ${address} function ${functionName}:`,
-          error
+          error,
         );
 
         return error;
       }
     },
-    [abi]
+    [abi],
   );
 
   return read;

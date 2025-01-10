@@ -32,21 +32,21 @@ import useDeposits from "../hooks/useDeposits";
 import TableStatus from "../components/TableStatus";
 import { useAccount, useWatchContractEvent } from "wagmi";
 import VAULT_ABI from "@/abi/vaultAbi";
-import { MAINNET_TOKENS, VAULT_CONTRACT_ADDRESS } from "@/config/constants";
+import { VAULT_CONTRACT_ADDRESS } from "@/config/constants";
 import { decodeEventLog } from "viem";
-import { convertBNToAmount, convertUsdToBn } from "@/utils/amount";
+import { convertBNToAmount } from "@utils/amount";
 import { BN } from "bn.js";
-import useToast from "@/hooks/useToast";
+import useToast from "@hooks/useToast";
 import { Deposit } from "@/config/types";
 import DepositTableSkeleton from "@/containers/DepositTableSkeleton";
 import { Heading } from "@/components/Typography";
-import { cn } from "@/lib/utils";
-import { getSymbolByTokenId, getTokenByAddress } from "@/utils/tokens";
+import { cn } from "@utils/utils";
+import { getSymbolByTokenId, getTokenByAddress } from "@utils/tokens";
 import CircularProgress from "@/components/CircularProgress";
-import { generateTimeRemaining, generateUnlockStatus } from "@/utils/time";
+import { generateTimeRemaining, generateUnlockStatus } from "@utils/time";
 import UnlockDeposit from "@/components/UnlockDeposit";
-import useTokenPrice from "@/hooks/useTokenPrice";
 import DepositProfitGenerator from "@/components/DepositProfitGenerator";
+import TokenAvatar from "@/components/TokenAvatar";
 
 type DepositsTableProps = {
   className?: string;
@@ -55,8 +55,6 @@ type DepositsTableProps = {
 const PAGE_SIZE = 8;
 
 const columnHelper = createColumnHelper<Deposit>();
-
-const TOKEN_ICON_SIZE = 16;
 
 export const COLUMNS_ID = {
   TOKEN: "tokenAddress",
@@ -69,7 +67,6 @@ export const COLUMNS_ID = {
 
 const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
   const { deposits, isLoading, error, refresh, setDeposits } = useDeposits();
-  const { getPriceByTokenId } = useTokenPrice(MAINNET_TOKENS);
   const { toast } = useToast();
   const { address } = useAccount();
 
@@ -92,22 +89,11 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         }
 
         const { tokenId, decimals } = getTokenByAddress(args.tokenAddress);
-        const priceOfToken = await getPriceByTokenId?.(tokenId);
 
         const amount = convertBNToAmount(
           new BN(args.amount.toString()),
           decimals,
         );
-
-        if (priceOfToken === undefined) {
-          toast({
-            title: "Deposit Price Error",
-            description: `No price available for ${amount} ${getSymbolByTokenId(tokenId)}`,
-            variant: "destructive",
-          });
-
-          continue;
-        }
 
         toast({
           title: "New deposit",
@@ -117,7 +103,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
         setDeposits((prevDeposits) => {
           const newDeposit: Deposit = {
             amount: new BN(args.amount.toString()),
-            initialPrice: convertUsdToBn(priceOfToken),
+            initialPrice: new BN(args.priceInUsd.toString()),
             depositId: args.depositId,
             tokenAddress: args.tokenAddress,
             startTimestamp: Number(args.startTimestamp),
@@ -203,12 +189,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
 
           return (
             <div className="flex max-h-max items-center gap-2 font-medium">
-              <img
-                src={token.iconAssetPath}
-                alt={`Logo of ${token.name}`}
-                width={TOKEN_ICON_SIZE}
-                height={TOKEN_ICON_SIZE}
-              />
+              <TokenAvatar tokenDef={token} />
 
               <span className="leading-tight">{token.name}</span>
             </div>
@@ -314,6 +295,7 @@ const DepositsTable: FC<DepositsTableProps> = ({ className }) => {
     return (
       <TableStatus
         title="Unable to Fetch Deposits"
+        // TODO: Handle any error to custom error and display error in console.
         description={error.message}
       />
     );

@@ -2,7 +2,7 @@ import { FC } from "react";
 import { FaGithub } from "react-icons/fa";
 import { buttonVariants } from "./Button";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@utils/utils";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
