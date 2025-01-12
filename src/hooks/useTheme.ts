@@ -2,12 +2,15 @@ import { useCallback, useEffect, useState } from "react";
 
 export const THEME_KEY = "theme_mode";
 
-const DARK_MODE = "dark";
-const LIGHT_MODE = "light";
+export enum ThemeMode {
+  Dark = "dark",
+  Light = "light",
+}
+
 const savedTheme = localStorage.getItem(THEME_KEY);
 
 const useTheme = () => {
-  const [theme, setTheme] = useState(savedTheme ?? LIGHT_MODE);
+  const [theme, setTheme] = useState(savedTheme ?? ThemeMode.Light);
 
   useEffect(() => {
     document.documentElement.className = theme;
@@ -15,7 +18,7 @@ const useTheme = () => {
   }, [theme]);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === DARK_MODE ? LIGHT_MODE : DARK_MODE);
+    setTheme(theme === ThemeMode.Dark ? ThemeMode.Light : ThemeMode.Dark);
   }, [theme]);
 
   return { toggleTheme, theme };
