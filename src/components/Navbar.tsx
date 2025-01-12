@@ -80,7 +80,7 @@ const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
       className={cn(
         "select-none ",
         className,
-        buttonVariants({ variant: "ghost" }),
+        buttonVariants({ variant: "ghost" })
       )}
     >
       {children}
