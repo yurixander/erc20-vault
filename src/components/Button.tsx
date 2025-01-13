@@ -1,7 +1,7 @@
 import { Slot } from "@radix-ui/react-slot";
 import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
-
+import { motion } from "framer-motion";
 import { cn } from "@utils/utils";
 import { ReactNode } from "react";
 import { FiLoader } from "react-icons/fi";
@@ -33,7 +33,7 @@ export const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  },
+  }
 );
 
 export interface ButtonProps
@@ -58,32 +58,34 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       rightIcon,
       ...props
     },
-    ref,
+    ref
   ) => {
     const Tag = asChild ? Slot : "button";
 
-    // TODO: Make it so that the width between loading and default state changes smoothly instead of jumping, likely using Framer Motion.
     return (
-      <Tag
-        ref={ref}
-        disabled={isLoading || props.disabled}
-        className={cn(
-          "space-x-2",
-          buttonVariants({ variant, size, className }),
-          isLoading && "animate-pulse",
-        )}
-        {...props}
-      >
-        {isLoading && <FiLoader className="size-4 animate-spin" />}
+      <motion.div layout transition={{ duration: 0.5 }}>
+        <Tag
+          ref={ref}
+          disabled={isLoading || props.disabled}
+          className={cn(
+            "space-x-2",
+            buttonVariants({ variant, size, className }),
+            isLoading && "animate-pulse"
+          )}
+          style={isLoading ? { opacity: 0.75 } : {}}
+          {...props}
+        >
+          {isLoading && <FiLoader className="size-4 animate-spin" />}
 
-        {isLoading ? loadingText : children}
+          {isLoading ? loadingText : children}
 
-        {!isLoading && rightIcon !== undefined && (
-          <div className="ml-2">{rightIcon}</div>
-        )}
-      </Tag>
+          {!isLoading && rightIcon !== undefined && (
+            <div className="ml-2">{rightIcon}</div>
+          )}
+        </Tag>
+      </motion.div>
     );
-  },
+  }
 );
 
 Button.displayName = "Button";
