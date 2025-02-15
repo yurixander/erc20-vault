@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { FaGithub } from "react-icons/fa";
 import { buttonVariants } from "./Button";
-
 import { cn } from "@utils/utils";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -18,7 +17,12 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        <div className="hidden sm:flex">
+        {/** 
+          Cambiamos la clase del div que contiene el LinkButton para que solo se muestre en la vista móvil.
+          Utilizamos "block md:hidden" para que el botón esté visible (block) en la vista móvil (hasta 767px)
+          y se oculte (hidden) en la vista de escritorio (768px y más). 
+        */}
+        <div className="block md:hidden">
           <LinkButton
             href="https://github.com/yurixander/erc20-vault"
             className="gap-x-1.5"
@@ -49,9 +53,7 @@ const Navbar: FC = () => {
                         />
                       </picture>
                     )}
-
                     {chain.name}
-
                     <ChevronDownIcon className="size-5" />
                   </button>
                 )}
@@ -80,7 +82,7 @@ const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
       className={cn(
         "select-none ",
         className,
-        buttonVariants({ variant: "ghost" })
+        buttonVariants({ variant: "ghost" }),
       )}
     >
       {children}

@@ -1,6 +1,8 @@
 import { cn } from "@utils/utils";
 import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
+import { FaGithub } from "react-icons/fa";
+import { buttonVariants } from "./Button";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -14,8 +16,37 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
       <div className="grow px-4 pt-4">
         <DisplayTvl />
       </div>
+      <div className="mt-auto p-4">
+        <LinkButton
+          href="https://github.com/yurixander/erc20-vault"
+          className="gap-x-1.5 flex items-center justify-center"
+        >
+          <FaGithub />
+          GitHub
+        </LinkButton>
+      </div>
     </div>
   );
 };
+type LinkButtonProps = {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+};
 
+const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      className={cn(
+        "select-none ",
+        className,
+        buttonVariants({ variant: "ghost" }),
+      )}
+    >
+      {children}
+    </a>
+  );
+};
 export default AppSidebar;
