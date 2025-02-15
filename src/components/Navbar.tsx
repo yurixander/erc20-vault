@@ -17,11 +17,6 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        {/** 
-          Cambiamos la clase del div que contiene el LinkButton para que solo se muestre en la vista móvil.
-          Utilizamos "block md:hidden" para que el botón esté visible (block) en la vista móvil (hasta 767px)
-          y se oculte (hidden) en la vista de escritorio (768px y más). 
-        */}
         <div className="block md:hidden">
           <LinkButton
             href="https://github.com/yurixander/erc20-vault"
