@@ -48,6 +48,7 @@ const Navbar: FC = () => {
                         />
                       </picture>
                     )}
+
                     {chain.name}
                     <ChevronDownIcon className="size-5" />
                   </button>
