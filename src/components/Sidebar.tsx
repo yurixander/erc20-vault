@@ -3,6 +3,7 @@ import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
 import { FaGithub } from "react-icons/fa";
 import { buttonVariants } from "./Button";
+import { Links } from "@utils/AppLinks";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -16,7 +17,7 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
       </div>
       <div className="mt-auto p-4">
         <LinkButton
-          href="https://github.com/yurixander/erc20-vault"
+          href={Links.GitHub}
           className="flex items-center justify-center gap-x-1.5"
         >
           <FaGithub />
