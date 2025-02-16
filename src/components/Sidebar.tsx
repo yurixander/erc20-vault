@@ -17,7 +17,7 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
       <div className="mt-auto p-4">
         <LinkButton
           href="https://github.com/yurixander/erc20-vault"
-          className="gap-x-1.5 flex items-center justify-center"
+          className="flex items-center justify-center gap-x-1.5"
         >
           <FaGithub />
           GitHub
