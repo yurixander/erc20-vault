@@ -2,8 +2,8 @@ import { cn } from "@utils/utils";
 import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
 import { FaGithub } from "react-icons/fa";
-import { buttonVariants } from "./Button";
 import { Links } from "@utils/AppLinks";
+import LinkButton from "./LinkButton";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -27,25 +27,5 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
     </div>
   );
 };
-type LinkButtonProps = {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-};
 
-const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      className={cn(
-        "select-none ",
-        className,
-        buttonVariants({ variant: "ghost" }),
-      )}
-    >
-      {children}
-    </a>
-  );
-};
 export default AppSidebar;
