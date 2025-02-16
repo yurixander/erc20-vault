@@ -6,6 +6,7 @@ import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Heading } from "./Typography";
+import { Links } from "@utils/AppLinks";
 
 const NETWORK_ICON_SIZE = 24;
 
@@ -18,10 +19,7 @@ const Navbar: FC = () => {
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex md:hidden">
-          <LinkButton
-            href="https://github.com/yurixander/erc20-vault"
-            className="gap-x-1.5"
-          >
+          <LinkButton href={Links.GitHub} className="gap-x-1.5">
             <FaGithub />
             GitHub
           </LinkButton>
