@@ -17,7 +17,7 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        <div className="block md:hidden">
+        <div className="flex md:hidden">
           <LinkButton
             href="https://github.com/yurixander/erc20-vault"
             className="gap-x-1.5"
