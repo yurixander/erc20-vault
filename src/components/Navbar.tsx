@@ -6,7 +6,7 @@ import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Heading } from "./Typography";
-import { Links } from "@utils/AppLinks";
+import { Links } from "@utils/utils";
 
 const NETWORK_ICON_SIZE = 24;
 

@@ -2,7 +2,7 @@ import { cn } from "@utils/utils";
 import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
 import { FaGithub } from "react-icons/fa";
-import { Links } from "@utils/AppLinks";
+import { Links } from "@utils/utils";
 import LinkButton from "./LinkButton";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
