@@ -2,8 +2,8 @@ import { cn } from "@utils/utils";
 import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
 import { FaGithub } from "react-icons/fa";
-import { Links } from "@utils/utils";
-import LinkButton from "./LinkButton";
+import { ExternalLinks } from "@utils/utils";
+import ExternalLink from "./ExternalLink";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
   return (
@@ -16,13 +16,13 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
         <DisplayTvl />
       </div>
       <div className="mt-auto p-4">
-        <LinkButton
-          href={Links.GitHub}
+        <ExternalLink
+          href={ExternalLinks.GitHub}
           className="flex items-center justify-center gap-x-1.5"
         >
           <FaGithub />
           GitHub
-        </LinkButton>
+        </ExternalLink>
       </div>
     </div>
   );
