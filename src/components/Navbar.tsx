@@ -1,12 +1,12 @@
 import { FC } from "react";
 import { FaGithub } from "react-icons/fa";
 import { buttonVariants } from "./Button";
+
 import { cn } from "@utils/utils";
 import ConnectWalletButton from "./ConnectWalletButton";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { Heading } from "./Typography";
-import { CommonLink } from "@utils/utils";
 
 const NETWORK_ICON_SIZE = 24;
 
@@ -18,8 +18,11 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex sm:hidden">
-          <LinkButton href={CommonLink.GitHub} className="gap-x-1.5">
+        <div className="hidden sm:flex">
+          <LinkButton
+            href="https://github.com/yurixander/erc20-vault"
+            className="gap-x-1.5"
+          >
             <FaGithub />
             GitHub
           </LinkButton>
@@ -77,7 +80,7 @@ const LinkButton: FC<LinkButtonProps> = ({ className, href, children }) => {
       className={cn(
         "select-none ",
         className,
-        buttonVariants({ variant: "ghost" }),
+        buttonVariants({ variant: "ghost" })
       )}
     >
       {children}
