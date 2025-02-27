@@ -5,6 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export enum NavLink {
+export enum CommonLink {
   GitHub = "https://github.com/yurixander/erc20-vault",
 }
