@@ -18,7 +18,7 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex md:hidden">
+        <div className="block md:hidden">
           <LinkButton href={NavLink.GitHub} className="gap-x-1.5">
             <FaGithub />
             GitHub
@@ -48,6 +48,7 @@ const Navbar: FC = () => {
                     )}
 
                     {chain.name}
+
                     <ChevronDownIcon className="size-5" />
                   </button>
                 )}
