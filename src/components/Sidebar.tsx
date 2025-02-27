@@ -2,7 +2,7 @@ import { cn } from "@utils/utils";
 import { FC } from "react";
 import DisplayTvl from "./DisplayTvl";
 import { FaGithub } from "react-icons/fa";
-import { ExternalLinks } from "@utils/utils";
+import { NavLink } from "@utils/utils";
 import ExternalLink from "./ExternalLink";
 
 const AppSidebar: FC<{ className?: string }> = ({ className }) => {
@@ -17,7 +17,7 @@ const AppSidebar: FC<{ className?: string }> = ({ className }) => {
       </div>
       <div className="mt-auto p-4">
         <ExternalLink
-          href={ExternalLinks.GitHub}
+          href={NavLink.GitHub}
           className="flex items-center justify-center gap-x-1.5"
         >
           <FaGithub />
