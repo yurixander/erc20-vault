@@ -18,7 +18,7 @@ const Navbar: FC = () => {
 
       {/** Right side */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex md:hidden">
+        <div className="flex sm:hidden">
           <LinkButton href={CommonLink.GitHub} className="gap-x-1.5">
             <FaGithub />
             GitHub
